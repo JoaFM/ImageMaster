@@ -42,7 +42,7 @@ bool SwapChain::CreateSwapChain(
 	swap_chain_descr.Windowed = true;
 	swap_chain_descr.BufferDesc.Width = (UINT)m_Size.x;// m_CB_General.RenderBufferSize.x;
 	swap_chain_descr.BufferDesc.Height = (UINT)m_Size.y;// m_CB_General.RenderBufferSize.y;
-	swap_chain_descr.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;//DXGI_SWAP_EFFECT_SEQUENTIAL;//
+	swap_chain_descr.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;// DXGI_SWAP_EFFECT_FLIP_DISCARD;//DXGI_SWAP_EFFECT_SEQUENTIAL;//
 
 
 	D3D_FEATURE_LEVEL feature_level;

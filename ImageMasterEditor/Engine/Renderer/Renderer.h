@@ -19,6 +19,11 @@
 #include "SwapChain.h"
 #include "RenderTarget.h"
 
+#include "IMGUI/imgui.h"
+#include "IMGUI/imgui_impl_dx11.h"
+#include "IMGUI/imgui_impl_win32.h"
+#include "Buffer.h"
+#include "ComputeShader.h"
 
 class Renderer
 {
@@ -97,8 +102,13 @@ private:
 	std::unique_ptr<SwapChain> m_SwapChain = nullptr;
 
 	// Buffers
-
 	CB_General_Struct m_CB_General;
+
+	// Test compute
+	std::unique_ptr<Buffer> m_testBuffer = nullptr;
+	std::unique_ptr<RenderTarget> m_testRT = nullptr;
+	std::unique_ptr<ComputeShader> m_testCompute = nullptr;
+
 
 
 	RenderTarget* ActiveRenderTarget = nullptr;

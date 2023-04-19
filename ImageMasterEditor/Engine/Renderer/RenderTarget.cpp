@@ -25,13 +25,26 @@ bool RenderTarget::CreateTarget(INT32 Width, INT32 Height, UINT8 DGIFormat, Rend
 	textureDesc.Format = (DXGI_FORMAT)DGIFormat;
 	textureDesc.SampleDesc.Count = 1;
 	textureDesc.Usage = D3D11_USAGE_DEFAULT;
-	textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
 	textureDesc.MiscFlags = 0;
 
+
+	//#TODO 1st some of the settings may be off 
+	//#TODO https://stackoverflow.com/questions/44377201/directx-write-to-texture-with-compute-shader
 
 	TA_HRCHECK(Render->GetDevice()->CreateTexture2D(&textureDesc, nullptr, &m_textureBuffer), L"Clould not create renter tartget texture 2D");
 	TA_HRCHECK(Render->GetDevice()->CreateRenderTargetView(m_textureBuffer, nullptr, &m_RenderTargetView), L"Could not create a render target view for the texture");
 	TA_HRCHECK(Render->GetDevice()->CreateShaderResourceView(m_textureBuffer, nullptr, &m_SRV), L"Could not create a shader resource view for the texture");
+	
+	D3D11_UNORDERED_ACCESS_VIEW_DESC descBuf = {};
+
+	descBuf.Format = DXGI_FORMAT_UNKNOWN;
+	descBuf.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D; // or 1d,2d,3d
+	descBuf.Buffer.FirstElement = 0;
+	descBuf.Buffer.NumElements = m_Width* m_Height;
+	descBuf.Buffer.Flags = D3D11_BIND_UNORDERED_ACCESS; //https://docs.microsoft.com/en-us/windows/win32/api/d3d11/ne-d3d11-d3d11_buffer_uav_flag
+
+	TA_HRCHECK(Render->GetDevice()->CreateUnorderedAccessView(m_textureBuffer, &descBuf, &m_UAV), L"Failed to make view UAV for buffer");
 
 	CreateStencilBuffer(Render);
 	//OnNameOpdate();
@@ -61,6 +74,8 @@ void RenderTarget::Release()
 	TA_SAFERELEASE(m_RenderTargetView);
 	TA_SAFERELEASE(m_DepthStencilBuffer);
 	TA_SAFERELEASE(m_DepthStencilView);
+	TA_SAFERELEASE(m_UAV);
+	
 }
 
 void RenderTarget::Bind(Renderer* Render)
@@ -94,6 +109,11 @@ void RenderTarget::ClearDepth(Renderer* Render)
 	{
 		//TA_ERROR_C("RT's m_DepthStencilView not valid to clear");
 	}
+}
+
+struct ID3D11UnorderedAccessView* RenderTarget::GetUAV()
+{
+	return m_UAV;
 }
 
 void RenderTarget::CreateStencilBuffer(Renderer* Render)

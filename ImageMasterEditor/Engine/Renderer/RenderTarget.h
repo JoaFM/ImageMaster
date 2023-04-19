@@ -16,6 +16,7 @@ public:
 
 	void Bind(class Renderer* Render);
 	void Clear(float R, float G, float B, float A, class Renderer* Render);
+	struct ID3D11UnorderedAccessView* GetUAV();
 
 
 
@@ -33,7 +34,7 @@ private:
 	//Depth and stencil
 	ID3D11Texture2D* m_DepthStencilBuffer = nullptr;
 	ID3D11DepthStencilView* m_DepthStencilView = nullptr;
-
+	ID3D11UnorderedAccessView* m_UAV = nullptr;
 
 public:
 

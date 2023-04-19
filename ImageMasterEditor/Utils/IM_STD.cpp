@@ -2,6 +2,7 @@
 
 void TAError::ErrorWS(std::wstring ErrorToAdd) const
 {
+	OutputDebugString(ErrorToAdd.c_str());
 }
 
 void TAError::ErrorC(char* ErrorToAdd) const

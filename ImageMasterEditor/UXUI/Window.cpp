@@ -5,8 +5,16 @@
 #include <windowsx.h>
 #include "Utils/IM_Math.h"
 
+#include "IMGUI/imgui_impl_win32.h"
+
+extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+
 LRESULT CALLBACK WindowProcR(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	if (ImGui_ImplWin32_WndProcHandler(hwnd, uMsg, wParam, lParam))
+		return true;
+
 	switch (uMsg)
 	{
 	case WM_DESTROY:
@@ -15,6 +23,7 @@ LRESULT CALLBACK WindowProcR(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	}
 	return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
+
 
 Window::Window(HINSTANCE hInstanceParam)
 	:
