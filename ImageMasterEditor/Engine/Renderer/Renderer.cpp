@@ -50,23 +50,38 @@ void Renderer::Init(IM_Math::Int2 size, Window* MainWindow)
 // 		m_testCompute->SetRT(m_OutputRT.get());
 
 		
-		{
-			// This is just hte shader that shows the texture on the viewport mesh. Worth investigating a proper post process chain
-			m_ViewportMeshShader = std::make_unique<Shader>();
-			//m_TestShader->SetTexture(L"mytexture", m_OutputRT.get()); Come from active project
-			m_ViewportMeshShader->SetShaderPath(std::wstring(L"D:/Code/ImageMaster/Content/Shaders/Shader2.hlsl"));
-			m_ViewportMeshShader->LoadReload(this);
-			m_ViewportMesh->SetShader(m_ViewportMeshShader.get());
-		}
+		m_ViewportMesh->SetShader(L"Default");
 	}
 
 	// IMGUI
 	Setup_IMGUI(MainWindow);
 }
 
-void Renderer::SetOutputRT(class RenderTarget* OutputRTParam)
+bool Renderer::BindShader(std::wstring ShaderName)
 {
-	m_ViewportMeshShader->SetTexture(L"mytexture", OutputRTParam);
+	if (m_LoadedShaders.contains(ShaderName))
+	{
+		m_LoadedShaders[ShaderName]->Bind(this);
+		CurrentBoundShader = m_LoadedShaders[ShaderName].get();
+		return true;
+	}
+	else
+	{
+		m_LoadedShaders[L"Default"]->Bind(this);
+		CurrentBoundShader = m_LoadedShaders[L"Default"].get();
+		return false;
+	}
+}
+
+void Renderer::UnbindCurrentShader()
+{
+	CurrentBoundShader->UnBind(this);
+	CurrentBoundShader = nullptr;
+}
+
+void Renderer::SetOutputRT(class RenderTarget* DisplayTexture)
+{
+	m_LoadedShaders[L"Default"]->SetTexture(L"DisplayTexture", DisplayTexture);
 }
 
 void Renderer::Setup_IMGUI(Window* MainWindow)
@@ -368,6 +383,53 @@ void Renderer::CheckWindowSize(Window* MainWindow)
 	D3D11_VIEWPORT vp = CreateViewport();
 	m_Device_Context->RSSetViewports(1, &vp);
 	TA_WARN_WS(L"Resized window");
+}
+
+void Renderer::RefreshShaders(std::vector<std::wstring> FoundShaders)
+{
+	{// delete removed shaders
+
+		std::set<std::wstring> CurrentShaders;
+		for (auto& shader : m_LoadedShaders)
+		{
+
+			CurrentShaders.insert(shader.first);
+		}
+
+		for (auto& Exisitingshader : FoundShaders)
+		{
+			std::filesystem::path p(Exisitingshader);
+			std::wstring fileName = p.stem();
+			CurrentShaders.erase(fileName);
+		}
+
+		for (auto& ShaderToDelete : CurrentShaders)
+		{
+			m_LoadedShaders.erase(ShaderToDelete);
+		}
+	}
+
+
+
+	for (std::wstring& ShaderToProcess : FoundShaders)
+	{
+
+		std::filesystem::path p(ShaderToProcess.c_str());
+		std::wstring fileName = p.stem();
+
+		if (!m_LoadedShaders.contains(fileName) || m_LoadedShaders[fileName] == nullptr)
+		{
+			m_LoadedShaders[fileName] = std::make_unique<Shader>();
+		}
+	
+
+		m_LoadedShaders[fileName]->SetShaderPath(ShaderToProcess);
+		m_LoadedShaders[fileName]->LoadReload(this);
+
+	}
+
+	
+
 }
 
 void Renderer::SetupGeneral_CB()

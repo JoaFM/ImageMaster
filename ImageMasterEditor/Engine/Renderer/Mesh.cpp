@@ -60,11 +60,6 @@ void Mesh::SetTransfrom(IM_Math::Transfrom NewTransform)
 	m_Transform = NewTransform;
 }
 
-void Mesh::SetShader(Shader* MeshShader_Param)
-{
-	m_MyShader = MeshShader_Param;
-}
-
 void Mesh::Render(class Renderer* renderer)
 {
 	ID3D11DeviceContext* Device_Context = renderer->GetDeviceContext();
@@ -73,9 +68,11 @@ void Mesh::Render(class Renderer* renderer)
 	ID3D11Buffer* VB = GetVertexBuffer();
 	Device_Context->IASetVertexBuffers(0, 1, &VB, &GetVerStride(), &Offset);
 
-	m_MyShader->Bind(renderer);
+	renderer->BindShader(m_ShaderName);
+	
 	Device_Context->DrawInstanced(GetVertCount(), m_InstanceCount, 0, 0);
-	m_MyShader->UnBind(renderer);
+
+	renderer->UnbindCurrentShader();
 
 }
 

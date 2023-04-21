@@ -1,7 +1,8 @@
 #include "Editor.h"
 
-void MasterEditor::Start(HINSTANCE hInstance)
+MasterEditor::MasterEditor(std::wstring RootPath, HINSTANCE hInstance)
 {
+	m_RootPath = RootPath;
 	m_Window = std::make_unique<Window>(hInstance);
 	m_Window->Init(1280, 720);
 	m_Window->ShowTheWindow();
@@ -11,15 +12,19 @@ void MasterEditor::Start(HINSTANCE hInstance)
 
 	m_MainWindowUI = std::make_unique<MainWindowUI>(m_Window.get());
 
+	RefreshAssets();
+
 #ifdef _DEBUG
 	AddProject(std::wstring(L"Editor test"));
 #endif // DEBUG
 
 }
 
+
+
 void MasterEditor::StartBlockingLoop()
 {
-	OutputDebugStringA("\n  StartBlockingLoop \n\n");
+	OutputDebugStringA(">>>>  Start App Loop ");
 	auto t_start = std::chrono::high_resolution_clock::now();
 	auto t_end = std::chrono::high_resolution_clock::now();
 
@@ -105,5 +110,21 @@ void MasterEditor::Behaviors()
 	m_ActiveProject->SetCameraOffset(CurrentOffset);
 
 
+}
+
+void MasterEditor::RefreshAssets()
+{
+	std::wstring ContentFolder = m_RootPath + L"\\Content";
+	std::wstring ShaderFolder = ContentFolder + L"\\Shaders";
+
+	std::vector<std::wstring> FoundShaders;
+	for (const auto& entry : std::filesystem::directory_iterator(ShaderFolder))
+	{
+		std::wstring FoundShader(L"\n>>> Shader :");
+		FoundShaders.push_back(entry.path().c_str());
+		FoundShader += entry.path().c_str();
+		OutputDebugStringW(FoundShader.c_str());
+	}
+	m_Renderer->RefreshShaders(FoundShaders);
 }
 

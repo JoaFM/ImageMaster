@@ -42,8 +42,6 @@ private:
 	INT32 m_Triangle_VertexCount = 0;
 	INT32 m_InstanceCount = 1;
 
-	// shading
-	class Shader* m_MyShader = nullptr;
 
 	// LocationData
 	IM_Math::Transfrom m_Transform;
@@ -63,14 +61,17 @@ public:
 	INT32 GetVertCount() { return m_Triangle_VertexCount; };
 
 	//Shader
-	void SetShader(Shader* MeshShader_Param);
+	void SetShader(std::wstring shaderName) { m_ShaderName = shaderName; };
+	std::wstring GetShader() const { return m_ShaderName; }
+
 	void SetInstanceCount(INT32 InstanceCount);
 
 	//Rendering
 	struct ID3D11Buffer* GetVertexBuffer() { return m_Vertex_Buffer; };
-	class Shader* GetShader() { return m_MyShader; }
 	void Render(class Renderer* renderer);
 
+private:
+	std::wstring m_ShaderName = L"Default";
 
 };
 

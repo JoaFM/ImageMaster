@@ -8,24 +8,28 @@
 class MasterEditor
 {
 public:
-	
-
-	void Start(HINSTANCE hInstance);
+	//System
+	MasterEditor(std::wstring RootPath, HINSTANCE hInstance);
 	void StartBlockingLoop();
 
+	// tools
 	void AddProject(std::wstring ProjectName);
+
 private:
 	//System
 	std::unique_ptr<Window> m_Window;
 	std::unique_ptr<Renderer> m_Renderer;
 	std::unique_ptr<MainWindowUI> m_MainWindowUI;
+	//--
 	double m_deltaTime = -1;
+	std::wstring m_RootPath = L"";
 	void DrawUI();
 
 	// Workspace
 	std::vector<std::unique_ptr<ImageProject>> m_Projects;
 	ImageProject* m_ActiveProject = nullptr;
 	INT32 ActiveProjectIndex = -1;
+	void RefreshAssets();
 
 	//--------- Behaviors
 	void Behaviors();

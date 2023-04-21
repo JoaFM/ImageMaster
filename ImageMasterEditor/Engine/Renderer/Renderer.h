@@ -37,6 +37,8 @@ public:
 //management
 	void Init(IM_Math::Int2 size, class Window* MainWindow);
 
+	bool BindShader(std::wstring ShaderName);
+	void UnbindCurrentShader();
 public:
 
 	//Internal for rendering
@@ -89,7 +91,6 @@ private:
 	std::unique_ptr<Camera> m_ViewportCamera = nullptr;
 	RenderTarget* m_ActiveRenderTarget = nullptr;
 	std::unique_ptr<Mesh> m_ViewportMesh = nullptr;
-	std::unique_ptr<Shader> m_ViewportMeshShader = nullptr;
 
 	//------- Startup ----------
 	void InternalSetRenderTarget(RenderTarget* RTarget);
@@ -107,6 +108,8 @@ private:
 	// Data
 
 	std::vector<D3D_SHADER_MACRO> m_GlobalHashDefines;
-
+	std::map<std::wstring, std::unique_ptr<Shader>> m_LoadedShaders;
+	Shader* CurrentBoundShader = nullptr;
 public:
+	void RefreshShaders(std::vector<std::wstring> FoundShaders);
 };
