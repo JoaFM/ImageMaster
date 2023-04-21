@@ -385,47 +385,76 @@ void Renderer::CheckWindowSize(Window* MainWindow)
 	TA_WARN_WS(L"Resized window");
 }
 
-void Renderer::RefreshShaders(std::vector<std::wstring> FoundShaders)
+void Renderer::RefreshShaders(std::vector<std::wstring> FoundShaders, std::vector<std::wstring> FoundComputeShaders)
 {
-	{// delete removed shaders
+	{
+		{// delete removed shaders
 
-		std::set<std::wstring> CurrentShaders;
-		for (auto& shader : m_LoadedShaders)
-		{
+			std::set<std::wstring> CurrentShaders;
+			for (auto& shader : m_LoadedShaders)
+			{
+				CurrentShaders.insert(shader.first);
+			}
 
-			CurrentShaders.insert(shader.first);
+			for (auto& Exisitingshader : FoundShaders)
+			{
+				std::filesystem::path p(Exisitingshader);
+				std::wstring fileName = p.stem();
+				CurrentShaders.erase(fileName);
+			}
+
+			for (auto& ShaderToDelete : CurrentShaders)
+			{
+				m_LoadedShaders.erase(ShaderToDelete);
+			}
 		}
 
-		for (auto& Exisitingshader : FoundShaders)
+		for (std::wstring& ShaderToProcess : FoundShaders)
 		{
-			std::filesystem::path p(Exisitingshader);
+			std::filesystem::path p(ShaderToProcess.c_str());
 			std::wstring fileName = p.stem();
-			CurrentShaders.erase(fileName);
-		}
-
-		for (auto& ShaderToDelete : CurrentShaders)
-		{
-			m_LoadedShaders.erase(ShaderToDelete);
+			if (!m_LoadedShaders.contains(fileName) || m_LoadedShaders[fileName] == nullptr)
+			{
+				m_LoadedShaders[fileName] = std::make_unique<Shader>();
+			}
+			m_LoadedShaders[fileName]->SetShaderPath(ShaderToProcess);
+			m_LoadedShaders[fileName]->LoadReload(this);
 		}
 	}
 
-
-
-	for (std::wstring& ShaderToProcess : FoundShaders)
 	{
+		{// delete removed shaders
 
-		std::filesystem::path p(ShaderToProcess.c_str());
-		std::wstring fileName = p.stem();
+			std::set<std::wstring> CurrentShaders;
+			for (auto& shader : m_LoadedComputeShaders)
+			{
+				CurrentShaders.insert(shader.first);
+			}
 
-		if (!m_LoadedShaders.contains(fileName) || m_LoadedShaders[fileName] == nullptr)
-		{
-			m_LoadedShaders[fileName] = std::make_unique<Shader>();
+			for (auto& Exisitingshader : FoundComputeShaders)
+			{
+				std::filesystem::path p(Exisitingshader);
+				std::wstring fileName = p.stem();
+				CurrentShaders.erase(fileName);
+			}
+
+			for (auto& ShaderToDelete : CurrentShaders)
+			{
+				m_LoadedComputeShaders.erase(ShaderToDelete);
+			}
 		}
-	
 
-		m_LoadedShaders[fileName]->SetShaderPath(ShaderToProcess);
-		m_LoadedShaders[fileName]->LoadReload(this);
-
+		for (std::wstring& ShaderToProcess : FoundComputeShaders)
+		{
+			std::filesystem::path p(ShaderToProcess.c_str());
+			std::wstring fileName = p.stem();
+			if (!m_LoadedComputeShaders.contains(fileName) || m_LoadedComputeShaders[fileName] == nullptr)
+			{
+				m_LoadedComputeShaders[fileName] = std::make_unique<ComputeShader>();
+			}
+			m_LoadedComputeShaders[fileName]->SetShaderPath(ShaderToProcess);
+			m_LoadedComputeShaders[fileName]->LoadReload(GetDevice());
+		}
 	}
 
 	

@@ -109,7 +109,8 @@ private:
 
 	std::vector<D3D_SHADER_MACRO> m_GlobalHashDefines;
 	std::map<std::wstring, std::unique_ptr<Shader>> m_LoadedShaders;
+	std::map<std::wstring, std::unique_ptr<ComputeShader>> m_LoadedComputeShaders;
 	Shader* CurrentBoundShader = nullptr;
 public:
-	void RefreshShaders(std::vector<std::wstring> FoundShaders);
+	void RefreshShaders(std::vector<std::wstring> FoundShaders, std::vector<std::wstring> FoundComputeShaders);
 };

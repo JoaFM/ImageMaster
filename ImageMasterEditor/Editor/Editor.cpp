@@ -114,17 +114,36 @@ void MasterEditor::Behaviors()
 
 void MasterEditor::RefreshAssets()
 {
+	OutputDebugStringW(L"\n----- Loading Assets ---- \n");
+	OutputDebugStringW(L"--- Reading Shaders");
+
 	std::wstring ContentFolder = m_RootPath + L"\\Content";
 	std::wstring ShaderFolder = ContentFolder + L"\\Shaders";
+	std::wstring ComputeShaderFolder = ContentFolder + L"\\ComputeShaders";
 
 	std::vector<std::wstring> FoundShaders;
 	for (const auto& entry : std::filesystem::directory_iterator(ShaderFolder))
 	{
-		std::wstring FoundShader(L"\n>>> Shader :");
+		std::wstring FoundShader(L"\n>>> Shader :\t");
 		FoundShaders.push_back(entry.path().c_str());
 		FoundShader += entry.path().c_str();
 		OutputDebugStringW(FoundShader.c_str());
 	}
-	m_Renderer->RefreshShaders(FoundShaders);
+
+	std::vector<std::wstring> FoundComputeShaders;
+	for (const auto& entry : std::filesystem::directory_iterator(ComputeShaderFolder))
+	{
+		std::wstring FoundShader(L"\n>>> ComputeShader :\t");
+		FoundComputeShaders.push_back(entry.path().c_str());
+		FoundShader += entry.path().c_str();
+		OutputDebugStringW(FoundShader.c_str());
+	}
+
+	OutputDebugStringW(L"\n--- Loading Shaders\n");
+	m_Renderer->RefreshShaders(FoundShaders, FoundComputeShaders);
+	OutputDebugStringW(L"--- Shaders Done \n");
+	OutputDebugStringW(L"----- Finish Loading Assets ---- \n");
+
+
 }
 
