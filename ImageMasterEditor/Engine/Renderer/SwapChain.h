@@ -1,6 +1,6 @@
 #pragma once
 #include "MainApp/Default_Headers.h"
-#include "Texture.h"
+#include "Engine/Renderer/Texture.h"
 #include "RenderTarget.h"
 
 class SwapChain : public Texture

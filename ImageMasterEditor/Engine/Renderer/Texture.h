@@ -1,8 +1,9 @@
 #pragma once
 
 #include "MainApp/Default_Headers.h"
+#include "RenderTypes.h"
 
-class Texture 
+class Texture
 {
 public:
 	Texture();
@@ -10,6 +11,8 @@ public:
 
 
 	struct ID3D11ShaderResourceView* GetSRV() { return m_SRV; }
+	void SetSampler(RenderTypes::DefaultSamplers NewSampler) { m_MySampler = NewSampler; }
+	RenderTypes::DefaultSamplers GetSampler() { return m_MySampler; }
 
 protected:
 	bool LoadedAndValid = false;
@@ -18,6 +21,7 @@ protected:
 	void Release();
 
 private:
+	RenderTypes::DefaultSamplers m_MySampler = RenderTypes::DefaultSamplers::Sampler_WrapPoint;
 
 };
 

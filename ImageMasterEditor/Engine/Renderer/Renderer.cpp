@@ -11,37 +11,49 @@ void Renderer::Init(IM_Math::Int2 size, Window* MainWindow)
 	m_CB_General.RenderBufferSize.x = m_CB_General.DisplayWindowSize.x = (float)size.x;
 	m_CB_General.RenderBufferSize.y = m_CB_General.DisplayWindowSize.y = (float)size.y;
 	CreateSwapChain(MainWindow);
+	SetupGlobalHashDefines();
+	SetupGeneral_CB();
+	CreateDefaultSamplers();
+	CreateDefaultBlendStates();
+	SetStencilState(true);
 
 
-	//m_testBuffer = std::make_unique<Buffer>();;
-	m_testRT = std::make_unique<RenderTarget>();;
+	{ // test setup
 
-	// So if i want to write it needs to be unorderd but then cant updlaod??
-	// with is right height is 0 ??
-	//m_testBuffer->Setup(16, 128 * 128, Buffer::UNORDERED, GetDevice());
 
-// 	UINT8* data = new UINT8[128 * 128 * 4];
-// 
-// 	for (INT32 x = 0; x < 128; x++)
-// 	{
-// 		for (INT32 y = 0; y < 128; y++)
-// 		{
-// 			INT32 index = (x + (y * 128)) *4;
-// 			data[index] = x;
-// 			data[index + 1] = y;
-// 			data[index + 2] = 0;
-// 			data[index + 3] = 255;
-// 		}
-// 	}
-	//m_testBuffer->UpdateBufferData(data, 128 * 128 * 4, GetDeviceContext());
-	//delete[] data;
-	
-	m_testRT->CreateTarget(128, 128, DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT, this);
+		m_testRT = std::make_unique<RenderTarget>();;
+		m_Testmesh = std::make_unique<Mesh>();
 
-	m_testCompute = std::make_unique<ComputeShader>();;
-	m_testCompute->SetShaderPath(std::wstring(L"D:/Code/ImageMaster/Content/Shaders/BasicComputeShader.hlsl"));
-	m_testCompute->LoadReload(GetDevice());
-	m_testCompute->SetRT(m_testRT.get());
+		m_testRT->CreateTarget(128, 128, DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT, this);
+
+		m_TestCamera = std::make_unique<Camera>();;
+
+		Camera::CameraData CamData;
+		m_TestCamera->UpdateCamera(CamData);
+
+		m_testCompute = std::make_unique<ComputeShader>();;
+		m_testCompute->SetShaderPath(std::wstring(L"D:/Code/ImageMaster/Content/Shaders/BasicComputeShader.hlsl"));
+		m_testCompute->LoadReload(GetDevice());
+		m_testCompute->SetRT(m_testRT.get());
+
+		m_TestShader = std::make_unique<Shader>();
+		m_TestShader->SetTexture(L"mytexture", m_testRT.get());
+		m_TestShader->SetShaderPath(std::wstring(L"D:/Code/ImageMaster/Content/Shaders/Shader2.hlsl"));
+		m_TestShader->LoadReload(this);
+
+		Mesh::VertData* NewMesh = new  Mesh::VertData[6];
+		NewMesh[0] = Mesh::VertData(200, 50, 0, 0, 0);
+		NewMesh[1] = Mesh::VertData(300, 50, 5, 1, 0);
+		NewMesh[2] = Mesh::VertData(200, 100, 5, 0, 1);
+		NewMesh[3] = Mesh::VertData(200, 100, 5, 0, 1);
+		NewMesh[4] = Mesh::VertData(300, 50, 5, 1, 0);
+		NewMesh[5] = Mesh::VertData(300, 100, 0, 1, 1);
+
+
+		m_Testmesh->SetData(this, NewMesh, 6);
+		m_Testmesh->SetShader(m_TestShader.get());
+	}
+
 	// IMGUI
 
 	IMGUI_CHECKVERSION();
@@ -73,18 +85,28 @@ void Renderer::CreateSwapChain(Window* MainWindow)
 
 }
 
-void Renderer::Tick()
+void Renderer::DrawMesh(Mesh* meshToDraw)
 {
+	m_CB_PerScreenSprite.ObjectToWorld = meshToDraw->GetTransform().GetMatrix();
+	m_Device_Context->UpdateSubresource(m_ConstantBuffers[(UINT)RenderTypes::ConstanBuffer::CB_PerScreenSprite], 0, nullptr, &m_CB_PerScreenSprite, 0, 0);
+	m_Device_Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	meshToDraw->Render(this);
+}
+
+
+void Renderer::Tick(Window* MainWindow)
+{
+	ReadyNextFrame(MainWindow);
 	if (ActiveRenderTarget)
 	{
-		ActiveRenderTarget->Clear(0.1f, 0.2f, 0.6f, 1.0f, this);
 
-		if (m_testCompute->Bind(GetDeviceContext()))
-		{
-			m_testCompute->Dispatch(GetDeviceContext(), 16, 16, 1);
-			m_testCompute->UnBind(GetDeviceContext());
-		}
 
+		DrawMesh(m_Testmesh.get());
+
+		
+		
+		
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
@@ -150,8 +172,334 @@ void Renderer::Tick()
 	}
 }
 
+std::vector<D3D_SHADER_MACRO> Renderer::GetGlobalHashDefines()
+{
+	return m_GlobalHashDefines;
+}
+
 void Renderer::InternalSetRenderTarget(RenderTarget* NewRT)
 {
 	ActiveRenderTarget = NewRT;
 	ActiveRenderTarget->Bind(this);
+}
+
+void Renderer::SetupGlobalHashDefines()
+{
+	// Add any #defines you want
+
+// 	{
+// 		CBDefines.clear();
+// 		CBDefines += CB_General_Struct::GetHeaderDefine();
+// 		CBDefines += CB_PerScreenSprite_Struct::GetHeaderDefine();
+// 		
+// 		D3D_SHADER_MACRO Macro;
+// 		Macro.Name = "GLOBALDEFINE";
+// 		Macro.Definition = CBDefines.c_str();
+// 		m_GlobalHashDefines.push_back(Macro);
+// 
+// 	}
+
+
+	//Just need to do this. Who knows why, it is in the documentation
+	{
+		D3D_SHADER_MACRO NullTernination;
+		NullTernination.Name = NullTernination.Definition = nullptr;
+		m_GlobalHashDefines.push_back(NullTernination);
+	}
+}
+
+void Renderer::CreateDefaultSamplers()
+{
+	D3D11_SAMPLER_DESC samplerDesc = {};
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	TA_HRCHECK_Simple(
+		GetDevice()->CreateSamplerState(&samplerDesc, &m_Samplers[(INT32)RenderTypes::DefaultSamplers::Sampler_WrapPoint]),
+		L"failed to make Sampler_WrapPoint"
+	);
+
+	TAUtils::SetDebugObjectName(m_Samplers[(INT32)RenderTypes::DefaultSamplers::Sampler_WrapPoint], "Sampler_WrapPoint");
+
+	samplerDesc = {};
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	TA_HRCHECK_Simple(
+		GetDevice()->CreateSamplerState(&samplerDesc, &m_Samplers[(INT32)RenderTypes::DefaultSamplers::Sampler_ClmapPoint]),
+		L"failed to make Sampler_WrapPoint"
+	);
+
+	TAUtils::SetDebugObjectName(m_Samplers[(INT32)RenderTypes::DefaultSamplers::Sampler_ClmapPoint], "Sampler_ClmapPoint");
+
+	samplerDesc = {};
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	TA_HRCHECK_Simple(
+		GetDevice()->CreateSamplerState(&samplerDesc, &m_Samplers[(INT32)RenderTypes::DefaultSamplers::Sampler_WrapLinear]),
+		L"failed to make Sampler_WrapPoint"
+	);
+	TAUtils::SetDebugObjectName(m_Samplers[(INT32)RenderTypes::DefaultSamplers::Sampler_WrapLinear], "Sampler_WrapLinear");
+
+	samplerDesc = {};
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	TA_HRCHECK_Simple(
+		GetDevice()->CreateSamplerState(&samplerDesc, &m_Samplers[(INT32)RenderTypes::DefaultSamplers::Sampler_ClmapLinear]),
+		L"failed to make Sampler_WrapPoint"
+	);
+	TAUtils::SetDebugObjectName(m_Samplers[(INT32)RenderTypes::DefaultSamplers::Sampler_ClmapLinear], "Sampler_ClmapLinear");
+
+}
+
+
+void Renderer::CreateDefaultBlendStates()
+{
+	D3D11_BLEND_DESC BlendState = { 0 };
+	//----------Default -----------
+	BlendState.RenderTarget[0].BlendEnable = false;
+	BlendState.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	GetDevice()->CreateBlendState(&BlendState, &m_Blendstates[(INT32)Shader::BlendMode::Default]);
+	TAUtils::SetDebugObjectName(m_Blendstates[(INT32)Shader::BlendMode::Default], "BlendMode::Default");
+
+
+	//---------- AlphaBlend -----------
+	BlendState.RenderTarget[0].BlendEnable = true;
+	BlendState.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	BlendState.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	BlendState.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	BlendState.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	BlendState.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	BlendState.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	BlendState.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	GetDevice()->CreateBlendState(&BlendState, &m_Blendstates[(INT32)Shader::BlendMode::AlphaBlend]);
+	TAUtils::SetDebugObjectName(m_Blendstates[(INT32)Shader::BlendMode::AlphaBlend], "BlendMode::AlphaBlend");
+
+
+	//------- Addetive --------------
+	BlendState.RenderTarget[0].BlendEnable = true;
+	BlendState.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_COLOR;
+	BlendState.RenderTarget[0].DestBlend = D3D11_BLEND_DEST_COLOR;
+	BlendState.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	BlendState.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	BlendState.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	BlendState.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	BlendState.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	GetDevice()->CreateBlendState(&BlendState, &m_Blendstates[(INT32)Shader::BlendMode::Addetive]);
+	TAUtils::SetDebugObjectName(m_Blendstates[(INT32)Shader::BlendMode::Addetive], "BlendMode::Addetive");
+
+
+	//------- AlphaMask --------------
+	BlendState.RenderTarget[0].BlendEnable = true;
+	BlendState.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_COLOR;
+	BlendState.RenderTarget[0].DestBlend = D3D11_BLEND_ZERO;
+	BlendState.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	BlendState.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	BlendState.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	BlendState.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	BlendState.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	GetDevice()->CreateBlendState(&BlendState, &m_Blendstates[(INT32)Shader::BlendMode::AlphaMask]);
+	TAUtils::SetDebugObjectName(m_Blendstates[(INT32)Shader::BlendMode::AlphaMask], "BlendMode::AlphaMask");
+}
+
+
+void Renderer::SetStencilState(bool EnableDepthTesting)
+{
+	if (EnableDepthTesting == m_EnableDepthTesting) return;
+	m_EnableDepthTesting = EnableDepthTesting;
+	////////// ------------- Create State ----------/////
+
+	D3D11_DEPTH_STENCIL_DESC dsDesc = { 0 };
+
+
+	// Depth test parameters
+	dsDesc.DepthEnable = m_EnableDepthTesting;
+	dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
+
+	// Stencil test parameters
+	dsDesc.StencilEnable = false;
+	dsDesc.StencilReadMask = 0xFF;
+	dsDesc.StencilWriteMask = 0xFF;
+
+	// Stencil operations if pixel is front-facing
+	dsDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	dsDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+	dsDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	dsDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	// Stencil operations if pixel is back-facing
+	dsDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	dsDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+	dsDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	dsDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	// Create depth stencil state
+
+	TA_SAFERELEASE(m_CurrentStencilState);
+	GetDevice()->CreateDepthStencilState(&dsDesc, &m_CurrentStencilState);
+	GetDeviceContext()->OMSetDepthStencilState(m_CurrentStencilState, 1);
+	TAUtils::SetDebugObjectName(m_CurrentStencilState, "m_CurrentStencilState");
+
+}
+
+void Renderer::SetRasterizer(bool Wireframe, bool backfaceCulling)
+{
+	TA_SAFERELEASE(m_CurrentRasterState);
+	D3D11_RASTERIZER_DESC wfdesc;
+	ZeroMemory(&wfdesc, sizeof(D3D11_RASTERIZER_DESC));
+	wfdesc.DepthClipEnable = true;
+	wfdesc.FillMode = Wireframe ? D3D11_FILL_WIREFRAME : D3D11_FILL_SOLID;
+	wfdesc.CullMode = backfaceCulling ? D3D11_CULL_BACK : D3D11_CULL_NONE;
+	wfdesc.MultisampleEnable = true;// Defined bt RT
+	GetDevice()->CreateRasterizerState(&wfdesc, &m_CurrentRasterState);
+	GetDeviceContext()->RSSetState(m_CurrentRasterState);
+	TAUtils::SetDebugObjectName(m_CurrentRasterState, "m_CurrentRasterState");
+
+}
+
+void Renderer::SetBlendState(Shader::BlendMode NewBlendMode)
+{
+	float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	UINT sampleMask = 0xffffffff;
+	GetDeviceContext()->OMSetBlendState(m_Blendstates[(INT32)NewBlendMode], blendFactor, sampleMask);
+}
+
+D3D11_VIEWPORT Renderer::CreateViewport()
+{
+	D3D11_VIEWPORT NewVP = { 0 };
+	NewVP.Width = (float)m_CB_General.DisplayWindowSize.x;
+	NewVP.Height = (float)m_CB_General.DisplayWindowSize.y;
+	NewVP.MinDepth = 0.0f;
+	NewVP.MaxDepth = 1.0f;
+	NewVP.TopLeftX = 0;
+	NewVP.TopLeftY = 0;
+	return NewVP;
+}
+
+void Renderer::CheckWindowSize(Window* MainWindow)
+{
+	// Would be better to do this through a callback. But this is simple and for now not that many cpu cycles;
+
+	RECT rect;
+	if (!MainWindow->GetTheWindowRect(&rect))
+	{
+		return;
+	}
+
+	int NewWidth = rect.right - rect.left;
+	int NewHeight = rect.bottom - rect.top;
+
+	if (m_CB_General.DisplayWindowSize.x == (float)NewWidth &&
+		m_CB_General.DisplayWindowSize.y == (float)NewHeight
+		)
+	{
+		return;
+	}
+
+	m_Device_Context->OMSetRenderTargets(0, 0, 0);
+
+	m_SwapChain->ResizeToWindow(this);
+
+	m_CB_General.DisplayWindowSize.x = (float)NewWidth;
+	m_CB_General.DisplayWindowSize.y = (float)NewHeight;
+
+	m_CB_General.RenderBufferSize.x = (float)m_SwapChain->GetSize().x;
+	m_CB_General.RenderBufferSize.y = (float)m_SwapChain->GetSize().y;
+
+	// Set up the viewport.
+	D3D11_VIEWPORT vp = CreateViewport();
+	m_Device_Context->RSSetViewports(1, &vp);
+	TA_WARN_WS(L"Resized window");
+}
+
+void Renderer::SetupGeneral_CB()
+{
+	D3D11_BUFFER_DESC constantBufferDesc;
+
+	ZeroMemory(&constantBufferDesc, sizeof(D3D11_BUFFER_DESC));
+	constantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	constantBufferDesc.ByteWidth = sizeof(RenderTypes::CB_General_Struct);
+	constantBufferDesc.CPUAccessFlags = 0;
+	constantBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	TA_HRCHECK_Simple(
+		m_Device->CreateBuffer(&constantBufferDesc, nullptr, &m_ConstantBuffers[(UINT)RenderTypes::ConstanBuffer::CB_General]),
+		L"failed to make constant buffer : CB_General"
+	);
+	TAUtils::SetDebugObjectName(m_ConstantBuffers[(UINT)RenderTypes::ConstanBuffer::CB_General], "ConstanBuffer::CB_General");
+
+	ZeroMemory(&constantBufferDesc, sizeof(D3D11_BUFFER_DESC));
+	constantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	constantBufferDesc.ByteWidth = sizeof(RenderTypes::CB_PerScreenSprite_Struct);
+	constantBufferDesc.CPUAccessFlags = 0;
+	constantBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	TA_HRCHECK_Simple(
+		m_Device->CreateBuffer(&constantBufferDesc, nullptr, &m_ConstantBuffers[(UINT)RenderTypes::ConstanBuffer::CB_PerScreenSprite]),
+		L"failed to make constant buffer : CB_PerScreenSprite"
+	);
+	TAUtils::SetDebugObjectName(m_ConstantBuffers[(UINT)RenderTypes::ConstanBuffer::CB_PerScreenSprite], "ConstanBuffer::CB_PerScreenSprite");
+
+}
+
+void Renderer::ReadyNextFrame(Window* window)
+{
+
+	ActiveRenderTarget->Bind(this);
+	ActiveRenderTarget->Clear(0.1f, 0.2f, 0.6f, 1.0f, this);
+
+	if (m_testCompute->Bind(GetDeviceContext()))
+	{
+		m_testCompute->Dispatch(GetDeviceContext(), 16, 16, 1);
+		m_testCompute->UnBind(GetDeviceContext());
+	}
+
+
+	CheckWindowSize(window);
+	m_SwapChain->GetRenderTarget()->Clear(m_CB_General.BackgroundColor.x, m_CB_General.BackgroundColor.y, m_CB_General.BackgroundColor.z, m_CB_General.BackgroundColor.w,this);
+
+	///////////////////////////////////////////////// /
+	// Update CBs
+	//////////////////////////////////////////////////
+
+	// General params --------------------------------
+	{
+
+		//Mouse
+		m_CB_General.MousePos.x = (float)window->GetMouseX();
+		m_CB_General.MousePos.y = (float)window->GetMouseY();
+		m_CB_General.ViewMatrix = m_TestCamera->GetViewMatrix();
+
+		m_TestCamera->SetCameraSizeX((float)m_CB_General.DisplayWindowSize.x);
+		m_TestCamera->SetCameraSizeY((float)m_CB_General.DisplayWindowSize.y);
+
+		m_CB_General.ProjectionMatrix = m_TestCamera->GetProjectionMatrix();
+
+		m_Device_Context->UpdateSubresource(m_ConstantBuffers[(UINT)RenderTypes::ConstanBuffer::CB_General], 0, nullptr, &m_CB_General, 0, 0);
+
+	}
+
+	/////////////////////// Viewport /////////////////////////
+	{
+		RECT winRect;
+		window->GetTheWindowRect(&winRect);
+
+		D3D11_VIEWPORT viewport = CreateViewport();
+		m_Device_Context->RSSetViewports(1, &viewport);
+		ActiveRenderTarget->Bind(this);
+		//m_Device_Context->OMSetRenderTargets(1, &m_RenderTargetView, m_DepthStencilView);
+
+	}
 }

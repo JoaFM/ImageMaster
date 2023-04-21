@@ -25,7 +25,7 @@ void MasterEditor::StartBlockingLoop()
 		m_deltaTime = std::chrono::duration<double, std::milli>(t_end - t_start).count();
 		t_start = std::chrono::high_resolution_clock::now();
 		 
-		m_Renderer->Tick();
+		m_Renderer->Tick(m_Window.get());
 		//m_Renderer->ReadyNextFrame();
 
 		//m_World->Tick((float)deltaTime);
