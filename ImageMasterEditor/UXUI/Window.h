@@ -225,6 +225,7 @@ public:
 	INT32 GetSwapChainWidth();
 	INT32 GetSwapChainHeight();
 
+	bool DoneAndWaitingToQuit() const;
 public:
 	void SetSwapChain(class SwapChain* WindowsSwapchain);
 	class SwapChain* GetSwapChain() { return m_SwapChain; }

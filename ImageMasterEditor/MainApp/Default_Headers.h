@@ -26,8 +26,6 @@
 #include <iosfwd>
 #include <iostream>     // std::cout
 #include <fstream>      // std::ifstream
-#include <string>
-
 
 // Tool
 

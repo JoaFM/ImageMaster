@@ -349,6 +349,11 @@ INT32 Window::GetSwapChainHeight()
 	return 0;
 }
 
+bool Window::DoneAndWaitingToQuit() const
+{
+	return !m_WaitingToQuit;
+}
+
 void Window::Present(UINT SyncInterval, UINT Flags)
 {
 	//m_SwapChain->Present(SyncInterval, Flags);

@@ -19,43 +19,58 @@ void Renderer::Init(IM_Math::Int2 size, Window* MainWindow)
 
 
 	{ // test setup
+		
+		// We assume one camera atm. Maybe later we have multi cam support
+		m_ViewportCamera = std::make_unique<Camera>();;
 
 
-		m_testRT = std::make_unique<RenderTarget>();;
-		m_Testmesh = std::make_unique<Mesh>();
-
-		m_testRT->CreateTarget(128, 128, DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT, this);
-
-		m_TestCamera = std::make_unique<Camera>();;
-
-		Camera::CameraData CamData;
-		m_TestCamera->UpdateCamera(CamData);
-
-		m_testCompute = std::make_unique<ComputeShader>();;
-		m_testCompute->SetShaderPath(std::wstring(L"D:/Code/ImageMaster/Content/Shaders/BasicComputeShader.hlsl"));
-		m_testCompute->LoadReload(GetDevice());
-		m_testCompute->SetRT(m_testRT.get());
-
-		m_TestShader = std::make_unique<Shader>();
-		m_TestShader->SetTexture(L"mytexture", m_testRT.get());
-		m_TestShader->SetShaderPath(std::wstring(L"D:/Code/ImageMaster/Content/Shaders/Shader2.hlsl"));
-		m_TestShader->LoadReload(this);
-
-		Mesh::VertData* NewMesh = new  Mesh::VertData[6];
-		NewMesh[0] = Mesh::VertData(200, 50, 0, 0, 0);
-		NewMesh[1] = Mesh::VertData(300, 50, 5, 1, 0);
-		NewMesh[2] = Mesh::VertData(200, 100, 5, 0, 1);
-		NewMesh[3] = Mesh::VertData(200, 100, 5, 0, 1);
-		NewMesh[4] = Mesh::VertData(300, 50, 5, 1, 0);
-		NewMesh[5] = Mesh::VertData(300, 100, 0, 1, 1);
+		// Setup rt: now in the project 
+// 		m_OutputRT = std::make_unique<RenderTarget>();;
+// 		m_OutputRT->CreateTarget(128, 128, DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT, this);
+		
+		{
+			// Set up the viewport mesh that we show the RT on. This will kind of work. But will not resize
+			m_ViewportMesh = std::make_unique<Mesh>();
+			Mesh::VertData* NewMesh = new  Mesh::VertData[6];
+			NewMesh[0] = Mesh::VertData(200, 50, 0, 0, 0);
+			NewMesh[1] = Mesh::VertData(300, 50, 5, 1, 0);
+			NewMesh[2] = Mesh::VertData(200, 100, 5, 0, 1);
+			NewMesh[3] = Mesh::VertData(200, 100, 5, 0, 1);
+			NewMesh[4] = Mesh::VertData(300, 50, 5, 1, 0);
+			NewMesh[5] = Mesh::VertData(300, 100, 0, 1, 1);
+			m_ViewportMesh->SetData(this, NewMesh, 6);
+		}
 
 
-		m_Testmesh->SetData(this, NewMesh, 6);
-		m_Testmesh->SetShader(m_TestShader.get());
+		//TODO: Load all shaders in a folder
+		// The list of shaders are then the blendmodes on the layer
+// 		m_testCompute = std::make_unique<ComputeShader>();;
+// 		m_testCompute->SetShaderPath(std::wstring(L"D:/Code/ImageMaster/Content/Shaders/BasicComputeShader.hlsl"));
+// 		m_testCompute->LoadReload(GetDevice());
+// 		m_testCompute->SetRT(m_OutputRT.get());
+
+		
+		{
+			// This is just hte shader that shows the texture on the viewport mesh. Worth investigating a proper post process chain
+			m_ViewportMeshShader = std::make_unique<Shader>();
+			//m_TestShader->SetTexture(L"mytexture", m_OutputRT.get()); Come from active project
+			m_ViewportMeshShader->SetShaderPath(std::wstring(L"D:/Code/ImageMaster/Content/Shaders/Shader2.hlsl"));
+			m_ViewportMeshShader->LoadReload(this);
+			m_ViewportMesh->SetShader(m_ViewportMeshShader.get());
+		}
 	}
 
 	// IMGUI
+	Setup_IMGUI(MainWindow);
+}
 
+void Renderer::SetOutputRT(class RenderTarget* OutputRTParam)
+{
+	m_ViewportMeshShader->SetTexture(L"mytexture", OutputRTParam);
+}
+
+void Renderer::Setup_IMGUI(Window* MainWindow)
+{
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
@@ -95,81 +110,10 @@ void Renderer::DrawMesh(Mesh* meshToDraw)
 }
 
 
-void Renderer::Tick(Window* MainWindow)
+void Renderer::Present(Window* MainWindow)
 {
-	ReadyNextFrame(MainWindow);
-	if (ActiveRenderTarget)
-	{
-
-
-		DrawMesh(m_Testmesh.get());
-
-		
-		
-		
-		ImGui_ImplDX11_NewFrame();
-		ImGui_ImplWin32_NewFrame();
-		ImGui::NewFrame();
-		ImGui::SetNextWindowPos(ImVec2(5, 30), 1);
-		ImGui::SetNextWindowSize(ImVec2(100, 720), 1);
-		
-		ImGui::SetNextWindowCollapsed(false, 1);
-		ImGui::Begin("Test",0, ImGuiWindowFlags_NoTitleBar);
-		ImGui::TextColored(ImVec4(1, 0, 0, 1), "Hello");
-
-		ImGui::End();
-
-		bool show_demo_window = true;
-		bool show_another_window = false;
-
-// 		// 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
-// 		{
-// 			static float f = 0.0f;
-// 			static int counter = 0;
-// 			ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-// 
-// 			ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-// 
-// 			ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-// 			ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-// 			ImGui::Checkbox("Another Window", &show_another_window);
-// 
-// 			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-// 			ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-// 
-// 			if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-// 				counter++;
-// 			ImGui::SameLine();
-// 			ImGui::Text("counter = %d", counter);
-// 
-// 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / 10, 10);
-// 			ImGui::End();
-// 		}
-
-
-		{
-			if (ImGui::BeginMainMenuBar())
-			{
-				if (ImGui::BeginMenu("File"))
-				{
-					if (ImGui::MenuItem("New"))
-					{
-						//Do something
-					}
-					ImGui::EndMenu();
-				}
-
-				ImGui::EndMainMenuBar();
-			}
-		}
-
-
-		ImGui::Render();
-		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
-
-		m_SwapChain->Present(1, 0);
-	}
+	DrawMesh(m_ViewportMesh.get());
+	m_SwapChain->Present(1, 0);
 }
 
 std::vector<D3D_SHADER_MACRO> Renderer::GetGlobalHashDefines()
@@ -179,8 +123,8 @@ std::vector<D3D_SHADER_MACRO> Renderer::GetGlobalHashDefines()
 
 void Renderer::InternalSetRenderTarget(RenderTarget* NewRT)
 {
-	ActiveRenderTarget = NewRT;
-	ActiveRenderTarget->Bind(this);
+	m_ActiveRenderTarget = NewRT;
+	m_ActiveRenderTarget->Bind(this);
 }
 
 void Renderer::SetupGlobalHashDefines()
@@ -454,17 +398,24 @@ void Renderer::SetupGeneral_CB()
 
 }
 
+void Renderer::UpdateCamera(CameraData CamData)
+{
+	if (!m_ViewportCamera) { return; }
+
+	m_ViewportCamera->UpdateCamera(CamData);
+}
+
 void Renderer::ReadyNextFrame(Window* window)
 {
 
-	ActiveRenderTarget->Bind(this);
-	ActiveRenderTarget->Clear(0.1f, 0.2f, 0.6f, 1.0f, this);
+	m_ActiveRenderTarget->Bind(this);
+	m_ActiveRenderTarget->Clear(0.1f, 0.2f, 0.6f, 1.0f, this);
 
-	if (m_testCompute->Bind(GetDeviceContext()))
-	{
-		m_testCompute->Dispatch(GetDeviceContext(), 16, 16, 1);
-		m_testCompute->UnBind(GetDeviceContext());
-	}
+// 	if (m_testCompute->Bind(GetDeviceContext()))
+// 	{
+// 		m_testCompute->Dispatch(GetDeviceContext(), 16, 16, 1);
+// 		m_testCompute->UnBind(GetDeviceContext());
+// 	}
 
 
 	CheckWindowSize(window);
@@ -480,12 +431,12 @@ void Renderer::ReadyNextFrame(Window* window)
 		//Mouse
 		m_CB_General.MousePos.x = (float)window->GetMouseX();
 		m_CB_General.MousePos.y = (float)window->GetMouseY();
-		m_CB_General.ViewMatrix = m_TestCamera->GetViewMatrix();
+		m_CB_General.ViewMatrix = m_ViewportCamera->GetViewMatrix();
 
-		m_TestCamera->SetCameraSizeX((float)m_CB_General.DisplayWindowSize.x);
-		m_TestCamera->SetCameraSizeY((float)m_CB_General.DisplayWindowSize.y);
+		m_ViewportCamera->SetCameraSizeX((float)m_CB_General.DisplayWindowSize.x);
+		m_ViewportCamera->SetCameraSizeY((float)m_CB_General.DisplayWindowSize.y);
 
-		m_CB_General.ProjectionMatrix = m_TestCamera->GetProjectionMatrix();
+		m_CB_General.ProjectionMatrix = m_ViewportCamera->GetProjectionMatrix();
 
 		m_Device_Context->UpdateSubresource(m_ConstantBuffers[(UINT)RenderTypes::ConstanBuffer::CB_General], 0, nullptr, &m_CB_General, 0, 0);
 
@@ -498,7 +449,7 @@ void Renderer::ReadyNextFrame(Window* window)
 
 		D3D11_VIEWPORT viewport = CreateViewport();
 		m_Device_Context->RSSetViewports(1, &viewport);
-		ActiveRenderTarget->Bind(this);
+		m_ActiveRenderTarget->Bind(this);
 		//m_Device_Context->OMSetRenderTargets(1, &m_RenderTargetView, m_DepthStencilView);
 
 	}

@@ -39,28 +39,31 @@ public:
 
 public:
 
-public:
-
 	//Internal for rendering
 	ID3D11Device* GetDevice() { return m_Device; }
 	ID3D11DeviceContext* GetDeviceContext() { return m_Device_Context; }
-	void Tick(Window* MainWindow);
 
+	// Loop
+	void Present(Window* MainWindow);
+	void ReadyNextFrame(Window* window);
 
-	std::vector<D3D_SHADER_MACRO> GetGlobalHashDefines();
-	auto GetConstantBuffers() { return m_ConstantBuffers; }
-
-	struct ID3D11SamplerState* GetSampler(RenderTypes::DefaultSamplers SamplerName) { return m_Samplers[(UINT32)SamplerName]; }
 
 	//States
 	void SetBlendState(Shader::BlendMode NewBlendMode);
 	void SetRasterizer(bool Wireframe, bool backfaceCulling);
 	void SetStencilState(bool EnableDepthTesting);
 
+	std::vector<D3D_SHADER_MACRO> GetGlobalHashDefines();
+	auto GetConstantBuffers() { return m_ConstantBuffers; }
+	struct ID3D11SamplerState* GetSampler(RenderTypes::DefaultSamplers SamplerName) { return m_Samplers[(UINT32)SamplerName]; }
+
 	//Do things
 	void DrawMesh(Mesh* meshToDraw);
+	void SetOutputRT(class RenderTarget* OutputRTParam);
+	void UpdateCamera(CameraData CamData);
 
 private:
+	// Render objects
 	ID3D11Device* m_Device = nullptr;
 	ID3D11DeviceContext* m_Device_Context = nullptr;
 	std::unique_ptr<SwapChain> m_SwapChain = nullptr;
@@ -74,25 +77,30 @@ private:
 	ID3D11BlendState* m_Blendstates[(UINT32)Shader::BlendMode::Blend_COUNT];
 
 	// Test compute
-	std::unique_ptr<Buffer> m_testBuffer = nullptr;
-	std::unique_ptr<RenderTarget> m_testRT = nullptr;
 	std::unique_ptr<ComputeShader> m_testCompute = nullptr;
-	std::unique_ptr<Mesh> m_Testmesh = nullptr;
-	std::unique_ptr<Shader> m_TestShader = nullptr;
-	std::unique_ptr<Camera> m_TestCamera = nullptr;
 	
 	
 	// STATE
 	ID3D11DepthStencilState* m_CurrentStencilState = nullptr;
 	ID3D11RasterizerState* m_CurrentRasterState = nullptr;
-	RenderTarget* ActiveRenderTarget = nullptr;
 	bool m_EnableDepthTesting = false;
 
+	
+	std::unique_ptr<Camera> m_ViewportCamera = nullptr;
+	RenderTarget* m_ActiveRenderTarget = nullptr;
+	std::unique_ptr<Mesh> m_ViewportMesh = nullptr;
+	std::unique_ptr<Shader> m_ViewportMeshShader = nullptr;
+
+	//------- Startup ----------
 	void InternalSetRenderTarget(RenderTarget* RTarget);
 	void CreateSwapChain(Window* MainWindow);
 	void SetupGlobalHashDefines();
 	void CreateDefaultSamplers();
 	void CreateDefaultBlendStates();
+	void Setup_IMGUI(Window* MainWindow);
+	void SetupGeneral_CB();
+
+
 	D3D11_VIEWPORT CreateViewport();
 	void CheckWindowSize(Window* MainWindow);
 
@@ -100,6 +108,5 @@ private:
 
 	std::vector<D3D_SHADER_MACRO> m_GlobalHashDefines;
 
-	void SetupGeneral_CB();
-	void ReadyNextFrame(Window* window);
+public:
 };

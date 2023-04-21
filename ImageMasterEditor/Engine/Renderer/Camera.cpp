@@ -7,7 +7,6 @@ Camera::Camera()
 
 Camera::~Camera()
 {
-	TA_ERROR_WS(L"Camera got deleted");
 }
 
 IM_Math::Transfrom Camera::GetTransfrom() const
@@ -15,7 +14,7 @@ IM_Math::Transfrom Camera::GetTransfrom() const
 	return m_CameraData.Transform;
 }
 
-void Camera::UpdateCamera(Camera::CameraData CamData)
+void Camera::UpdateCamera(CameraData CamData)
 {
 	m_CameraData = CamData;
 }
