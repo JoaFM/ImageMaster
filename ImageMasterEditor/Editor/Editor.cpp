@@ -15,6 +15,7 @@ MasterEditor::MasterEditor(std::wstring RootPath, HINSTANCE hInstance)
 	RefreshAssets();
 
 #ifdef _DEBUG
+	// Just add a default project just so we don't start on an empty page
 	AddProject(std::wstring(L"Editor test"));
 #endif // DEBUG
 
@@ -47,7 +48,6 @@ void MasterEditor::StartBlockingLoop()
 		// UI
 		DrawUI();
 		
-
 		// Calc and present
 		m_Renderer->Present(m_Window.get());
 
@@ -108,8 +108,6 @@ void MasterEditor::Behaviors()
 	CurrentOffset.y += m_Window->IsKeyDown(Window::KeyCode::W) ? 10 : 0;
 	CurrentOffset.y -= m_Window->IsKeyDown(Window::KeyCode::S) ? 10 : 0;
 	m_ActiveProject->SetCameraOffset(CurrentOffset);
-
-
 }
 
 void MasterEditor::RefreshAssets()
@@ -124,8 +122,9 @@ void MasterEditor::RefreshAssets()
 	std::vector<std::wstring> FoundShaders;
 	for (const auto& entry : std::filesystem::directory_iterator(ShaderFolder))
 	{
-		std::wstring FoundShader(L"\n>>> Shader :\t");
 		FoundShaders.push_back(entry.path().c_str());
+
+		std::wstring FoundShader(L"\n>>> Shader :\t");
 		FoundShader += entry.path().c_str();
 		OutputDebugStringW(FoundShader.c_str());
 	}
@@ -133,8 +132,9 @@ void MasterEditor::RefreshAssets()
 	std::vector<std::wstring> FoundComputeShaders;
 	for (const auto& entry : std::filesystem::directory_iterator(ComputeShaderFolder))
 	{
-		std::wstring FoundShader(L"\n>>> ComputeShader :\t");
 		FoundComputeShaders.push_back(entry.path().c_str());
+
+		std::wstring FoundShader(L"\n>>> ComputeShader :\t");
 		FoundShader += entry.path().c_str();
 		OutputDebugStringW(FoundShader.c_str());
 	}

@@ -9,6 +9,9 @@ ImageProject::ImageProject(std::wstring ProjectName, IM_Math::Int2 ImageSize, cl
 	m_ImageSize = ImageSize;
 	m_OutputRT = std::make_unique<RenderTarget>();;
 	m_OutputRT->CreateTarget(m_ImageSize.x, m_ImageSize.y, DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT, renderer);
+
+	m_Layers.push_back(std::make_unique<Layer>(L"Layer 1"));
+	m_Layers.push_back(std::make_unique<Layer>(L"Layer 2"));
 }
 
 ImageProject::ImageProject()

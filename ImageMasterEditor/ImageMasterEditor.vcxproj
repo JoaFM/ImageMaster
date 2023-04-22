@@ -83,6 +83,7 @@
   <ItemGroup>
     <ClCompile Include="Editor\Editor.cpp" />
     <ClCompile Include="Editor\ImageProject.cpp" />
+    <ClCompile Include="Editor\Layer.cpp" />
     <ClCompile Include="Editor\MainWindowUI.cpp" />
     <ClCompile Include="Engine\Renderer\Buffer.cpp" />
     <ClCompile Include="Engine\Renderer\Camera.cpp" />
@@ -107,6 +108,7 @@
   <ItemGroup>
     <ClInclude Include="Editor\Editor.h" />
     <ClInclude Include="Editor\ImageProject.h" />
+    <ClInclude Include="Editor\Layer.h" />
     <ClInclude Include="Editor\MainWindowUI.h" />
     <ClInclude Include="Engine\Renderer\Buffer.h" />
     <ClInclude Include="Engine\Renderer\Camera.h" />

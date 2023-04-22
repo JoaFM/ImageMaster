@@ -3,6 +3,7 @@
 #include <Engine/Renderer/Renderer.h>
 #include "MainApp/Default_Headers.h"
 #include "Utils/IM_Math.h"
+#include "Layer.h"
 
 class ImageProject
 {
@@ -37,4 +38,8 @@ private:
 	// Render Data
 	std::unique_ptr<RenderTarget> m_OutputRT = nullptr;
 	void Cleanup();
+
+	// Layers
+	std::vector<std::unique_ptr<Layer>> m_Layers;
+	
 };
