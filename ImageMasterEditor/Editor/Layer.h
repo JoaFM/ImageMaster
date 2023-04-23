@@ -6,16 +6,22 @@
 class Layer
 {
 public:
-	Layer(std::wstring LayerName);
+	Layer(std::string LayerName, class ImageProject* ParentProject);
 	Layer() {};
 	
+	void UI_DrawLayer();
+	bool IsSelected() const;
 private:
 	// Project description
 	std::wstring m_BlendMode;
-	std::wstring m_LayerName;
+	std::string m_LayerName;
 	IM_Math::Int2 m_LayerSize;
 	IM_Math::Int2 m_Offset;
 
 	std::unique_ptr<RenderTarget> m_LayerData = nullptr;
+	
+	//ref
+	class ImageProject* m_ParentProject = nullptr;
+
 
 };

@@ -11,11 +11,11 @@ class ImageProject
 
 public:
 	static void UI_FileMenueUI(class MasterEditor* CallingEditor);
-	ImageProject(std::wstring ProjectNamem, IM_Math::Int2 ImageSize, class Renderer* renderer);
+	ImageProject(std::string ProjectNamem, IM_Math::Int2 ImageSize, class Renderer* renderer);
 	ImageProject();
 	~ImageProject();
 		
-	std::wstring GetProjectName() const;
+	std::string GetProjectName() const;
 
 
 	IM_Math::float2  GetCameraOffset() { return m_CameraOffset; }
@@ -24,9 +24,12 @@ public:
 	CameraData GetCameraData() const { return m_CameraData; }
 	
 	class RenderTarget* GetOutputRT() const;
+	std::vector<std::unique_ptr<Layer>>& GetLayers();
+	bool IsLayerSelected(const Layer* LayerInQuestion) const;
+	void SetSelected(Layer* NewLayerToBeSelected);
 private:
 	// Project description
-	std::wstring m_ProjectName;
+	std::string m_ProjectName;
 	IM_Math::Int2 m_ImageSize;
 
 	//Camera
@@ -41,5 +44,6 @@ private:
 
 	// Layers
 	std::vector<std::unique_ptr<Layer>> m_Layers;
+	Layer* m_SelectedLayer = nullptr;
 	
 };

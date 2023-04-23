@@ -498,16 +498,13 @@ void Renderer::UpdateCamera(CameraData CamData)
 
 void Renderer::ReadyNextFrame(Window* window)
 {
-
-	m_ActiveRenderTarget->Bind(this);
-	m_ActiveRenderTarget->Clear(0.1f, 0.2f, 0.6f, 1.0f, this);
-
-// 	if (m_testCompute->Bind(GetDeviceContext()))
+	// 	if (m_testCompute->Bind(GetDeviceContext()))
 // 	{
 // 		m_testCompute->Dispatch(GetDeviceContext(), 16, 16, 1);
 // 		m_testCompute->UnBind(GetDeviceContext());
 // 	}
 
+	m_ActiveRenderTarget->Bind(this);
 
 	CheckWindowSize(window);
 	m_SwapChain->GetRenderTarget()->Clear(m_CB_General.BackgroundColor.x, m_CB_General.BackgroundColor.y, m_CB_General.BackgroundColor.z, m_CB_General.BackgroundColor.w,this);

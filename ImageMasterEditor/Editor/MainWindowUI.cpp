@@ -23,15 +23,36 @@ void MainWindowUI::DrawAppUI(ImageProject* ActiveProject, class MasterEditor* Ed
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 
+	ImGuiStyle& CurrentStype = ImGui::GetStyle();
+	CurrentStype.FrameRounding = 0;
+	CurrentStype.WindowRounding = 0;
+	CurrentStype.Colors[ImGuiCol_WindowBg] = ImVec4(.05f, .05f, .05f, 1.0f);
+	CurrentStype.Colors[ImGuiCol_FrameBg] = ImVec4(0.04f, .04f, .04f, 0.0f);
+	CurrentStype.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.03f, .03f, .03f, 1.0f);
+	CurrentStype.Colors[ImGuiCol_Button] = ImVec4(0.1f, .1f, .1f, 1.0f);
+	CurrentStype.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.3f, .3f, .3f, 1.0f);
+
+
+	CurrentStype.WindowTitleAlign = ImVec2(.5, .5);
+	CurrentStype.ScrollbarRounding = 0;
+
 	ImGui::NewFrame();
-	ImGui::SetNextWindowPos(ImVec2(5, 30), 1);
-	ImGui::SetNextWindowSize(ImVec2(100, 720), 1);
+	ImGui::SetNextWindowSize(ImVec2(200, 500), 1);
 
-	ImGui::SetNextWindowCollapsed(false, 1);
-	ImGui::Begin("Test", 0, ImGuiWindowFlags_NoTitleBar);
-	ImGui::TextColored(ImVec4(1, 0, 0, 1), "Hello");
-
+	if (ImGui::Begin("Layers"))
+	{
+		if (ImGui::BeginListBox("  Layers", ImVec2(188, -1)))
+		{
+			for (auto& layer : ActiveProject->GetLayers())
+			{
+				layer->UI_DrawLayer();
+			}
+		}
+		ImGui::EndListBox();
+	}
 	ImGui::End();
+
+
 
 	bool show_demo_window = true;
 	bool show_another_window = false;
@@ -47,8 +68,8 @@ void MainWindowUI::DrawAppUI(ImageProject* ActiveProject, class MasterEditor* Ed
 			}
 			if (ActiveProject != nullptr)
 			{
-				std::wstring Title = std::wstring(L"\t\t\t[ ") + ActiveProject->GetProjectName() + L" ]";
-				ImGui::Text(TAUtils::WStringToChar(Title.c_str()).c_str());               // Display some text (you can use a format strings too)
+				std::string Title = std::string("\t\t\t[ ") + ActiveProject->GetProjectName() + " ]";
+				ImGui::Text(Title.c_str());               // Display some text (you can use a format strings too)
 			}
 			else
 			{

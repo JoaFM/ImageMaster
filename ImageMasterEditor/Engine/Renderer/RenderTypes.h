@@ -51,7 +51,7 @@ public:
 			RenderBufferSize.y = 720;
 			ProjectionMatrix = DirectX::XMMatrixIdentity();
 			ViewMatrix = DirectX::XMMatrixIdentity();
-			BackgroundColor = DirectX::XMFLOAT4(.1f, .2f, .3f, 1.0f);
+			BackgroundColor = DirectX::XMFLOAT4(.05f, .05f, .05f, 1.0f);
 			PADDING = DirectX::XMFLOAT2();
 		}
 

@@ -16,7 +16,7 @@ MasterEditor::MasterEditor(std::wstring RootPath, HINSTANCE hInstance)
 
 #ifdef _DEBUG
 	// Just add a default project just so we don't start on an empty page
-	AddProject(std::wstring(L"Editor test"));
+	AddProject(std::string("Editor test"));
 #endif // DEBUG
 
 }
@@ -59,10 +59,10 @@ void MasterEditor::StartBlockingLoop()
 	}
 }
 
-void MasterEditor::AddProject(std::wstring ProjectName)
+void MasterEditor::AddProject(std::string ProjectName)
 {
-	std::wstring rndS = TAUtils::CharToWString(TAUtils::RandomString(6).c_str());
-	m_Projects.push_back(std::make_unique<ImageProject>(ProjectName + L"____" + rndS,IM_Math::Int2(512,512),m_Renderer.get()));
+	std::string rndS =TAUtils::RandomString(6).c_str();
+	m_Projects.push_back(std::make_unique<ImageProject>(ProjectName + "____" + rndS,IM_Math::Int2(512,512),m_Renderer.get()));
 	ActiveProjectIndex = (INT32)(m_Projects.size() - 1);
 	m_ActiveProject = m_Projects[ActiveProjectIndex].get();
 }

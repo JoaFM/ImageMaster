@@ -13,7 +13,7 @@ public:
 	void StartBlockingLoop();
 
 	// tools
-	void AddProject(std::wstring ProjectName);
+	void AddProject(std::string ProjectName);
 
 private:
 	//System
