@@ -39,6 +39,7 @@ public:
 
 	bool BindShader(std::wstring ShaderName);
 	void UnbindCurrentShader();
+	void SetRenderSize(IM_Math::Int2 DrawMeshSize);
 public:
 
 	//Internal for rendering
@@ -112,5 +113,6 @@ private:
 	std::map<std::wstring, std::unique_ptr<ComputeShader>> m_LoadedComputeShaders;
 	Shader* CurrentBoundShader = nullptr;
 public:
+	std::map<std::wstring, std::unique_ptr<ComputeShader>>& GetComputeShaders() { return m_LoadedComputeShaders; };
 	void RefreshShaders(std::vector<std::wstring> FoundShaders, std::vector<std::wstring> FoundComputeShaders);
 };

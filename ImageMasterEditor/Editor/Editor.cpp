@@ -10,7 +10,7 @@ MasterEditor::MasterEditor(std::wstring RootPath, HINSTANCE hInstance)
 	m_Renderer = std::make_unique<Renderer>();
 	m_Renderer->Init(IM_Math::Int2(1280, 720), m_Window.get());
 
-	m_MainWindowUI = std::make_unique<MainWindowUI>(m_Window.get());
+	m_MainWindowUI = std::make_unique<MainWindowUI>(m_Window.get(),this);
 
 	RefreshAssets();
 
@@ -43,6 +43,7 @@ void MasterEditor::StartBlockingLoop()
 		if (m_ActiveProject)
 		{
 			m_Renderer->UpdateCamera(m_ActiveProject->GetCameraData());
+			m_Renderer->SetRenderSize(m_ActiveProject->GetSize());
 			m_Renderer->SetOutputRT(m_ActiveProject->GetOutputRT());
 		}
 		// UI
@@ -69,7 +70,7 @@ void MasterEditor::AddProject(std::string ProjectName)
 
 void MasterEditor::DrawUI()
 {
-	m_MainWindowUI->DrawUI(m_ActiveProject, this);
+	m_MainWindowUI->DrawUI();
 }
 
 void MasterEditor::Behaviors()

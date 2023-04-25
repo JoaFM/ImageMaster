@@ -46,5 +46,6 @@ float4 ps_main(vs_out input) : SV_TARGET{
 
 	float4 col = float4(0,0,0,1);
 	col.xyz = DisplayTexture.Sample(DisplayTexture_sampler, input.uv).xyz;
+	//col.xy = input.uv;
 	return  col ;
 }

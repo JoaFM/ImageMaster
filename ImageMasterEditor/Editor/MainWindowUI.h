@@ -6,11 +6,15 @@
 class MainWindowUI
 {
 public:
-	MainWindowUI(class Window* ParentWindow);
-	void DrawUI(class ImageProject* ActiveProject, class MasterEditor* Editor);
+	MainWindowUI(class Window* ParentWindow, class MasterEditor* Editor);
+	void DrawUI();
 
 private:
 	class Window* m_ParentWindow = nullptr;
+	class MasterEditor* m_Editor = nullptr;
 
-	void DrawAppUI(class ImageProject* ActiveProject, class MasterEditor* Editor);
+
+	void DrawAppUI();
+	void SetGlobalStyle();
+	void UI_DrawAppMenuBar();
 };

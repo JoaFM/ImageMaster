@@ -7,8 +7,9 @@ ImageProject::ImageProject(std::string ProjectName, IM_Math::Int2 ImageSize, cla
 {
 	m_ProjectName = ProjectName;
 	m_ImageSize = ImageSize;
+	m_renderer = renderer;
 	m_OutputRT = std::make_unique<RenderTarget>();;
-	m_OutputRT->CreateTarget(m_ImageSize.x, m_ImageSize.y, DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT, renderer);
+	m_OutputRT->CreateTarget(m_ImageSize.x, m_ImageSize.y, DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT, m_renderer);
 
 	m_Layers.push_back(std::make_unique<Layer>("Layer 1", this));
 	m_Layers.push_back(std::make_unique<Layer>("Layer 2", this));
@@ -60,6 +61,20 @@ void ImageProject::Cleanup()
 	m_ProjectName = std::string("");
 	m_ImageSize = IM_Math::Int2(-1, -1);
 	m_OutputRT = nullptr;
+}
+
+std::vector<std::string> ImageProject::GetLayerModesAsString()
+{
+	std::map<std::wstring, std::unique_ptr<ComputeShader>>& shaders = m_renderer->GetComputeShaders();
+
+	std::vector<std::string> result;
+
+	for (auto& shader : shaders)
+	{
+		result.push_back(TAUtils::WStringToChar(shader.first.c_str()) + "\0");
+	}
+
+	return result;
 }
 
 void ImageProject::UI_FileMenueUI(class MasterEditor* CallingEditor)

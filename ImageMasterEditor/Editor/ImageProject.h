@@ -27,6 +27,8 @@ public:
 	std::vector<std::unique_ptr<Layer>>& GetLayers();
 	bool IsLayerSelected(const Layer* LayerInQuestion) const;
 	void SetSelected(Layer* NewLayerToBeSelected);
+	IM_Math::Int2 GetSize() const { return m_ImageSize; }
+
 private:
 	// Project description
 	std::string m_ProjectName;
@@ -41,9 +43,11 @@ private:
 	// Render Data
 	std::unique_ptr<RenderTarget> m_OutputRT = nullptr;
 	void Cleanup();
-
+	class Renderer* m_renderer = nullptr;
 	// Layers
 	std::vector<std::unique_ptr<Layer>> m_Layers;
 	Layer* m_SelectedLayer = nullptr;
 	
+public:
+	std::vector<std::string> GetLayerModesAsString();
 };

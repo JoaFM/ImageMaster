@@ -14,6 +14,7 @@ public:
 
 	// tools
 	void AddProject(std::string ProjectName);
+	class ImageProject* GetActiveProject() const { return m_ActiveProject; }
 
 private:
 	//System

@@ -15,9 +15,10 @@ private:
 	// Project description
 	std::wstring m_BlendMode;
 	std::string m_LayerName;
+	std::string m_ID;
 	IM_Math::Int2 m_LayerSize;
 	IM_Math::Int2 m_Offset;
-
+	int currentItem = 0;
 	std::unique_ptr<RenderTarget> m_LayerData = nullptr;
 	
 	//ref

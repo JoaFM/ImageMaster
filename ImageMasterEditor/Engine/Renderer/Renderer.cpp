@@ -32,12 +32,12 @@ void Renderer::Init(IM_Math::Int2 size, Window* MainWindow)
 			// Set up the viewport mesh that we show the RT on. This will kind of work. But will not resize
 			m_ViewportMesh = std::make_unique<Mesh>();
 			Mesh::VertData* NewMesh = new  Mesh::VertData[6];
-			NewMesh[0] = Mesh::VertData(200, 50, 0, 0, 0);
-			NewMesh[1] = Mesh::VertData(300, 50, 5, 1, 0);
-			NewMesh[2] = Mesh::VertData(200, 100, 5, 0, 1);
-			NewMesh[3] = Mesh::VertData(200, 100, 5, 0, 1);
-			NewMesh[4] = Mesh::VertData(300, 50, 5, 1, 0);
-			NewMesh[5] = Mesh::VertData(300, 100, 0, 1, 1);
+			NewMesh[0] = Mesh::VertData(0, 0, 0, 0, 0);
+			NewMesh[1] = Mesh::VertData(1, 0, 0, 1, 0);
+			NewMesh[2] = Mesh::VertData(1, 1, 0, 1, 1);
+			NewMesh[3] = Mesh::VertData(0, 0, 0, 0, 0);
+			NewMesh[5] = Mesh::VertData(0, 1, 0, 0, 1);
+			NewMesh[4] = Mesh::VertData(1, 1, 0, 1, 1);
 			m_ViewportMesh->SetData(this, NewMesh, 6);
 		}
 
@@ -77,6 +77,11 @@ void Renderer::UnbindCurrentShader()
 {
 	CurrentBoundShader->UnBind(this);
 	CurrentBoundShader = nullptr;
+}
+
+void Renderer::SetRenderSize(IM_Math::Int2 DrawMeshSize)
+{
+	m_ViewportMesh->SetScale(IM_Math::float3(DrawMeshSize.x, DrawMeshSize.y, 1));
 }
 
 void Renderer::SetOutputRT(class RenderTarget* DisplayTexture)
