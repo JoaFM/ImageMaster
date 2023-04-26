@@ -39,7 +39,7 @@ void MasterEditor::StartBlockingLoop()
 		//Prep
 		m_Renderer->ReadyNextFrame(m_Window.get());
 
-
+		m_ActiveProject->CompositeRender();
 		if (m_ActiveProject)
 		{
 			m_Renderer->UpdateCamera(m_ActiveProject->GetCameraData());

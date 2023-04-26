@@ -50,6 +50,15 @@ void ImageProject::SetSelected(Layer* NewLayerToBeSelected)
 	m_SelectedLayer = NewLayerToBeSelected;
 }
 
+void ImageProject::CompositeRender()
+{
+	m_OutputRT->Clear(0, 0, 0, 0, m_renderer);
+	for (auto& Layer : m_Layers)
+	{
+		Layer->Composite(m_OutputRT.get());
+	}
+}
+
 void ImageProject::UpdateCamera()
 {
 	m_CameraData.Transform.Position.x = m_CameraOffset.x;

@@ -9,6 +9,7 @@ public:
 	Layer(std::string LayerName, class ImageProject* ParentProject);
 	Layer() {};
 	
+	void Composite(class RenderTarget* OutputRT);
 	void UI_DrawLayer();
 	bool IsSelected() const;
 private:

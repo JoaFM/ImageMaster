@@ -21,6 +21,7 @@ public:
 	bool IsValid() { return LoadedAndValid; }
 	
 	void Dispatch(ID3D11DeviceContext* DeviceContext, INT32 ThreadsX, INT32 ThreadsY, INT32 ThreadsZ);
+	void Dispatch(ID3D11DeviceContext* DeviceContext);
 	
 	
 	bool Bind(ID3D11DeviceContext* DeviceContext);

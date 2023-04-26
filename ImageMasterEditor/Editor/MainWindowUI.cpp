@@ -25,8 +25,17 @@ void MainWindowUI::DrawAppUI()
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 
-	SetGlobalStyle();
+	UI_SetGlobalStyle();
+	UI_DrawLayer();
+	UI_DrawAppMenuBar();
 
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+}
+
+void MainWindowUI::UI_DrawLayer()
+{
 
 	ImGui::NewFrame();
 	ImGui::SetNextWindowSize(ImVec2(200, 500), 1);
@@ -35,27 +44,17 @@ void MainWindowUI::DrawAppUI()
 	{
 		if (ImGui::BeginListBox("  Layers", ImVec2(188, -1)))
 		{
-			for (auto& layer : m_Editor->GetActiveProject()->GetLayers())
+			for (INT32 i = m_Editor->GetActiveProject()->GetLayers().size() - 1; i >= 0; i--)
 			{
-				layer->UI_DrawLayer();
+				m_Editor->GetActiveProject()->GetLayers()[i]->UI_DrawLayer();
 			}
 		}
 		ImGui::EndListBox();
-
 	}
 	ImGui::End();
-
-
-
-	UI_DrawAppMenuBar();
-
-
-	ImGui::Render();
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
 }
 
-void MainWindowUI::SetGlobalStyle()
+void MainWindowUI::UI_SetGlobalStyle()
 {
 	ImGuiStyle& CurrentStype = ImGui::GetStyle();
 	CurrentStype.FrameRounding = 0;

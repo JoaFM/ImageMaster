@@ -73,10 +73,31 @@ bool Renderer::BindShader(std::wstring ShaderName)
 	}
 }
 
+bool Renderer::BindComputeShader(std::wstring ShaderName)
+{
+	if (m_LoadedComputeShaders.contains(ShaderName))
+	{
+		m_LoadedComputeShaders[ShaderName]->Bind(GetDeviceContext());
+		CurrentBoundComputeShader = m_LoadedComputeShaders[ShaderName].get();
+		return true;
+	}
+	else
+	{
+		CurrentBoundComputeShader = nullptr;
+		return false;
+	}
+}
+
 void Renderer::UnbindCurrentShader()
 {
 	CurrentBoundShader->UnBind(this);
 	CurrentBoundShader = nullptr;
+}
+
+void Renderer::UnbindCurrentComputeShader()
+{
+	CurrentBoundComputeShader->UnBind(GetDeviceContext());
+	CurrentBoundComputeShader = nullptr;
 }
 
 void Renderer::SetRenderSize(IM_Math::Int2 DrawMeshSize)

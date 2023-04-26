@@ -15,6 +15,10 @@ private:
 
 
 	void DrawAppUI();
-	void SetGlobalStyle();
+
+	void UI_DrawLayer();
+
+
+	void UI_SetGlobalStyle();
 	void UI_DrawAppMenuBar();
 };

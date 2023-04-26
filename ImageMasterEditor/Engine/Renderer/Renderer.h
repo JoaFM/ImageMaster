@@ -38,7 +38,9 @@ public:
 	void Init(IM_Math::Int2 size, class Window* MainWindow);
 
 	bool BindShader(std::wstring ShaderName);
+	bool BindComputeShader(std::wstring ShaderName);
 	void UnbindCurrentShader();
+	void UnbindCurrentComputeShader();
 	void SetRenderSize(IM_Math::Int2 DrawMeshSize);
 public:
 
@@ -112,7 +114,9 @@ private:
 	std::map<std::wstring, std::unique_ptr<Shader>> m_LoadedShaders;
 	std::map<std::wstring, std::unique_ptr<ComputeShader>> m_LoadedComputeShaders;
 	Shader* CurrentBoundShader = nullptr;
+	ComputeShader* CurrentBoundComputeShader = nullptr;
 public:
 	std::map<std::wstring, std::unique_ptr<ComputeShader>>& GetComputeShaders() { return m_LoadedComputeShaders; };
 	void RefreshShaders(std::vector<std::wstring> FoundShaders, std::vector<std::wstring> FoundComputeShaders);
+	ComputeShader* GetCurrentComputeShader() const {return CurrentBoundComputeShader; }
 };

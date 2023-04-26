@@ -29,6 +29,7 @@ public:
 	void SetSelected(Layer* NewLayerToBeSelected);
 	IM_Math::Int2 GetSize() const { return m_ImageSize; }
 
+	void CompositeRender();
 private:
 	// Project description
 	std::string m_ProjectName;
@@ -50,4 +51,6 @@ private:
 	
 public:
 	std::vector<std::string> GetLayerModesAsString();
+	class Renderer* GetRenderer() {return m_renderer; };
+
 };

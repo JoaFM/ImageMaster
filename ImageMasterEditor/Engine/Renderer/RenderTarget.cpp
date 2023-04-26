@@ -14,12 +14,12 @@ RenderTarget::RenderTarget()
 bool RenderTarget::CreateTarget(INT32 Width, INT32 Height, UINT8 DGIFormat, Renderer* Render)
 {
 	Release();
-	m_Width = Width;
-	m_Height = Height;
+	m_Size = IM_Math::Int2(Width, Height);
+
 
 	D3D11_TEXTURE2D_DESC textureDesc = {};
-	textureDesc.Width = (UINT)m_Width;
-	textureDesc.Height = (UINT)m_Height;
+	textureDesc.Width = (UINT)m_Size.x;
+	textureDesc.Height = (UINT)m_Size.y;
 	textureDesc.MipLevels = 1;
 	textureDesc.ArraySize = 1;
 	textureDesc.Format = (DXGI_FORMAT)DGIFormat;
@@ -41,7 +41,7 @@ bool RenderTarget::CreateTarget(INT32 Width, INT32 Height, UINT8 DGIFormat, Rend
 	descBuf.Format = DXGI_FORMAT_UNKNOWN;
 	descBuf.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D; // or 1d,2d,3d
 	descBuf.Buffer.FirstElement = 0;
-	descBuf.Buffer.NumElements = m_Width* m_Height;
+	descBuf.Buffer.NumElements = m_Size.x * m_Size.y;
 	descBuf.Buffer.Flags = D3D11_BIND_UNORDERED_ACCESS; //https://docs.microsoft.com/en-us/windows/win32/api/d3d11/ne-d3d11-d3d11_buffer_uav_flag
 
 	TA_HRCHECK(Render->GetDevice()->CreateUnorderedAccessView(m_textureBuffer, &descBuf, &m_UAV), L"Failed to make view UAV for buffer");
@@ -60,8 +60,8 @@ bool RenderTarget::CreateTargetFromBuffer(ID3D11Texture2D* framebuffer, Renderer
 	D3D11_TEXTURE2D_DESC desc;
 	framebuffer->GetDesc(&desc);
 
-	m_Width = desc.Width;
-	m_Height = desc.Height;
+	m_Size.x = desc.Width;
+	m_Size.y = desc.Height;
 
 	CreateStencilBuffer(Render);
 	//OnNameOpdate();
@@ -119,8 +119,8 @@ struct ID3D11UnorderedAccessView* RenderTarget::GetUAV()
 void RenderTarget::CreateStencilBuffer(Renderer* Render)
 {
 	D3D11_TEXTURE2D_DESC descDepth;
-	descDepth.Width = (UINT)m_Width;
-	descDepth.Height = (UINT)m_Height;
+	descDepth.Width = (UINT)m_Size.x;
+	descDepth.Height = (UINT)m_Size.y;
 	descDepth.MipLevels = 1;
 	descDepth.ArraySize = 1;
 	descDepth.Format = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;

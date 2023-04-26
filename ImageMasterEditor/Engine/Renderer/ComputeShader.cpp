@@ -91,6 +91,14 @@ void ComputeShader::Dispatch(ID3D11DeviceContext* DeviceContext,  INT32 ThreadsX
 }
 
 
+void ComputeShader::Dispatch(ID3D11DeviceContext* DeviceContext)
+{
+	if (m_RO0)
+	{
+		Dispatch(DeviceContext, m_RO0->GetSize().x / 8, m_RO0->GetSize().y / 8, 1);
+	}
+}
+
 bool ComputeShader::Bind(ID3D11DeviceContext* DeviceContext)
 {
 

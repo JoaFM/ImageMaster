@@ -30,14 +30,13 @@ private:
 	void ClearDepth(class Renderer* Render);
 
 private:
-	INT32 m_Width = -1;
-	INT32 m_Height = -1;
+	IM_Math::Int2 m_Size;
 	//Depth and stencil
 	ID3D11Texture2D* m_DepthStencilBuffer = nullptr;
 	ID3D11DepthStencilView* m_DepthStencilView = nullptr;
 	ID3D11UnorderedAccessView* m_UAV = nullptr;
 
 public:
-
+	IM_Math::Int2 GetSize() const { return m_Size; }
 
 };

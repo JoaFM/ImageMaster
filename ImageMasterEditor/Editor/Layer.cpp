@@ -13,6 +13,19 @@ Layer::Layer(std::string LayerName, class ImageProject* ParentProject)
 	m_ID = TAUtils::RandomString(10);
 }
 
+void Layer::Composite(RenderTarget* OutputRT)
+{
+	Renderer* renderer = m_ParentProject->GetRenderer();
+	std::vector<std::string> LayerModes = m_ParentProject->GetLayerModesAsString();
+	std::string CurrentModeKey = LayerModes[currentItem];
+
+	if (renderer->BindComputeShader(TAUtils::CharToWString(CurrentModeKey.c_str())))
+	{
+		renderer->GetCurrentComputeShader()->SetRT(OutputRT);
+		renderer->GetCurrentComputeShader()->Dispatch(renderer->GetDeviceContext());
+	}
+}
+
 void Layer::UI_DrawLayer()
 {
 
@@ -27,7 +40,7 @@ void Layer::UI_DrawLayer()
 		std::memcpy(&Items[i][LayerModes[i].size()]	, &eol					, 1							);
 	}
 
-	ImGui::Combo(("Mode##" + m_ID).c_str(), &currentItem, Items, LayerModes.size());
+	ImGui::Combo(("Mode##" + m_ID).c_str(), &currentItem, Items, (INT32)LayerModes.size());
 
 	ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(.1f, 0.5f));
 
@@ -42,7 +55,7 @@ void Layer::UI_DrawLayer()
 
 	if (ImGui::Button(
 		m_LayerName.c_str(),
-		ImVec2(180, 50)))
+		ImVec2(180, 30)))
 	{
 		m_ParentProject->SetSelected(this);
 	}
