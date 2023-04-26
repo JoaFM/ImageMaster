@@ -91,6 +91,7 @@
     <ClCompile Include="Engine\Renderer\Mesh.cpp" />
     <ClCompile Include="Engine\Renderer\Renderer.cpp" />
     <ClCompile Include="Engine\Renderer\RenderTarget.cpp" />
+    <ClCompile Include="Engine\Renderer\RenderUtils.cpp" />
     <ClCompile Include="Engine\Renderer\Shader.cpp" />
     <ClCompile Include="Engine\Renderer\Swapchain.cpp" />
     <ClCompile Include="Engine\Renderer\Texture.cpp" />
@@ -118,6 +119,7 @@
     <ClInclude Include="Engine\Renderer\Renderer.h" />
     <ClInclude Include="Engine\Renderer\RenderTarget.h" />
     <ClInclude Include="Engine\Renderer\RenderTypes.h" />
+    <ClInclude Include="Engine\Renderer\RenderUtils.h" />
     <ClInclude Include="Engine\Renderer\Shader.h" />
     <ClInclude Include="Engine\Renderer\ShaderIncludes.h" />
     <ClInclude Include="Engine\Renderer\SwapChain.h" />

@@ -16,7 +16,6 @@ bool RenderTarget::CreateTarget(INT32 Width, INT32 Height, UINT8 DGIFormat, Rend
 	Release();
 	m_Size = IM_Math::Int2(Width, Height);
 
-
 	D3D11_TEXTURE2D_DESC textureDesc = {};
 	textureDesc.Width = (UINT)m_Size.x;
 	textureDesc.Height = (UINT)m_Size.y;
@@ -32,9 +31,9 @@ bool RenderTarget::CreateTarget(INT32 Width, INT32 Height, UINT8 DGIFormat, Rend
 	//#TODO 1st some of the settings may be off 
 	//#TODO https://stackoverflow.com/questions/44377201/directx-write-to-texture-with-compute-shader
 
-	TA_HRCHECK(Render->GetDevice()->CreateTexture2D(&textureDesc, nullptr, &m_textureBuffer), L"Clould not create renter tartget texture 2D");
-	TA_HRCHECK(Render->GetDevice()->CreateRenderTargetView(m_textureBuffer, nullptr, &m_RenderTargetView), L"Could not create a render target view for the texture");
-	TA_HRCHECK(Render->GetDevice()->CreateShaderResourceView(m_textureBuffer, nullptr, &m_SRV), L"Could not create a shader resource view for the texture");
+	TA_HRCHECK(Render->GetDevice()->CreateTexture2D(&textureDesc, nullptr, &m_textureBuffer), L"Clould not create renter tartget texture 2D\n");
+	TA_HRCHECK(Render->GetDevice()->CreateRenderTargetView(m_textureBuffer, nullptr, &m_RenderTargetView), L"Could not create a render target view for the texture\n");
+	TA_HRCHECK(Render->GetDevice()->CreateShaderResourceView(m_textureBuffer, nullptr, &m_SRV), L"Could not create a shader resource view for the texture\n");
 	
 	D3D11_UNORDERED_ACCESS_VIEW_DESC descBuf = {};
 
@@ -74,8 +73,6 @@ void RenderTarget::Release()
 	TA_SAFERELEASE(m_RenderTargetView);
 	TA_SAFERELEASE(m_DepthStencilBuffer);
 	TA_SAFERELEASE(m_DepthStencilView);
-	TA_SAFERELEASE(m_UAV);
-	
 }
 
 void RenderTarget::Bind(Renderer* Render)
@@ -111,10 +108,7 @@ void RenderTarget::ClearDepth(Renderer* Render)
 	}
 }
 
-struct ID3D11UnorderedAccessView* RenderTarget::GetUAV()
-{
-	return m_UAV;
-}
+
 
 void RenderTarget::CreateStencilBuffer(Renderer* Render)
 {

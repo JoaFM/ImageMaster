@@ -13,10 +13,10 @@ public:
 	void LoadReload(ID3D11Device* Device);
 
 	void SetBuffer(class Buffer* NewTexture) { m_Buffer = NewTexture; };
-	void SetRT(class RenderTarget* NewTexture) { m_RO0 = NewTexture; };
+	void SetTexture(std::string Name, class Texture* NewTexture);
 
 	class Buffer* GetBuffer() { return m_Buffer; }
-	class RenderTarget* GetRT() { return m_RO0; }
+	//class RenderTarget* GetRT() { return m_RO0; }
 
 	bool IsValid() { return LoadedAndValid; }
 	
@@ -30,9 +30,20 @@ public:
 private:
 	std::wstring  m_ShaderPath;
 	class Buffer* m_Buffer = nullptr;
-	class RenderTarget* m_RO0 = nullptr;
+	//class RenderTarget* m_RO0 = nullptr;
 
 
 	bool LoadedAndValid = false;
 	struct ID3D11ComputeShader* m_ComputeShader = nullptr;
+
+private:
+
+	void CalcRelection(ID3DBlob* Shader_blob_ptr);
+	std::map <std::string, UINT> m_TextureRW_BindPoints;
+	std::map <std::string, class Texture*>	m_App_BoundTextures;
+
+	//Cleanup
+	std::vector<UINT> m_ShaderBound_UAV;
+
+
 };

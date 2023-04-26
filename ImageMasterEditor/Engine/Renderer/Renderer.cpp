@@ -102,7 +102,7 @@ void Renderer::UnbindCurrentComputeShader()
 
 void Renderer::SetRenderSize(IM_Math::Int2 DrawMeshSize)
 {
-	m_ViewportMesh->SetScale(IM_Math::float3(DrawMeshSize.x, DrawMeshSize.y, 1));
+	m_ViewportMesh->SetScale(IM_Math::float3((float)DrawMeshSize.x, (float)DrawMeshSize.y, 1));
 }
 
 void Renderer::SetOutputRT(class RenderTarget* DisplayTexture)

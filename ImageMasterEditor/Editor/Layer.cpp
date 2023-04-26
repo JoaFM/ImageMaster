@@ -21,7 +21,7 @@ void Layer::Composite(RenderTarget* OutputRT)
 
 	if (renderer->BindComputeShader(TAUtils::CharToWString(CurrentModeKey.c_str())))
 	{
-		renderer->GetCurrentComputeShader()->SetRT(OutputRT);
+		renderer->GetCurrentComputeShader()->SetTexture("BufferOut", OutputRT);
 		renderer->GetCurrentComputeShader()->Dispatch(renderer->GetDeviceContext());
 	}
 }

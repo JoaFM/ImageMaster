@@ -97,6 +97,9 @@
     <ClCompile Include="Editor\Layer.cpp">
       <Filter>Editor</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Renderer\RenderUtils.cpp">
+      <Filter>Engine\Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Editor\Editor.h">
@@ -182,6 +185,9 @@
     </ClInclude>
     <ClInclude Include="Editor\Layer.h">
       <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Renderer\RenderUtils.h">
+      <Filter>Engine\Renderer</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

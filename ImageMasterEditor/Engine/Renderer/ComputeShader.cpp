@@ -3,6 +3,8 @@
 #include "Buffer.h"
 #include "RenderTarget.h"
 #include "D3DCompiler.h"
+#include "RenderUtils.h"
+#include "Texture.h"
 
 ComputeShader::ComputeShader()
 {
@@ -78,10 +80,18 @@ void ComputeShader::LoadReload(ID3D11Device* Device)
 		LoadedAndValid = false;
 		return;
 	}
+
+	CalcRelection(shaderBlob);
 	TA_SAFERELEASE(shaderBlob);
 	LoadedAndValid = true;
 	//OnNameOpdate();
 }
+
+void ComputeShader::SetTexture(std::string Name, class Texture* NewTexture)
+{
+	m_App_BoundTextures[Name] = NewTexture;
+}
+
 
 void ComputeShader::Dispatch(ID3D11DeviceContext* DeviceContext,  INT32 ThreadsX, INT32 ThreadsY, INT32 ThreadsZ)
 {
@@ -93,9 +103,9 @@ void ComputeShader::Dispatch(ID3D11DeviceContext* DeviceContext,  INT32 ThreadsX
 
 void ComputeShader::Dispatch(ID3D11DeviceContext* DeviceContext)
 {
-	if (m_RO0)
+	if (m_App_BoundTextures.contains("BufferOut") && m_App_BoundTextures["BufferOut"])
 	{
-		Dispatch(DeviceContext, m_RO0->GetSize().x / 8, m_RO0->GetSize().y / 8, 1);
+		Dispatch(DeviceContext, m_App_BoundTextures["BufferOut"]->GetSize().x / 8, m_App_BoundTextures["BufferOut"]->GetSize().y / 8, 1);
 	}
 }
 
@@ -108,10 +118,22 @@ bool ComputeShader::Bind(ID3D11DeviceContext* DeviceContext)
 		return false;
 	}
 
-	if (!m_Buffer && !m_RO0)
+	DeviceContext->CSSetShader(m_ComputeShader, NULL, 0);
+	
+	for (auto& RWTexture : m_TextureRW_BindPoints)
 	{
-		TA_ERROR_WS(L"No RT or buffer loaded");
-		return false;
+		if (m_App_BoundTextures.contains(RWTexture.first))
+		{
+			ID3D11UnorderedAccessView* m_UAV = m_App_BoundTextures[RWTexture.first]->GetUAV();
+			DeviceContext->CSSetUnorderedAccessViews(RWTexture.second, 1, &m_UAV, 0);
+			m_ShaderBound_UAV.push_back(RWTexture.second);
+		}
+		else
+		{
+			TA_ERROR_WS(L"Could not bind RW texture in compute shader. Texture not set");
+			return false;
+		}
+		
 	}
 
 	ID3D11UnorderedAccessView* UAV = nullptr;
@@ -119,14 +141,7 @@ bool ComputeShader::Bind(ID3D11DeviceContext* DeviceContext)
 	{
 		 UAV = m_Buffer->GetUAV();
 	}
-	else
-	{
-		UAV = m_RO0->GetUAV();
-	}
 
-
-	DeviceContext->CSSetShader(m_ComputeShader, NULL, 0);
-	DeviceContext->CSSetUnorderedAccessViews(0, 1, &UAV, 0);
 
 
 	return true;
@@ -135,9 +150,42 @@ bool ComputeShader::Bind(ID3D11DeviceContext* DeviceContext)
 bool ComputeShader::UnBind(ID3D11DeviceContext* DeviceContext)
 {
 	ID3D11UnorderedAccessView* nullSRV = { NULL };
-	DeviceContext->CSSetUnorderedAccessViews(0, 1, &nullSRV, 0);
+	for (INT32 i = 0; i < m_ShaderBound_UAV.size(); i++)
+	{
+		DeviceContext->CSSetUnorderedAccessViews(m_ShaderBound_UAV[i], 1, &nullSRV, 0);
+	}
+	m_ShaderBound_UAV.clear();
 	DeviceContext->CSSetShader(nullptr, nullptr, 0);
-
-
 	return true;
+}
+
+void ComputeShader::CalcRelection(ID3DBlob* Shader_blob_ptr)
+{
+	m_TextureRW_BindPoints.clear();
+
+	ID3D11ShaderReflection* pReflector = NULL;
+	D3DReflect(Shader_blob_ptr->GetBufferPointer(), Shader_blob_ptr->GetBufferSize(),
+		IID_ID3D11ShaderReflection, (void**)&pReflector);
+
+	D3D11_SHADER_DESC desc;
+	pReflector->GetDesc(&desc);
+
+	for (UINT i = 0; i < desc.BoundResources; i++)
+	{
+		D3D11_SHADER_INPUT_BIND_DESC bindDesc;
+		pReflector->GetResourceBindingDesc(i, &bindDesc);
+	
+
+		UINT BindPoint = bindDesc.BindPoint;
+
+		if (
+			RenderUtils::CalcReflect_Bind(bindDesc, D3D_SHADER_INPUT_TYPE::D3D_SIT_UAV_RWTYPED, m_TextureRW_BindPoints)
+			)
+		{
+		}
+		else
+		{
+			TA_ERROR_WS(L"Unknown Texture Resource type in Compute Shader");
+		}
+	}
 }

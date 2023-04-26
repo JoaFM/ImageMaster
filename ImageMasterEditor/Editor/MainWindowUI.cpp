@@ -44,7 +44,7 @@ void MainWindowUI::UI_DrawLayer()
 	{
 		if (ImGui::BeginListBox("  Layers", ImVec2(188, -1)))
 		{
-			for (INT32 i = m_Editor->GetActiveProject()->GetLayers().size() - 1; i >= 0; i--)
+			for (INT32 i = (UINT)m_Editor->GetActiveProject()->GetLayers().size() - 1; i >= 0; i--)
 			{
 				m_Editor->GetActiveProject()->GetLayers()[i]->UI_DrawLayer();
 			}
