@@ -13,12 +13,11 @@ private:
 	class Window* m_ParentWindow = nullptr;
 	class MasterEditor* m_Editor = nullptr;
 
-
-	void DrawAppUI();
-
 	void UI_DrawLayer();
 
 
 	void UI_SetGlobalStyle();
 	void UI_DrawAppMenuBar();
+
+	ImFont* m_mainFont = nullptr;
 };

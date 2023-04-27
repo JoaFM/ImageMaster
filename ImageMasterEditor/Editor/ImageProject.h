@@ -30,6 +30,7 @@ public:
 	IM_Math::Int2 GetSize() const { return m_ImageSize; }
 
 	void CompositeRender();
+	void DeleteLayer(Layer* LayerToDelete);
 private:
 	// Project description
 	std::string m_ProjectName;
@@ -52,5 +53,5 @@ private:
 public:
 	std::vector<std::string> GetLayerModesAsString();
 	class Renderer* GetRenderer() {return m_renderer; };
-
+	Layer* FindActiveLayer();
 };

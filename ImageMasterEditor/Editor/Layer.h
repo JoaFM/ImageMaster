@@ -26,4 +26,6 @@ private:
 	class ImageProject* m_ParentProject = nullptr;
 
 
+public:
+	int& GetCurrentItemIndex();
 };

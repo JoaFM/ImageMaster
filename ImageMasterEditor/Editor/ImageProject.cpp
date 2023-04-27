@@ -10,7 +10,7 @@ ImageProject::ImageProject(std::string ProjectName, IM_Math::Int2 ImageSize, cla
 	m_renderer = renderer;
 	m_OutputRT = std::make_unique<RenderTarget>();;
 	m_OutputRT->CreateTarget(m_ImageSize.x, m_ImageSize.y, DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT, m_renderer);
-
+	m_CameraOffset = IM_Math::float2(-50, -50);
 	m_Layers.push_back(std::make_unique<Layer>("Layer 1", this));
 	m_Layers.push_back(std::make_unique<Layer>("Layer 2", this));
 }
@@ -59,6 +59,11 @@ void ImageProject::CompositeRender()
 	}
 }
 
+void ImageProject::DeleteLayer(Layer* LayerToDelete)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
 void ImageProject::UpdateCamera()
 {
 	m_CameraData.Transform.Position.x = m_CameraOffset.x;
@@ -84,6 +89,19 @@ std::vector<std::string> ImageProject::GetLayerModesAsString()
 	}
 
 	return result;
+}
+
+Layer* ImageProject::FindActiveLayer()
+{
+	for (INT32 i = 0; i < m_Layers.size(); i++)
+	{
+		if (m_Layers[i]->IsSelected())
+		{
+			return m_Layers[i].get();
+		}
+	}
+	return nullptr;
+
 }
 
 void ImageProject::UI_FileMenueUI(class MasterEditor* CallingEditor)

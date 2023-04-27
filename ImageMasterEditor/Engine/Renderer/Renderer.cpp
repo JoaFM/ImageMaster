@@ -112,12 +112,18 @@ void Renderer::SetOutputRT(class RenderTarget* DisplayTexture)
 
 void Renderer::Setup_IMGUI(Window* MainWindow)
 {
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO();
-	ImGui_ImplWin32_Init(MainWindow->GetHWND());
-	ImGui_ImplDX11_Init(GetDevice(), GetDeviceContext());
-	ImGui::StyleColorsDark();
+// 	IMGUI_CHECKVERSION();
+// 	ImGui::CreateContext();
+// 	ImGuiIO& io = ImGui::GetIO();
+// 	ImGui_ImplWin32_Init(MainWindow->GetHWND());
+// 	ImGui_ImplDX11_Init(GetDevice(), GetDeviceContext());
+// 	ImGui::StyleColorsDark();
+// 	
+// 	io.Fonts->AddFontDefault();
+// 	ImFont* mainFont = io.Fonts->AddFontFromFileTTF("D:/Code/ImageMaster/Content/Fonts/CaviarDreams.ttf", 24.0f);
+// 	io.Fonts->Build();
+// 	//IM_ASSERT(mainFont == nullptr);
+
 }
 
 void Renderer::CreateSwapChain(Window* MainWindow)

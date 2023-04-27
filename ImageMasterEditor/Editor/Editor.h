@@ -16,6 +16,9 @@ public:
 	void AddProject(std::string ProjectName);
 	class ImageProject* GetActiveProject() const { return m_ActiveProject; }
 
+	Renderer* GetRenderer() { return m_Renderer.get(); }
+	
+	std::wstring GetRootPath() const { return m_RootPath; };
 private:
 	//System
 	std::unique_ptr<Window> m_Window;
