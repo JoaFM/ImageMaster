@@ -18,7 +18,10 @@ public:
 	std::string GetProjectName() const;
 
 
-	IM_Math::float2  GetCameraOffset() { return m_CameraOffset; }
+	IM_Math::float2  GetCameraOffset() 
+	{
+		return m_CameraOffset; 
+	}
 	void SetCameraOffset(IM_Math::float2 NewCameraOffset) { m_CameraOffset = NewCameraOffset; UpdateCamera(); }
 
 	CameraData GetCameraData() const { return m_CameraData; }
@@ -31,6 +34,8 @@ public:
 
 	void CompositeRender();
 	void DeleteLayer(Layer* LayerToDelete);
+
+
 private:
 	// Project description
 	std::string m_ProjectName;
@@ -40,7 +45,6 @@ private:
 	IM_Math::float2 m_CameraOffset = IM_Math::float2(0,0);
 	CameraData m_CameraData;
 	void UpdateCamera();
-
 
 	// Render Data
 	std::unique_ptr<RenderTarget> m_OutputRT = nullptr;

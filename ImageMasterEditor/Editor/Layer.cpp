@@ -11,7 +11,9 @@ Layer::Layer(std::string LayerName, class ImageProject* ParentProject)
 	m_BlendMode = L"AlphaBlend";
 	m_ParentProject = ParentProject;
 	m_ID = TAUtils::RandomString(10);
-	m_Offset = IM_Math::Int2(0, 0);
+	m_CanvasTexture = std::make_unique<RenderTarget>();
+	m_CanvasTexture->CreateTarget(512, 512, DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT, ParentProject->GetRenderer());
+
 }
 
 void Layer::Composite(RenderTarget* OutputRT)
@@ -23,6 +25,7 @@ void Layer::Composite(RenderTarget* OutputRT)
 	if (renderer->BindComputeShader(TAUtils::CharToWString(CurrentModeKey.c_str())))
 	{
 		renderer->GetCurrentComputeShader()->SetTexture("BufferOut", OutputRT);
+		renderer->GetCurrentComputeShader()->SetTexture("CanvasTexture", m_CanvasTexture.get());
 		renderer->GetCurrentComputeShader()->Dispatch(renderer->GetDeviceContext());
 	}
 }
@@ -40,11 +43,6 @@ void Layer::UI_DrawLayer()
 	{
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.1f, 0.1f, 0.1f, 1.0f });
 	}
-	float value = 0;
-// 	if (ImGui::BeginPopupContextItem((m_LayerName + "__").c_str()))
-// 	{
-// 		ImGui::EndPopup();
-// 	}
 
 	if (ImGui::Button(
 		m_LayerName.c_str(),
@@ -59,13 +57,9 @@ void Layer::UI_DrawLayer()
 		if (ImGui::Selectable("Delete Layer")) { m_ParentProject->DeleteLayer(this); }
 		ImGui::EndPopup();
 	}
-
 	
 	ImGui::PopStyleColor();
 	ImGui::PopStyleVar();
-
-
-
 }
 
 bool Layer::IsSelected() const

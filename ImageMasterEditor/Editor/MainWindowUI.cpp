@@ -34,7 +34,6 @@ void MainWindowUI::DrawUI()
 {
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
-
 	UI_DrawLayer();
 	UI_DrawAppMenuBar();
 
@@ -46,6 +45,8 @@ void MainWindowUI::DrawUI()
 void MainWindowUI::UI_DrawLayer()
 {
 	ImGui::NewFrame();
+	UI_DrawDebug();
+
 	ImGui::PushFont(m_mainFont);
 	ImGui::SetNextWindowSize(ImVec2(200, 500), 1);
 
@@ -141,3 +142,12 @@ void MainWindowUI::UI_DrawAppMenuBar()
 	}
 }
 
+void MainWindowUI::UI_DrawDebug()
+{
+	if (ImGui::Begin("Debug"))
+	{
+		ImGui::Text("Canvas X: %d y:%d", m_Editor->GetMouseCanvasPosition().x, m_Editor->GetMouseCanvasPosition().y);
+	}
+	ImGui::End();
+
+}

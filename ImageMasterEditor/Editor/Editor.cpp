@@ -42,6 +42,7 @@ void MasterEditor::StartBlockingLoop()
 		m_ActiveProject->CompositeRender();
 		if (m_ActiveProject)
 		{
+			UpdateState();
 			m_Renderer->UpdateCamera(m_ActiveProject->GetCameraData());
 			m_Renderer->SetRenderSize(m_ActiveProject->GetSize());
 			m_Renderer->SetOutputRT(m_ActiveProject->GetOutputRT());
@@ -109,6 +110,12 @@ void MasterEditor::Behaviors()
 	CurrentOffset.y += m_Window->IsKeyDown(Window::KeyCode::W) ? 10 : 0;
 	CurrentOffset.y -= m_Window->IsKeyDown(Window::KeyCode::S) ? 10 : 0;
 	m_ActiveProject->SetCameraOffset(CurrentOffset);
+}
+
+void MasterEditor::UpdateState()
+{
+	IM_Math::float2 CamPos = GetActiveProject()->GetCameraOffset();
+	m_MouseCanvasPosition = IM_Math::Int2((INT32)(CamPos.x + m_Window->GetMouseX()), (INT32)(CamPos.y + m_Window->GetMouseY()));
 }
 
 void MasterEditor::RefreshAssets()

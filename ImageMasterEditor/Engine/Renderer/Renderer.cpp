@@ -23,11 +23,6 @@ void Renderer::Init(IM_Math::Int2 size, Window* MainWindow)
 		// We assume one camera atm. Maybe later we have multi cam support
 		m_ViewportCamera = std::make_unique<Camera>();;
 
-
-		// Setup rt: now in the project 
-// 		m_OutputRT = std::make_unique<RenderTarget>();;
-// 		m_OutputRT->CreateTarget(128, 128, DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT, this);
-		
 		{
 			// Set up the viewport mesh that we show the RT on. This will kind of work. But will not resize
 			m_ViewportMesh = std::make_unique<Mesh>();
@@ -41,20 +36,10 @@ void Renderer::Init(IM_Math::Int2 size, Window* MainWindow)
 			m_ViewportMesh->SetData(this, NewMesh, 6);
 		}
 
-
-		//TODO: Load all shaders in a folder
-		// The list of shaders are then the blendmodes on the layer
-// 		m_testCompute = std::make_unique<ComputeShader>();;
-// 		m_testCompute->SetShaderPath(std::wstring(L"D:/Code/ImageMaster/Content/Shaders/BasicComputeShader.hlsl"));
-// 		m_testCompute->LoadReload(GetDevice());
-// 		m_testCompute->SetRT(m_OutputRT.get());
-
 		
 		m_ViewportMesh->SetShader(L"Default");
 	}
 
-	// IMGUI
-	Setup_IMGUI(MainWindow);
 }
 
 bool Renderer::BindShader(std::wstring ShaderName)
@@ -110,21 +95,6 @@ void Renderer::SetOutputRT(class RenderTarget* DisplayTexture)
 	m_LoadedShaders[L"Default"]->SetTexture(L"DisplayTexture", DisplayTexture);
 }
 
-void Renderer::Setup_IMGUI(Window* MainWindow)
-{
-// 	IMGUI_CHECKVERSION();
-// 	ImGui::CreateContext();
-// 	ImGuiIO& io = ImGui::GetIO();
-// 	ImGui_ImplWin32_Init(MainWindow->GetHWND());
-// 	ImGui_ImplDX11_Init(GetDevice(), GetDeviceContext());
-// 	ImGui::StyleColorsDark();
-// 	
-// 	io.Fonts->AddFontDefault();
-// 	ImFont* mainFont = io.Fonts->AddFontFromFileTTF("D:/Code/ImageMaster/Content/Fonts/CaviarDreams.ttf", 24.0f);
-// 	io.Fonts->Build();
-// 	//IM_ASSERT(mainFont == nullptr);
-
-}
 
 void Renderer::CreateSwapChain(Window* MainWindow)
 {

@@ -130,30 +130,48 @@ bool ComputeShader::Bind(ID3D11DeviceContext* DeviceContext)
 		}
 		else
 		{
-			TA_ERROR_WS(L"Could not bind RW texture in compute shader. Texture not set");
+			TA_ERROR_WS(L"Could not bind RW texture in compute shader. Texture not set\n");
 			return false;
 		}
-		
 	}
 
-	ID3D11UnorderedAccessView* UAV = nullptr;
-	if (m_Buffer)
+	for (auto& TextureBP : m_Texture_BindPoints)
 	{
-		 UAV = m_Buffer->GetUAV();
+		if (m_App_BoundTextures.contains(TextureBP.first))
+		{
+			ID3D11ShaderResourceView* m_SRV = m_App_BoundTextures[TextureBP.first]->GetSRV();
+			DeviceContext->CSSetShaderResources(TextureBP.second, 1, &m_SRV);
+			m_ShaderBound_SRV.push_back(TextureBP.second);
+		}
+		else
+		{
+			TA_ERROR_WS(L"Could not bind RW texture in compute shader. Texture not set\n");
+			return false;
+		}
 	}
 
 
-
+// 	ID3D11UnorderedAccessView* UAV = nullptr;
+// 	if (m_Buffer)
+// 	{
+// 		 UAV = m_Buffer->GetUAV();
+// 	}
 	return true;
 }
 
 bool ComputeShader::UnBind(ID3D11DeviceContext* DeviceContext)
 {
-	ID3D11UnorderedAccessView* nullSRV = { NULL };
+	ID3D11UnorderedAccessView* nullUAV = { NULL };
 	for (INT32 i = 0; i < m_ShaderBound_UAV.size(); i++)
 	{
-		DeviceContext->CSSetUnorderedAccessViews(m_ShaderBound_UAV[i], 1, &nullSRV, 0);
+		DeviceContext->CSSetUnorderedAccessViews(m_ShaderBound_UAV[i], 1, &nullUAV, 0);
 	}
+	ID3D11ShaderResourceView* nullSRV = { NULL };
+	for (INT32 i = 0; i < m_ShaderBound_SRV.size(); i++)
+	{
+		DeviceContext->CSSetShaderResources(m_ShaderBound_SRV[i], 1, &nullSRV);
+	}
+	m_ShaderBound_SRV.clear();
 	m_ShaderBound_UAV.clear();
 	DeviceContext->CSSetShader(nullptr, nullptr, 0);
 	return true;
@@ -178,12 +196,10 @@ void ComputeShader::CalcRelection(ID3DBlob* Shader_blob_ptr)
 
 		UINT BindPoint = bindDesc.BindPoint;
 
-		if (
-			RenderUtils::CalcReflect_Bind(bindDesc, D3D_SHADER_INPUT_TYPE::D3D_SIT_UAV_RWTYPED, m_TextureRW_BindPoints)
-			)
-		{
-		}
-		else
+		if (!(
+			RenderUtils::CalcReflect_Bind(bindDesc, D3D_SHADER_INPUT_TYPE::D3D_SIT_UAV_RWTYPED, m_TextureRW_BindPoints) ||
+			RenderUtils::CalcReflect_Bind(bindDesc, D3D_SHADER_INPUT_TYPE::D3D_SIT_TEXTURE, m_Texture_BindPoints)
+			))
 		{
 			TA_ERROR_WS(L"Unknown Texture Resource type in Compute Shader");
 		}

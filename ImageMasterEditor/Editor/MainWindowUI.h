@@ -20,4 +20,7 @@ private:
 	void UI_DrawAppMenuBar();
 
 	ImFont* m_mainFont = nullptr;
+	void UI_DrawDebug();
+
+
 };

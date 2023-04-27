@@ -61,7 +61,11 @@ void ImageProject::CompositeRender()
 
 void ImageProject::DeleteLayer(Layer* LayerToDelete)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+ 	std::vector<std::unique_ptr<Layer>>::iterator object =
+ 		find_if(m_Layers.begin(), m_Layers.end(),
+ 			[&](std::unique_ptr<Layer>& obj) { return obj.get() == LayerToDelete; }
+ 	);
+ 	m_Layers.erase(object);
 }
 
 void ImageProject::UpdateCamera()
@@ -69,6 +73,8 @@ void ImageProject::UpdateCamera()
 	m_CameraData.Transform.Position.x = m_CameraOffset.x;
 	m_CameraData.Transform.Position.y = m_CameraOffset.y;
 }
+
+
 
 void ImageProject::Cleanup()
 {

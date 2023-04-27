@@ -101,7 +101,6 @@ private:
 	void SetupGlobalHashDefines();
 	void CreateDefaultSamplers();
 	void CreateDefaultBlendStates();
-	void Setup_IMGUI(Window* MainWindow);
 	void SetupGeneral_CB();
 
 
