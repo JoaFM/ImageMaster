@@ -12,6 +12,7 @@ public:
 	void Composite(class RenderTarget* OutputRT);
 	void UI_DrawLayer();
 	bool IsSelected() const;
+	class RenderTarget* GetCanvasTexture() { return m_CanvasTexture.get(); }
 private:
 	// Project description
 	std::wstring m_BlendMode;

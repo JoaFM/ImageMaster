@@ -5,10 +5,6 @@
 
 class Buffer 
 {
-
-
-
-
 public:
 	enum BufferType : INT32
 	{

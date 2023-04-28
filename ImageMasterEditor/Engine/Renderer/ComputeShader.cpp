@@ -5,6 +5,7 @@
 #include "D3DCompiler.h"
 #include "RenderUtils.h"
 #include "Texture.h"
+#include "ShaderIncludeFramework.h"
 
 ComputeShader::ComputeShader()
 {
@@ -18,6 +19,7 @@ void ComputeShader::Release()
 {
 	TA_SAFERELEASE(m_ComputeShader);
 }
+
 void ComputeShader::LoadReload(ID3D11Device* Device)
 {
 	Release();
@@ -35,9 +37,11 @@ void ComputeShader::LoadReload(ID3D11Device* Device)
 	};
 	ID3DBlob* shaderBlob = nullptr;
 	ID3DBlob* errorBlob = nullptr;
+	 
+	FrameworkInclude IncludeFrameWork;
 
-
-	HRESULT hr = D3DCompileFromFile(TAUtils::Paths::instance().ABS_Path(m_ShaderPath).c_str(), defines, D3D_COMPILE_STANDARD_FILE_INCLUDE,
+	//HRESULT hr = D3DCompileFromFile(TAUtils::Paths::instance().ABS_Path(m_ShaderPath).c_str(), defines, D3D_COMPILE_STANDARD_FILE_INCLUDE,
+	HRESULT hr = D3DCompileFromFile(TAUtils::Paths::instance().ABS_Path(m_ShaderPath).c_str(), defines, &IncludeFrameWork,
 		"CSMain", profile,
 		flags, 0, &shaderBlob, &errorBlob);
 
@@ -151,11 +155,11 @@ bool ComputeShader::Bind(ID3D11DeviceContext* DeviceContext)
 	}
 
 
-// 	ID3D11UnorderedAccessView* UAV = nullptr;
-// 	if (m_Buffer)
-// 	{
-// 		 UAV = m_Buffer->GetUAV();
-// 	}
+ 	ID3D11UnorderedAccessView* UAV = nullptr;
+ 	if (m_PropertiesStructuredBuffer)
+ 	{
+ 		 UAV = m_PropertiesStructuredBuffer->GetUAV();
+ 	}
 	return true;
 }
 
@@ -173,6 +177,8 @@ bool ComputeShader::UnBind(ID3D11DeviceContext* DeviceContext)
 	}
 	m_ShaderBound_SRV.clear();
 	m_ShaderBound_UAV.clear();
+	SetBuffer(nullptr);
+	m_App_BoundTextures.clear();
 	DeviceContext->CSSetShader(nullptr, nullptr, 0);
 	return true;
 }

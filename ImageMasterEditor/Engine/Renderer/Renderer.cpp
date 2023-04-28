@@ -465,6 +465,7 @@ void Renderer::RefreshShaders(std::vector<std::wstring> FoundShaders, std::vecto
 
 void Renderer::SetupGeneral_CB()
 {
+	// General 
 	D3D11_BUFFER_DESC constantBufferDesc;
 
 	ZeroMemory(&constantBufferDesc, sizeof(D3D11_BUFFER_DESC));
@@ -478,6 +479,8 @@ void Renderer::SetupGeneral_CB()
 	);
 	TAUtils::SetDebugObjectName(m_ConstantBuffers[(UINT)RenderTypes::ConstanBuffer::CB_General], "ConstanBuffer::CB_General");
 
+	// Sprite??????
+
 	ZeroMemory(&constantBufferDesc, sizeof(D3D11_BUFFER_DESC));
 	constantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	constantBufferDesc.ByteWidth = sizeof(RenderTypes::CB_PerScreenSprite_Struct);
@@ -488,6 +491,20 @@ void Renderer::SetupGeneral_CB()
 		L"failed to make constant buffer : CB_PerScreenSprite"
 	);
 	TAUtils::SetDebugObjectName(m_ConstantBuffers[(UINT)RenderTypes::ConstanBuffer::CB_PerScreenSprite], "ConstanBuffer::CB_PerScreenSprite");
+
+	// Brush
+
+	ZeroMemory(&constantBufferDesc, sizeof(D3D11_BUFFER_DESC));
+	constantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	constantBufferDesc.ByteWidth = sizeof(RenderTypes::CB_BrushInput_Struct);
+	constantBufferDesc.CPUAccessFlags = 0;
+	constantBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	TA_HRCHECK_Simple(
+		m_Device->CreateBuffer(&constantBufferDesc, nullptr, &m_ConstantBuffers[(UINT)RenderTypes::ConstanBuffer::CB_BrushInput]),
+		L"failed to make constant buffer : CB_BrushInput_Struct"
+	);
+	TAUtils::SetDebugObjectName(m_ConstantBuffers[(UINT)RenderTypes::ConstanBuffer::CB_BrushInput], "ConstanBuffer::CB_BrushInput_Struct");
+
 
 }
 
@@ -531,6 +548,10 @@ void Renderer::ReadyNextFrame(Window* window)
 		m_Device_Context->UpdateSubresource(m_ConstantBuffers[(UINT)RenderTypes::ConstanBuffer::CB_General], 0, nullptr, &m_CB_General, 0, 0);
 
 	}
+
+
+
+
 
 	/////////////////////// Viewport /////////////////////////
 	{

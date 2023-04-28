@@ -22,12 +22,25 @@ void Layer::Composite(RenderTarget* OutputRT)
 	std::vector<std::string> LayerModes = m_ParentProject->GetLayerModesAsString();
 	std::string CurrentModeKey = LayerModes[currentItem];
 
-	if (renderer->BindComputeShader(TAUtils::CharToWString(CurrentModeKey.c_str())))
+
+	ComputeShader* BlendCP = m_ParentProject->GetRenderer()->GetComputeShaders()[TAUtils::CharToWString(("Blend_" + CurrentModeKey).c_str())].get();
+
+	BlendCP->SetTexture("BufferOut", OutputRT);
+	BlendCP->SetTexture("CanvasTexture", m_CanvasTexture.get());
+	if (m_ParentProject->GetRenderer()->BindComputeShader(TAUtils::CharToWString(("Blend_" + CurrentModeKey).c_str())))
 	{
-		renderer->GetCurrentComputeShader()->SetTexture("BufferOut", OutputRT);
-		renderer->GetCurrentComputeShader()->SetTexture("CanvasTexture", m_CanvasTexture.get());
 		renderer->GetCurrentComputeShader()->Dispatch(renderer->GetDeviceContext());
+		BlendCP->Dispatch(renderer->GetDeviceContext());
 	}
+
+
+// 	if (renderer->BindComputeShader(TAUtils::CharToWString(("Blend_" + CurrentModeKey).c_str())))
+// 	{
+// 		renderer->GetCurrentComputeShader()->SetTexture("BufferOut", OutputRT);
+// 		renderer->GetCurrentComputeShader()->SetTexture("CanvasTexture", m_CanvasTexture.get());
+// 		renderer->GetCurrentComputeShader()->Dispatch(renderer->GetDeviceContext());
+// 		renderer->UnbindCurrentComputeShader();
+// 	}
 }
 
 void Layer::UI_DrawLayer()

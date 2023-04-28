@@ -12,11 +12,10 @@ public:
 	const std::wstring GetShaderPath() { return m_ShaderPath; }
 	void LoadReload(ID3D11Device* Device);
 
-	//void SetBuffer(class Buffer* NewTexture) { m_Buffer = NewTexture; };
+	void SetBuffer(class Buffer* NewTexture) { m_PropertiesStructuredBuffer = NewTexture; };
 	void SetTexture(std::string Name, class Texture* NewTexture);
 
-	//class Buffer* GetBuffer() { return m_Buffer; }
-	//class RenderTarget* GetRT() { return m_RO0; }
+	class Buffer* GetBuffer() { return m_PropertiesStructuredBuffer; }
 
 	bool IsValid() { return LoadedAndValid; }
 	
@@ -27,10 +26,10 @@ public:
 	bool Bind(ID3D11DeviceContext* DeviceContext);
 	bool UnBind(ID3D11DeviceContext* DeviceContext);
 	void Release();
+
 private:
 	std::wstring  m_ShaderPath;
-	//class Buffer* m_Buffer = nullptr;
-	//class RenderTarget* m_RO0 = nullptr;
+	class Buffer* m_PropertiesStructuredBuffer = nullptr;
 
 
 	bool LoadedAndValid = false;
@@ -43,6 +42,7 @@ private:
 	std::map <std::string, UINT> m_Texture_BindPoints;
 	std::map <std::string, class Texture*>	m_App_BoundTextures;
 
+	
 	//Cleanup
 	std::vector<UINT> m_ShaderBound_UAV;
 	std::vector<UINT> m_ShaderBound_SRV;

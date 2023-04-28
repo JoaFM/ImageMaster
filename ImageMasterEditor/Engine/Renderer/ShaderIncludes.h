@@ -4,6 +4,7 @@
 #include <string>
 #include "Renderer.h"
 #include <map>
+#include "RenderTypes.h"
 class ShaderIncludes
 {
 
@@ -38,7 +39,8 @@ private:
 	{
 		Includes["TAGlobals.h"] =
 			RenderTypes::CB_General_Struct::GetHeaderDefine() +
-			RenderTypes::CB_PerScreenSprite_Struct::GetHeaderDefine();
+			RenderTypes::CB_PerScreenSprite_Struct::GetHeaderDefine() +
+			RenderTypes::CB_BrushInput_Struct::GetHeaderDefine();
 	}
 
 };

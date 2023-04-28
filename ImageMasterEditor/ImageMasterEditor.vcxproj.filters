@@ -189,5 +189,8 @@
     <ClInclude Include="Engine\Renderer\RenderUtils.h">
       <Filter>Engine\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Renderer\ShaderIncludeFramework.h">
+      <Filter>Engine\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

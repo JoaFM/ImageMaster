@@ -46,6 +46,7 @@ void MasterEditor::StartBlockingLoop()
 			m_Renderer->UpdateCamera(m_ActiveProject->GetCameraData());
 			m_Renderer->SetRenderSize(m_ActiveProject->GetSize());
 			m_Renderer->SetOutputRT(m_ActiveProject->GetOutputRT());
+			DoAction();
 		}
 		// UI
 		DrawUI();
@@ -118,6 +119,7 @@ void MasterEditor::UpdateState()
 	m_MouseCanvasPosition = IM_Math::Int2((INT32)(CamPos.x + m_Window->GetMouseX()), (INT32)(CamPos.y + m_Window->GetMouseY()));
 }
 
+
 void MasterEditor::RefreshAssets()
 {
 	OutputDebugStringW(L"\n----- Loading Assets ---- \n");
@@ -155,3 +157,32 @@ void MasterEditor::RefreshAssets()
 
 }
 
+void MasterEditor::DoAction()
+{
+	if (!m_Window->IsMouseDown(0)) { return; }
+
+
+		//Mouse
+	RenderTypes::CB_BrushInput_Struct BrushInput;
+	BrushInput.MouseButton = 1;
+	BrushInput.MousePosition = IM_Math::float2((float)GetMouseCanvasPosition().x, (float)GetMouseCanvasPosition().y);
+	BrushInput.PAD0 = 0;
+
+	m_Renderer->GetDeviceContext()->UpdateSubresource(m_Renderer->GetConstantBuffers()[(UINT)RenderTypes::ConstanBuffer::CB_BrushInput], 0, nullptr, &BrushInput, 0, 0);
+
+	if (Layer* alayer = m_ActiveProject->GetSelectedLayer())
+	{
+		ComputeShader* BlendCP = m_Renderer->GetComputeShaders()[L"Brush_Circle"].get();
+
+		BlendCP->SetTexture("BufferOut", alayer->GetCanvasTexture());
+		BlendCP->SetTexture("CanvasTexture", nullptr);
+		m_Renderer->GetDeviceContext()->CSSetConstantBuffers(0, (UINT)RenderTypes::ConstanBuffer::NumConstantBuffers, m_Renderer->GetConstantBuffers());
+		if (m_Renderer->BindComputeShader(L"Brush_Circle"))
+		{
+			BlendCP->Dispatch(m_Renderer->GetDeviceContext());
+			m_Renderer->UnbindCurrentComputeShader();
+		}
+		
+	}
+
+}

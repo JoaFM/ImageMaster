@@ -41,4 +41,5 @@ private:
 	bool m_Quiting = false;
 
 	void UpdateState();
+	void DoAction();
 };

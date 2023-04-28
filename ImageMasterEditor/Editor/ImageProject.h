@@ -36,6 +36,8 @@ public:
 	void DeleteLayer(Layer* LayerToDelete);
 
 
+	Layer* GetSelectedLayer();
+
 private:
 	// Project description
 	std::string m_ProjectName;

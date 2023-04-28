@@ -121,6 +121,7 @@
     <ClInclude Include="Engine\Renderer\RenderTypes.h" />
     <ClInclude Include="Engine\Renderer\RenderUtils.h" />
     <ClInclude Include="Engine\Renderer\Shader.h" />
+    <ClInclude Include="Engine\Renderer\ShaderIncludeFramework.h" />
     <ClInclude Include="Engine\Renderer\ShaderIncludes.h" />
     <ClInclude Include="Engine\Renderer\SwapChain.h" />
     <ClInclude Include="Engine\Renderer\Texture.h" />

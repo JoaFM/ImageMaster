@@ -68,6 +68,11 @@ void ImageProject::DeleteLayer(Layer* LayerToDelete)
  	m_Layers.erase(object);
 }
 
+Layer* ImageProject::GetSelectedLayer()
+{
+	return m_SelectedLayer;
+}
+
 void ImageProject::UpdateCamera()
 {
 	m_CameraData.Transform.Position.x = m_CameraOffset.x;
@@ -91,7 +96,10 @@ std::vector<std::string> ImageProject::GetLayerModesAsString()
 
 	for (auto& shader : shaders)
 	{
-		result.push_back(TAUtils::WStringToChar(shader.first.c_str()) + "\0");
+		if (shader.first.starts_with(L"Blend_"))
+		{
+			result.push_back(TAUtils::WStringToChar(shader.first.substr(6, shader.first.size()-6).c_str()) + "\0");
+		}
 	}
 
 	return result;

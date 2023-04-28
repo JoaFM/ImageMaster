@@ -9,6 +9,7 @@ public:
 	{
 		CB_General,
 		CB_PerScreenSprite,
+		CB_BrushInput,
 		NumConstantBuffers
 	};
 
@@ -96,6 +97,29 @@ public:
 		}
 	};
 
+	struct CB_BrushInput_Struct
+	{
+		IM_Math::float2 MousePosition;
+		float MouseButton;
+		float PAD0;
+
+		static std::string GetHeaderDefine()
+		{
+
+			std::string ResultStr;
+			ResultStr += "cbuffer CB_BrushInput_Struct : register(b2)\n";
+			ResultStr += "{\n";
+			ResultStr += "	float2 MousePosition;\n";
+			ResultStr += "	float MouseButton;\n";
+			ResultStr += "	float PAD0;\n";
+			ResultStr += "}\n";
+			ResultStr += "\n";
+			return ResultStr;
+		}
+	};
+
+
+
 	static std::vector<D3D11_INPUT_ELEMENT_DESC> GetStandardVertLayout()
 	{
 		std::vector<D3D11_INPUT_ELEMENT_DESC> m_StandardVertLayout = {
@@ -114,3 +138,5 @@ public:
 	}
 
 };
+
+
