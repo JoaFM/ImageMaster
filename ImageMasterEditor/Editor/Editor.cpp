@@ -159,14 +159,17 @@ void MasterEditor::RefreshAssets()
 
 void MasterEditor::DoAction()
 {
-	if (!m_Window->IsMouseDown(0)) { return; }
+	bool mouse0 = m_Window->IsMouseDown(0);
+	bool mouse2 = m_Window->IsMouseDown(1);
+	if (!(mouse0 || mouse2)) { return; }
 
 
 		//Mouse
 	RenderTypes::CB_BrushInput_Struct BrushInput;
 	BrushInput.MouseButton = 1;
 	BrushInput.MousePosition = IM_Math::float2((float)GetMouseCanvasPosition().x, (float)GetMouseCanvasPosition().y);
-	BrushInput.PAD0 = 0;
+	BrushInput.PAD0 = IM_Math::float2();
+	BrushInput.BrushMainColour = mouse0 ? IM_Math::float3(1, 0, 0) : IM_Math::float3(0, 1, 0);
 
 	m_Renderer->GetDeviceContext()->UpdateSubresource(m_Renderer->GetConstantBuffers()[(UINT)RenderTypes::ConstanBuffer::CB_BrushInput], 0, nullptr, &BrushInput, 0, 0);
 

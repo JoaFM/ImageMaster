@@ -21,10 +21,8 @@ float2 MousePos_CS()
 	return MP;
 }
 
-
 Texture2D    DisplayTexture;
 SamplerState DisplayTexture_sampler;
-
 
 vs_out vs_main(vs_in input) {
 	vs_out output = (vs_out)0; // zero the memory first
@@ -36,7 +34,6 @@ vs_out vs_main(vs_in input) {
 	pos = mul(ViewMatrix, float4(pos.xyz, 1));
 	pos = mul(ProjectionMatrix, float4(pos.xyz, 1));
 
-
 	output.position_clip = float4(pos, 1.0);
 	output.PosClip = output.position_clip;
 	return output;
@@ -45,7 +42,8 @@ vs_out vs_main(vs_in input) {
 float4 ps_main(vs_out input) : SV_TARGET{
 
 	float4 col = float4(0,0,0,1);
-	col.xyz = DisplayTexture.Sample(DisplayTexture_sampler, input.uv).xyz;
-	//col.xy = input.uv;
+	float4 DisplayColor =  DisplayTexture.Sample(DisplayTexture_sampler, input.uv);
+	col.xyz = DisplayColor.xyz;
+	col.xyz = pow(col.xyz,2.2);
 	return  col ;
 }

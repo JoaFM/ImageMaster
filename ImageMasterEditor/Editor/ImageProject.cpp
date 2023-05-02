@@ -13,6 +13,7 @@ ImageProject::ImageProject(std::string ProjectName, IM_Math::Int2 ImageSize, cla
 	m_CameraOffset = IM_Math::float2(-50, -50);
 	m_Layers.push_back(std::make_unique<Layer>("Layer 1", this));
 	m_Layers.push_back(std::make_unique<Layer>("Layer 2", this));
+	SetSelected(m_Layers[m_Layers.size()-1].get());
 }
 
 ImageProject::ImageProject()
@@ -52,7 +53,7 @@ void ImageProject::SetSelected(Layer* NewLayerToBeSelected)
 
 void ImageProject::CompositeRender()
 {
-	m_OutputRT->Clear(0, 0, 0, 0, m_renderer);
+	m_OutputRT->Clear(0, 0, 0, 1, m_renderer);
 	for (auto& Layer : m_Layers)
 	{
 		Layer->Composite(m_OutputRT.get());

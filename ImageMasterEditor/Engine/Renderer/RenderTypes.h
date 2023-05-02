@@ -100,8 +100,9 @@ public:
 	struct CB_BrushInput_Struct
 	{
 		IM_Math::float2 MousePosition;
+		IM_Math::float2 PAD0;
+		IM_Math::float3 BrushMainColour;
 		float MouseButton;
-		float PAD0;
 
 		static std::string GetHeaderDefine()
 		{
@@ -110,8 +111,9 @@ public:
 			ResultStr += "cbuffer CB_BrushInput_Struct : register(b2)\n";
 			ResultStr += "{\n";
 			ResultStr += "	float2 MousePosition;\n";
+			ResultStr += "	float2 PAD0;\n";
+			ResultStr += "	float3 BrushMainColour;\n";
 			ResultStr += "	float MouseButton;\n";
-			ResultStr += "	float PAD0;\n";
 			ResultStr += "}\n";
 			ResultStr += "\n";
 			return ResultStr;

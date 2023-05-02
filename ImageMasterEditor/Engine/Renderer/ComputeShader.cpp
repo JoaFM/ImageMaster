@@ -118,7 +118,7 @@ bool ComputeShader::Bind(ID3D11DeviceContext* DeviceContext)
 
 	if (!LoadedAndValid)
 	{
-		TA_ERROR_WS(L"Compute Shader not Valid cannot run, Not Properly loaded");
+		TA_ERROR_WS(L"Compute Shader not Valid cannot run, Not Properly loaded\n");
 		return false;
 	}
 

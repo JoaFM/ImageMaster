@@ -8,7 +8,7 @@
 Layer::Layer(std::string LayerName, class ImageProject* ParentProject)
 {
 	m_LayerName = LayerName;
-	m_BlendMode = L"AlphaBlend";
+	m_BlendMode = L"Blend_Normal";
 	m_ParentProject = ParentProject;
 	m_ID = TAUtils::RandomString(10);
 	m_CanvasTexture = std::make_unique<RenderTarget>();
@@ -20,9 +20,7 @@ void Layer::Composite(RenderTarget* OutputRT)
 {
 	Renderer* renderer = m_ParentProject->GetRenderer();
 	std::vector<std::string> LayerModes = m_ParentProject->GetLayerModesAsString();
-	std::string CurrentModeKey = LayerModes[currentItem];
-
-
+	std::string CurrentModeKey = LayerModes[m_CurrentBlendMode];
 	ComputeShader* BlendCP = m_ParentProject->GetRenderer()->GetComputeShaders()[TAUtils::CharToWString(("Blend_" + CurrentModeKey).c_str())].get();
 
 	BlendCP->SetTexture("BufferOut", OutputRT);
@@ -57,9 +55,7 @@ void Layer::UI_DrawLayer()
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.1f, 0.1f, 0.1f, 1.0f });
 	}
 
-	if (ImGui::Button(
-		m_LayerName.c_str(),
-		ImVec2(160, 30)))
+	if (ImGui::Button(m_LayerName.c_str(), ImVec2(160, 30)))
 	{
 		m_ParentProject->SetSelected(this);
 	}
@@ -82,5 +78,5 @@ bool Layer::IsSelected() const
 
 int& Layer::GetCurrentItemIndex()
 {
-	return currentItem;
+	return m_CurrentBlendMode;
 }

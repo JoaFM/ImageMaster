@@ -19,7 +19,7 @@ private:
 	std::string m_LayerName;
 	std::string m_ID;
 	IM_Math::Int2 m_LayerSize;
-	int currentItem = 0;
+	int m_CurrentBlendMode = 1;
 	std::unique_ptr<RenderTarget> m_CanvasTexture = nullptr;
 	
 	//ref

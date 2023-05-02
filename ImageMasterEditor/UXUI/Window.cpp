@@ -129,14 +129,25 @@ void Window::OnMouseMove(LPARAM lParam)
 	m_MouseY = (INT32)GET_Y_LPARAM(lParam);
 }
 
-void Window::OnButtonDown(LPARAM lParam)
+void Window::OnLButtonDown(LPARAM lParam)
 {
 	m_Mouse_LB_OnDown = true;
 }
-void Window::OnButtonUp(LPARAM lParam)
+void Window::OnRButtonDown(LPARAM lParam)
+{
+	m_Mouse_RB_OnDown = true;
+}
+
+void Window::OnLButtonUp(LPARAM lParam)
 {
 	m_Mouse_LB_OnDown = false;
 	m_Mouse_LB_IsDown = false;
+}
+
+void Window::OnRButtonUp(LPARAM lParam)
+{
+	m_Mouse_RB_OnDown = false;
+	m_Mouse_RB_IsDown = false;
 }
 
 void Window::ClearRenderTarget(DirectX::XMFLOAT4 BackgroundColor)
@@ -213,6 +224,12 @@ void Window::PumpWindowMessages()
 		m_Mouse_LB_IsDown = true;
 	}
 
+	if (m_Mouse_RB_OnDown)
+	{
+		m_Mouse_RB_OnDown = false;
+		m_Mouse_RB_IsDown = true;
+	}
+
 	MSG msg = {};
 	bool should_close = false;
 	bool HasBeenAResizeThisFrame = false;
@@ -228,10 +245,16 @@ void Window::PumpWindowMessages()
 			OnMouseMove(msg.lParam);
 			break;
 		case WM_LBUTTONDOWN:
-			OnButtonDown(msg.lParam);
+			OnLButtonDown(msg.lParam);
 			break;
 		case WM_LBUTTONUP:
-			OnButtonUp(msg.lParam);
+			OnLButtonUp(msg.lParam);
+			break;
+		case WM_RBUTTONDOWN:
+			OnRButtonDown(msg.lParam);
+			break;
+		case WM_RBUTTONUP:
+			OnRButtonUp(msg.lParam);
 			break;
 		case WM_KEYDOWN:
 			OnKeyAction(msg.lParam, msg.wParam, true);

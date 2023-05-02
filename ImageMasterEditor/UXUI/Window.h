@@ -244,19 +244,21 @@ private:
 
 	bool m_Mouse_LB_IsDown = false;
 	bool m_Mouse_LB_OnDown = false;
-	bool m_Mouse_LB_OnUp = false;
+	//bool m_Mouse_LB_OnUp = false;
 
 	bool m_Mouse_RB_IsDown = false;
 	bool m_Mouse_RB_OnDown = false;
-	bool m_Mouse_RB_OnUp = false;
+	//bool m_Mouse_RB_OnUp = false;
 
 
 	std::map<WORD, KeyState> m_CurrentKeyState;
 
 	void OnKeyAction(LPARAM lParam, WPARAM wParam, bool IsDown);
 	void OnMouseMove(LPARAM lParam);
-	void OnButtonDown(LPARAM lParam);
-	void OnButtonUp(LPARAM lParam);
+	void OnLButtonDown(LPARAM lParam);
+	void OnLButtonUp(LPARAM lParam);
+	void OnRButtonDown(LPARAM lParam);
+	void OnRButtonUp(LPARAM lParam);
 public:
 	void ClearRenderTarget(DirectX::XMFLOAT4 BackgroundColor);
 };
