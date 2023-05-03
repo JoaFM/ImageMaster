@@ -100,7 +100,8 @@ public:
 	struct CB_BrushInput_Struct
 	{
 		IM_Math::float2 MousePosition;
-		IM_Math::float2 PAD0;
+		float BrushSize;
+		float BrushAlpha;
 		IM_Math::float3 BrushMainColour;
 		float MouseButton;
 
@@ -111,7 +112,8 @@ public:
 			ResultStr += "cbuffer CB_BrushInput_Struct : register(b2)\n";
 			ResultStr += "{\n";
 			ResultStr += "	float2 MousePosition;\n";
-			ResultStr += "	float2 PAD0;\n";
+			ResultStr += "	float BrushSize;\n";
+			ResultStr += "	float BrushAlpha;\n";
 			ResultStr += "	float3 BrushMainColour;\n";
 			ResultStr += "	float MouseButton;\n";
 			ResultStr += "}\n";

@@ -38,6 +38,11 @@ namespace IM_Math
 
 		float2();
 		float2(float _x, float _y);
+
+		static float Distance(const IM_Math::float2& A, const IM_Math::float2& B)
+		{
+			return (float)sqrtf(powf((A.x - B.x), 2) + powf((A.y - B.y), 2));
+		}
 	};
 
 	struct Int2
@@ -100,7 +105,6 @@ namespace IM_Math
 	};
 
 	float DegToRad(float Degree);
-
 
 
 }

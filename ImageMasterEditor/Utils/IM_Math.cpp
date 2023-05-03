@@ -1,4 +1,5 @@
 #include "IM_Math.h"
+#include <cmath>
 
 namespace IM_Math
 {
@@ -202,5 +203,8 @@ namespace IM_Math
 	{
 		return Degree * 0.0174533f;
 	}
+
+	
+	
 
 }

@@ -140,26 +140,22 @@ void Window::OnRButtonDown(LPARAM lParam)
 
 void Window::OnLButtonUp(LPARAM lParam)
 {
+	m_Mouse_LB_OnUp = true;
 	m_Mouse_LB_OnDown = false;
 	m_Mouse_LB_IsDown = false;
 }
 
 void Window::OnRButtonUp(LPARAM lParam)
 {
+	m_Mouse_RB_OnUp = true;
 	m_Mouse_RB_OnDown = false;
 	m_Mouse_RB_IsDown = false;
 }
 
-void Window::ClearRenderTarget(DirectX::XMFLOAT4 BackgroundColor)
-{
-	// m_SwapChain->GetRenderTarget()->Clear(BackgroundColor.x, BackgroundColor.y, BackgroundColor.z, BackgroundColor.w);
-}
 
 void Window::OnKeyAction(LPARAM lParam, WPARAM wParam, bool IsDown)
 {
 	//https://docs.microsoft.com/en-us/windows/win32/inputdev/about-keyboard-input#keystroke-message-flags
-
-
 
 	WORD vkCode = LOWORD(wParam);                                       // virtual-key code
 
@@ -222,13 +218,31 @@ void Window::PumpWindowMessages()
 	{
 		m_Mouse_LB_OnDown = false;
 		m_Mouse_LB_IsDown = true;
+		m_Mouse_LB_OnUp = false;
+	}
+
+	if (m_Mouse_LB_OnUp)
+	{
+		m_Mouse_LB_IsDown = false;
+		m_Mouse_LB_OnDown = false;
+		m_Mouse_LB_OnUp = false;
 	}
 
 	if (m_Mouse_RB_OnDown)
 	{
 		m_Mouse_RB_OnDown = false;
 		m_Mouse_RB_IsDown = true;
+		m_Mouse_LB_OnUp = false;
+
 	}
+
+	if (m_Mouse_RB_OnUp)
+	{
+		m_Mouse_RB_IsDown = false;
+		m_Mouse_LB_OnDown = false;
+		m_Mouse_RB_OnUp = false;
+	}
+
 
 	MSG msg = {};
 	bool should_close = false;
@@ -337,6 +351,22 @@ bool Window::OnMouseDown(INT32 Index)const
 	else if (Index == 1)
 	{
 		return m_Mouse_RB_OnDown;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool Window::OnMouseUP(INT32 Index) const
+{
+	if (Index == 0)
+	{
+		return m_Mouse_LB_OnUp;
+	}
+	else if (Index == 1)
+	{
+		return m_Mouse_RB_OnUp;
 	}
 	else
 	{

@@ -81,6 +81,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Editor\Brushes\BrushManager.cpp" />
     <ClCompile Include="Editor\Editor.cpp" />
     <ClCompile Include="Editor\ImageProject.cpp" />
     <ClCompile Include="Editor\Layer.cpp" />
@@ -109,6 +110,7 @@
     <ClCompile Include="UXUI\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Editor\Brushes\BrushManager.h" />
     <ClInclude Include="Editor\Editor.h" />
     <ClInclude Include="Editor\ImageProject.h" />
     <ClInclude Include="Editor\Layer.h" />

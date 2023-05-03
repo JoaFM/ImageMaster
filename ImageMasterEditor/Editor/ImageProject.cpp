@@ -10,7 +10,7 @@ ImageProject::ImageProject(std::string ProjectName, IM_Math::Int2 ImageSize, cla
 	m_renderer = renderer;
 	m_OutputRT = std::make_unique<RenderTarget>("ImageProject_MainRT_" + ProjectName);;
 	m_OutputRT->CreateTarget(m_ImageSize.x, m_ImageSize.y, DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT, m_renderer);
-	m_CameraOffset = IM_Math::float2(-50, -50);
+	m_CameraOffset = IM_Math::float2(-300, -90);
 	m_Layers.push_back(std::make_unique<Layer>("Layer 1", this));
 	m_Layers.push_back(std::make_unique<Layer>("Layer 2", this));
 	SetSelected(m_Layers[m_Layers.size()-1].get());

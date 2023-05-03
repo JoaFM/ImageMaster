@@ -3,6 +3,7 @@
 #include "ImageProject.h"
 #include "Utils/IM_STD.h"
 #include "Editor.h"
+#include "IMGUI/imgui_internal.h"
 
 MainWindowUI::MainWindowUI(class Window* ParentWindow, class MasterEditor* Editor)
 	:
@@ -34,8 +35,17 @@ void MainWindowUI::DrawUI()
 {
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+	UI_DrawDebug();
+
+	ImGui::PushFont(m_mainFont);
+
 	UI_DrawLayer();
 	UI_DrawAppMenuBar();
+	UI_DrawBrushUI();
+
+	ImGui::PopFont();
+	ImGui::EndFrame();
 
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
@@ -44,13 +54,27 @@ void MainWindowUI::DrawUI()
 
 void MainWindowUI::UI_DrawLayer()
 {
-	ImGui::NewFrame();
-	UI_DrawDebug();
 
-	ImGui::PushFont(m_mainFont);
+	const ImGuiViewport* viewport = ImGui::GetMainViewport();
+	// 
+	ImGui::SetNextWindowPos(ImVec2(viewport->WorkSize.x -200, ImGui::GetFrameHeight() + 200));
+
+	// Add menu bar flag and disable everything else
+	ImGuiWindowFlags flags =
+		ImGuiWindowFlags_NoDecoration |
+		//ImGuiWindowFlags_NoInputs |
+		ImGuiWindowFlags_NoMove |
+		//ImGuiWindowFlags_NoScrollWithMouse |
+		ImGuiWindowFlags_NoSavedSettings |
+		ImGuiWindowFlags_NoBringToFrontOnFocus// |
+		//ImGuiWindowFlags_NoBackground
+		;// |
+		//ImGuiWindowFlags_MenuBar;
+
+
 	ImGui::SetNextWindowSize(ImVec2(200, 500), 1);
 
-	if (ImGui::Begin("Layers"))
+	if (ImGui::Begin("Layers",nullptr, flags))
 	{
 		// Get blend Options
 		std::vector<std::string> LayerModes = m_Editor->GetActiveProject()->GetLayerModesAsString();
@@ -92,7 +116,6 @@ void MainWindowUI::UI_DrawLayer()
 		delete[] Items;
 	}
 
-	ImGui::PopFont();
 
 	ImGui::End();
 }
@@ -144,10 +167,46 @@ void MainWindowUI::UI_DrawAppMenuBar()
 
 void MainWindowUI::UI_DrawDebug()
 {
-	if (ImGui::Begin("Debug"))
+	if (ImGui::Begin("Debug_Menue"))
 	{
 		ImGui::Text("Canvas X: %d y:%d", m_Editor->GetMouseCanvasPosition().x, m_Editor->GetMouseCanvasPosition().y);
 	}
 	ImGui::End();
+
+}
+
+void MainWindowUI::UI_DrawBrushUI()
+{
+ 	const ImGuiViewport* viewport = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetFrameHeight()));
+ 	ImGui::SetNextWindowSize(ImVec2(200,200));
+ 
+ 	// Add menu bar flag and disable everything else
+	ImGuiWindowFlags flags =
+		ImGuiWindowFlags_NoDecoration |
+		//ImGuiWindowFlags_NoInputs |
+		ImGuiWindowFlags_NoMove |
+		//ImGuiWindowFlags_NoScrollWithMouse |
+		ImGuiWindowFlags_NoSavedSettings |
+		ImGuiWindowFlags_NoBringToFrontOnFocus// |
+		//ImGuiWindowFlags_NoBackground
+		;// |
+ 		//ImGuiWindowFlags_MenuBar;
+
+	if (ImGui::Begin("Tool Bar", nullptr, flags))
+	{
+			m_Editor->GetBrushManager()->DrawBrushUI();
+	}
+	ImGui::End();
+
+
+	ImGui::SetNextWindowPos(ImVec2(viewport->WorkSize.x - 200, ImGui::GetFrameHeight()));
+	ImGui::SetNextWindowSize(ImVec2(200, 50));
+	if (ImGui::Begin("Color##Window", nullptr, flags))
+	{
+		m_Editor->GetBrushManager()->DrawColorUI();
+	}
+	ImGui::End();
+
 
 }

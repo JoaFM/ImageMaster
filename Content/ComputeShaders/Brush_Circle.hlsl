@@ -32,10 +32,9 @@ void CSMain(uint3 dispatchThreadID : SV_DispatchThreadID)
 
     
     float BrushMask = distance(Loc, MousePosition);
-    BrushMask /= 50.0f;
+    BrushMask /= BrushSize;
     BrushMask = 1 - BrushMask;
     BrushMask = saturate(BrushMask);
 
-    float alpha = BrushMask * .05;
-    BufferOut[dispatchThreadID.xy] = Blend_Normal4( BufferOut[dispatchThreadID.xy], float4(BrushMainColour, BrushMask * .1));
+    BufferOut[dispatchThreadID.xy] = Blend_Normal4( BufferOut[dispatchThreadID.xy], float4(BrushMainColour, BrushMask * BrushAlpha));
 }

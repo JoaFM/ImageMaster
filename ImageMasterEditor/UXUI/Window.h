@@ -219,6 +219,7 @@ public:
 
 	bool IsMouseDown(INT32 Index)const;
 	bool OnMouseDown(INT32 Index)const;
+	bool OnMouseUP(INT32 Index)const;
 	bool ResetMouseToCenter();
 
 	void ResizeSwapChainToWindow();
@@ -244,11 +245,11 @@ private:
 
 	bool m_Mouse_LB_IsDown = false;
 	bool m_Mouse_LB_OnDown = false;
-	//bool m_Mouse_LB_OnUp = false;
+	bool m_Mouse_LB_OnUp = false;
 
 	bool m_Mouse_RB_IsDown = false;
 	bool m_Mouse_RB_OnDown = false;
-	//bool m_Mouse_RB_OnUp = false;
+	bool m_Mouse_RB_OnUp = false;
 
 
 	std::map<WORD, KeyState> m_CurrentKeyState;
@@ -259,6 +260,4 @@ private:
 	void OnLButtonUp(LPARAM lParam);
 	void OnRButtonDown(LPARAM lParam);
 	void OnRButtonUp(LPARAM lParam);
-public:
-	void ClearRenderTarget(DirectX::XMFLOAT4 BackgroundColor);
 };

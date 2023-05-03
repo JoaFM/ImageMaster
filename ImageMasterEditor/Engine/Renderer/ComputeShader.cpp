@@ -20,12 +20,6 @@ ComputeShader::~ComputeShader()
 void ComputeShader::Release()
 {
 	TA_SAFERELEASE(m_ComputeShader);
-// 	if (m_ComputeShader != nullptr)
-// 	{
-// 		m_ComputeShader->Release();
-// 		m_ComputeShader = nullptr;
-// 	}
-
 }
 
 void ComputeShader::LoadReload(ID3D11Device* Device)
@@ -97,7 +91,6 @@ void ComputeShader::LoadReload(ID3D11Device* Device)
 	CalcRelection(shaderBlob);
 	TA_SAFERELEASE(shaderBlob);
 	LoadedAndValid = true;
-	//OnNameOpdate();
 }
 
 void ComputeShader::SetTexture(std::string Name, class Texture* NewTexture)

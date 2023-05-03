@@ -21,6 +21,5 @@ private:
 
 	ImFont* m_mainFont = nullptr;
 	void UI_DrawDebug();
-
-
+	void UI_DrawBrushUI();
 };

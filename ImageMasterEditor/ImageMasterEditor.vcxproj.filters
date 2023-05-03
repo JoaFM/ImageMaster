@@ -26,6 +26,9 @@
     <Filter Include="IMGUI">
       <UniqueIdentifier>{bc158476-8d6f-44f5-a309-546970d7f192}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Editor\Brushes">
+      <UniqueIdentifier>{c9fa5862-f401-48fc-91bf-f932c67cb3be}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Editor\Editor.cpp">
@@ -105,6 +108,9 @@
     </ClCompile>
     <ClCompile Include="Engine\Renderer\ConstantBuffer.cpp">
       <Filter>Engine\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\Brushes\BrushManager.cpp">
+      <Filter>Editor\Brushes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -203,6 +209,9 @@
     </ClInclude>
     <ClInclude Include="Engine\Renderer\ConstantBuffer.h">
       <Filter>Engine\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\Brushes\BrushManager.h">
+      <Filter>Editor\Brushes</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -4,6 +4,7 @@
 #include <Engine/Renderer/Renderer.h>
 #include "MainWindowUI.h"
 #include "ImageProject.h"
+#include "Brushes/BrushManager.h"
 
 class MasterEditor
 {
@@ -19,11 +20,15 @@ public:
 	Renderer* GetRenderer() { return m_Renderer.get(); }
 	IM_Math::Int2 GetMouseCanvasPosition() { return m_MouseCanvasPosition; }
 	std::wstring GetRootPath() const { return m_RootPath; };
+	class Window* GetWindow() const;
+	BrushManager* GetBrushManager();
 private:
 	//System
 	std::unique_ptr<Window> m_Window;
 	std::unique_ptr<Renderer> m_Renderer;
 	std::unique_ptr<MainWindowUI> m_MainWindowUI;
+	std::unique_ptr<BrushManager> m_BrushManager;
+
 	//--
 	double m_deltaTime = -1;
 	std::wstring m_RootPath = L"";

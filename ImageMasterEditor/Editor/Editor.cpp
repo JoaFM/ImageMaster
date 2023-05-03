@@ -12,6 +12,8 @@ MasterEditor::MasterEditor(std::wstring RootPath, HINSTANCE hInstance)
 
 	m_MainWindowUI = std::make_unique<MainWindowUI>(m_Window.get(),this);
 
+	m_BrushManager = std::make_unique<BrushManager>(this);
+
 	RefreshAssets();
 
 #ifdef _DEBUG
@@ -46,7 +48,7 @@ void MasterEditor::StartBlockingLoop()
 			m_Renderer->UpdateCamera(m_ActiveProject->GetCameraData());
 			m_Renderer->SetRenderSize(m_ActiveProject->GetSize());
 			m_Renderer->SetOutputRT(m_ActiveProject->GetOutputRT());
-			DoAction();
+			m_BrushManager->Tick((float)m_deltaTime);
 		}
 		// UI
 		DrawUI();
@@ -68,6 +70,16 @@ void MasterEditor::AddProject(std::string ProjectName)
 	m_Projects.push_back(std::make_unique<ImageProject>(ProjectName + "____" + rndS,IM_Math::Int2(512,512),m_Renderer.get()));
 	ActiveProjectIndex = (INT32)(m_Projects.size() - 1);
 	m_ActiveProject = m_Projects[ActiveProjectIndex].get();
+}
+
+class Window* MasterEditor::GetWindow() const
+{
+	return m_Window.get();
+}
+
+BrushManager* MasterEditor::GetBrushManager()
+{
+	return m_BrushManager.get();
 }
 
 void MasterEditor::DrawUI()
@@ -159,32 +171,32 @@ void MasterEditor::RefreshAssets()
 
 void MasterEditor::DoAction()
 {
-	bool mouse0 = m_Window->IsMouseDown(0);
-	bool mouse2 = m_Window->IsMouseDown(1);
-	if (!(mouse0 || mouse2)) { return; }
-
-
-		//Mouse
-	RenderTypes::CB_BrushInput_Struct BrushInput;
-	BrushInput.MouseButton = 1;
-	BrushInput.MousePosition = IM_Math::float2((float)GetMouseCanvasPosition().x, (float)GetMouseCanvasPosition().y);
-	BrushInput.PAD0 = IM_Math::float2();
-	BrushInput.BrushMainColour = mouse0 ? IM_Math::float3(1, 0, 0) : IM_Math::float3(0, 1, 0);
-
-	m_Renderer->GetConstantBuffers()[RenderTypes::ConstanBuffer::CB_BrushInput]->UpdateData(&BrushInput);
-
-	if (Layer* alayer = m_ActiveProject->GetSelectedLayer())
-	{
-		ComputeShader* BlendCP = m_Renderer->GetComputeShaders()[L"Brush_Circle"].get();
-
-		BlendCP->SetTexture("BufferOut", alayer->GetCanvasTexture());
-		BlendCP->SetTexture("CanvasTexture", nullptr);
-		if (m_Renderer->BindComputeShader(L"Brush_Circle"))
-		{
-			BlendCP->Dispatch(m_Renderer->GetDeviceContext());
-			m_Renderer->UnbindCurrentComputeShader();
-		}
-		
-	}
+// 	bool mouse0 = m_Window->IsMouseDown(0);
+// 	bool mouse2 = m_Window->IsMouseDown(1);
+// 	if (!(mouse0 || mouse2)) { return; }
+// 
+// 
+// 		//Mouse
+// 	RenderTypes::CB_BrushInput_Struct BrushInput;
+// 	BrushInput.MouseButton = 1;
+// 	BrushInput.MousePosition = IM_Math::float2((float)GetMouseCanvasPosition().x, (float)GetMouseCanvasPosition().y);
+// 	BrushInput.PAD0 = IM_Math::float2();
+// 	BrushInput.BrushMainColour = mouse0 ? IM_Math::float3(1, 0, 0) : IM_Math::float3(0, 1, 0);
+// 
+// 	m_Renderer->GetConstantBuffers()[RenderTypes::ConstanBuffer::CB_BrushInput]->UpdateData(&BrushInput);
+// 
+// 	if (Layer* alayer = m_ActiveProject->GetSelectedLayer())
+// 	{
+// 		ComputeShader* BlendCP = m_Renderer->GetComputeShaders()[L"Brush_Circle"].get();
+// 
+// 		BlendCP->SetTexture("BufferOut", alayer->GetCanvasTexture());
+// 		BlendCP->SetTexture("CanvasTexture", nullptr);
+// 		if (m_Renderer->BindComputeShader(L"Brush_Circle"))
+// 		{
+// 			BlendCP->Dispatch(m_Renderer->GetDeviceContext());
+// 			m_Renderer->UnbindCurrentComputeShader();
+// 		}
+// 		
+// 	}
 
 }
