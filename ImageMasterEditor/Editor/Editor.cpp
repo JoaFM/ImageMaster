@@ -171,7 +171,7 @@ void MasterEditor::DoAction()
 	BrushInput.PAD0 = IM_Math::float2();
 	BrushInput.BrushMainColour = mouse0 ? IM_Math::float3(1, 0, 0) : IM_Math::float3(0, 1, 0);
 
-	m_Renderer->GetDeviceContext()->UpdateSubresource(m_Renderer->GetConstantBuffers()[(UINT)RenderTypes::ConstanBuffer::CB_BrushInput], 0, nullptr, &BrushInput, 0, 0);
+	m_Renderer->GetConstantBuffers()[RenderTypes::ConstanBuffer::CB_BrushInput]->UpdateData(&BrushInput);
 
 	if (Layer* alayer = m_ActiveProject->GetSelectedLayer())
 	{
@@ -179,7 +179,6 @@ void MasterEditor::DoAction()
 
 		BlendCP->SetTexture("BufferOut", alayer->GetCanvasTexture());
 		BlendCP->SetTexture("CanvasTexture", nullptr);
-		m_Renderer->GetDeviceContext()->CSSetConstantBuffers(0, (UINT)RenderTypes::ConstanBuffer::NumConstantBuffers, m_Renderer->GetConstantBuffers());
 		if (m_Renderer->BindComputeShader(L"Brush_Circle"))
 		{
 			BlendCP->Dispatch(m_Renderer->GetDeviceContext());

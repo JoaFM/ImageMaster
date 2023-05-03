@@ -28,9 +28,10 @@
 #include "RenderTypes.h"
 #include "Mesh.h"
 #include "Camera.h"
+#include "SamplerState.h"
+#include "ConstantBuffer.h"
 class Renderer
 {
-	
 
 
 public:
@@ -42,6 +43,9 @@ public:
 	void UnbindCurrentShader();
 	void UnbindCurrentComputeShader();
 	void SetRenderSize(IM_Math::Int2 DrawMeshSize);
+	~Renderer();
+
+	void SetAllCB(ID3D11VertexShader* VS, ID3D11PixelShader* PS);
 public:
 
 	//Internal for rendering
@@ -59,8 +63,8 @@ public:
 	void SetStencilState(bool EnableDepthTesting);
 
 	std::vector<D3D_SHADER_MACRO> GetGlobalHashDefines();
-	auto GetConstantBuffers() { return m_ConstantBuffers; }
-	struct ID3D11SamplerState* GetSampler(RenderTypes::DefaultSamplers SamplerName) { return m_Samplers[(UINT32)SamplerName]; }
+	auto& GetConstantBuffers() { return m_ConstantBuffers; }
+	SamplerState* GetSampler(RenderTypes::DefaultSamplers SamplerName) { return m_Samplers[SamplerName].get(); }
 
 	//Do things
 	void DrawMesh(Mesh* meshToDraw);
@@ -76,14 +80,14 @@ private:
 	// Buffers
 	RenderTypes::CB_General_Struct m_CB_General;
 	RenderTypes::CB_PerScreenSprite_Struct m_CB_PerScreenSprite;
-	ID3D11Buffer* m_ConstantBuffers[(UINT)RenderTypes::ConstanBuffer::NumConstantBuffers];
-	
-	struct ID3D11SamplerState* m_Samplers[(UINT32)RenderTypes::DefaultSamplers::Sampler_COUNT];
+	//ID3D11Buffer* m_ConstantBuffers[(UINT)RenderTypes::ConstanBuffer::NumConstantBuffers];
+	std::map<RenderTypes::ConstanBuffer, std::unique_ptr<ConstantBuffer>>  m_ConstantBuffers;
+
+	//struct ID3D11SamplerState* m_Samplers[(UINT32)RenderTypes::DefaultSamplers::Sampler_COUNT];
+	std::map<RenderTypes::DefaultSamplers, std::unique_ptr<SamplerState>>  m_Samplers;
+
 	ID3D11BlendState* m_Blendstates[(UINT32)Shader::BlendMode::Blend_COUNT];
 
-	// Test compute
-	std::unique_ptr<ComputeShader> m_testCompute = nullptr;
-	
 	
 	// STATE
 	ID3D11DepthStencilState* m_CurrentStencilState = nullptr;

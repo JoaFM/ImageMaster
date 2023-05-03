@@ -40,9 +40,9 @@ bool SwapChain::CreateSwapChain(
 	swap_chain_descr.BufferCount = 2;
 	swap_chain_descr.OutputWindow = CurWindow->GetHWND();
 	swap_chain_descr.Windowed = true;
-	swap_chain_descr.BufferDesc.Width = (UINT)m_Size.x;// m_CB_General.RenderBufferSize.x;
-	swap_chain_descr.BufferDesc.Height = (UINT)m_Size.y;// m_CB_General.RenderBufferSize.y;
-	swap_chain_descr.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;// DXGI_SWAP_EFFECT_FLIP_DISCARD;//DXGI_SWAP_EFFECT_SEQUENTIAL;//
+	swap_chain_descr.BufferDesc.Width = (UINT)m_Size.x;
+	swap_chain_descr.BufferDesc.Height = (UINT)m_Size.y;
+	swap_chain_descr.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 
 
 	D3D_FEATURE_LEVEL feature_level;
@@ -78,7 +78,7 @@ bool SwapChain::CreateSwapChain(
 
 	if (!m_SwapRT)
 	{
-		m_SwapRT = std::make_unique<RenderTarget>();
+		m_SwapRT = std::make_unique<RenderTarget>("SwapChain default");
 	}
 
 	bool Suc = m_SwapRT->CreateTargetFromBuffer(framebuffer, render);
@@ -96,12 +96,12 @@ void SwapChain::ResizeToWindow(Renderer* render)
 {
 	if (!m_SwapRT)
 	{
-		m_SwapRT = std::make_unique<RenderTarget>();
+		m_SwapRT = std::make_unique<RenderTarget>("RT for main window");
 	}
-
-
-	m_SwapRT->Release();
-
+	else
+	{
+		m_SwapRT->Release();
+	}
 	// from - https://docs.microsoft.com/en-us/windows/win32/direct3ddxgi/d3d10-graphics-programming-guide-dxgi?redirectedfrom=MSDN#handling-window-resizing
 	// Release all outstanding references to the swap chain's buffers.
 	//TA_SAFERELEASE(m_RenderTargetView);

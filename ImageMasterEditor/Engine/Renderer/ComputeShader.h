@@ -1,11 +1,12 @@
 #pragma once
 
 #include "MainApp/Default_Headers.h"
+#include "../IMBase.h"
 
-class ComputeShader
+class ComputeShader : IMBase
 {
 public:
-	ComputeShader();
+	ComputeShader(std::string Name);
 	~ComputeShader();
 
 	void SetShaderPath(std::wstring Newpath) { m_ShaderPath = Newpath; };
@@ -39,6 +40,7 @@ private:
 
 	void CalcRelection(ID3DBlob* Shader_blob_ptr);
 	std::map <std::string, UINT> m_TextureRW_BindPoints;
+	std::map <std::string, UINT> m_CBuffer_BindPoints;
 	std::map <std::string, UINT> m_Texture_BindPoints;
 	std::map <std::string, class Texture*>	m_App_BoundTextures;
 

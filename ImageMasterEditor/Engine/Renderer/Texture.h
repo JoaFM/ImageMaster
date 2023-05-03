@@ -2,8 +2,9 @@
 
 #include "MainApp/Default_Headers.h"
 #include "RenderTypes.h"
+#include "../IMBase.h"
 
-class Texture
+class Texture : public IMBase
 {
 public:
 	Texture();

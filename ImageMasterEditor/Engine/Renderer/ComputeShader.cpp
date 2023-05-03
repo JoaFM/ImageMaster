@@ -7,17 +7,25 @@
 #include "Texture.h"
 #include "ShaderIncludeFramework.h"
 
-ComputeShader::ComputeShader()
+ComputeShader::ComputeShader(std::string Name)
 {
+	SetFriendlyName(Name + TAUtils::RandomString(5));
 }
 
 ComputeShader::~ComputeShader()
 {
+	Release();
 }
 
 void ComputeShader::Release()
 {
 	TA_SAFERELEASE(m_ComputeShader);
+// 	if (m_ComputeShader != nullptr)
+// 	{
+// 		m_ComputeShader->Release();
+// 		m_ComputeShader = nullptr;
+// 	}
+
 }
 
 void ComputeShader::LoadReload(ID3D11Device* Device)
@@ -85,6 +93,7 @@ void ComputeShader::LoadReload(ID3D11Device* Device)
 		return;
 	}
 
+	TAUtils::SetDebugObjectName(m_ComputeShader, GetFriendlyName());
 	CalcRelection(shaderBlob);
 	TA_SAFERELEASE(shaderBlob);
 	LoadedAndValid = true;
@@ -204,10 +213,12 @@ void ComputeShader::CalcRelection(ID3DBlob* Shader_blob_ptr)
 
 		if (!(
 			RenderUtils::CalcReflect_Bind(bindDesc, D3D_SHADER_INPUT_TYPE::D3D_SIT_UAV_RWTYPED, m_TextureRW_BindPoints) ||
+			RenderUtils::CalcReflect_Bind(bindDesc, D3D_SHADER_INPUT_TYPE::D3D_SIT_CBUFFER, m_CBuffer_BindPoints) ||
 			RenderUtils::CalcReflect_Bind(bindDesc, D3D_SHADER_INPUT_TYPE::D3D_SIT_TEXTURE, m_Texture_BindPoints)
 			))
 		{
 			TA_ERROR_WS(L"Unknown Texture Resource type in Compute Shader");
 		}
 	}
+	TA_SAFERELEASE(pReflector);
 }

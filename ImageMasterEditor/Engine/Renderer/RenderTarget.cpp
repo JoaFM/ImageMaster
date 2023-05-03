@@ -4,11 +4,10 @@
 #include "Engine/Renderer/Renderer.h"
 
 
-RenderTarget::RenderTarget()
+RenderTarget::RenderTarget(std::string FriendlyName)
 	: Texture()
 {
-
-	//SetFriendlyName("RenderTarget:");
+	SetFriendlyName("RenderTarget:" + FriendlyName);
 }
 
 bool RenderTarget::CreateTarget(INT32 Width, INT32 Height, UINT8 DGIFormat, Renderer* Render)
@@ -46,7 +45,7 @@ bool RenderTarget::CreateTarget(INT32 Width, INT32 Height, UINT8 DGIFormat, Rend
 	TA_HRCHECK(Render->GetDevice()->CreateUnorderedAccessView(m_textureBuffer, &descBuf, &m_UAV), L"Failed to make view UAV for buffer");
 
 	CreateStencilBuffer(Render);
-	//OnNameOpdate();
+	OnNameOpdate();
 	return true;
 }
 
@@ -109,7 +108,6 @@ void RenderTarget::ClearDepth(Renderer* Render)
 }
 
 
-
 void RenderTarget::CreateStencilBuffer(Renderer* Render)
 {
 	D3D11_TEXTURE2D_DESC descDepth;
@@ -144,7 +142,7 @@ void RenderTarget::CreateStencilBuffer(Renderer* Render)
 	,
 		L"Could not create deapth stencil view");
 
-	//OnNameOpdate();
+	OnNameOpdate();
 }
 
 void RenderTarget::Clear(float R, float G, float B, float A, Renderer* Render)
@@ -153,13 +151,12 @@ void RenderTarget::Clear(float R, float G, float B, float A, Renderer* Render)
 	ClearDepth(Render);
 }
 
-//void RenderTarget::OnNameOpdate()
-//{
-	//Texture::OnNameOpdate();
-	//TAUtils::SetDebugObjectName(m_RenderTargetView, GetFriendlyName() + "RenderTargetView:");
-	//TAUtils::SetDebugObjectName(m_DepthStencilBuffer, GetFriendlyName() + "m_DepthStencilBuffer:");
-	//TAUtils::SetDebugObjectName(m_DepthStencilView, GetFriendlyName() + "m_DepthStencilView:");
-	//TAUtils::SetDebugObjectName(m_textureBuffer, GetFriendlyName() + "m_textureBuffer:");
-	//TAUtils::SetDebugObjectName(m_SRV, GetFriendlyName() + "m_SRV:");
-//}
+void RenderTarget::OnNameOpdate()
+{
+	TAUtils::SetDebugObjectName(m_RenderTargetView, GetFriendlyName() + "_RenderTargetView:");
+	TAUtils::SetDebugObjectName(m_DepthStencilBuffer, GetFriendlyName() + "_DepthStencilBuffer:");
+	TAUtils::SetDebugObjectName(m_DepthStencilView, GetFriendlyName() + "_DepthStencilView:");
+	TAUtils::SetDebugObjectName(m_textureBuffer, GetFriendlyName() + "_textureBuffer:");
+	TAUtils::SetDebugObjectName(m_SRV, GetFriendlyName() + "_m_SRV:");
+}
 

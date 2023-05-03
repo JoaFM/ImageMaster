@@ -39,7 +39,7 @@ public:
 		Blend_COUNT
 	};
 
-	Shader();
+	Shader(std::string FriendlyName);
 	~Shader() { Release(); };
 	// Data
 	ID3D11InputLayout* GetVertexLayout() { return m_inputLayout; }
@@ -64,6 +64,7 @@ public:
 
 private:
 	std::wstring  m_ShaderPath;
+	std::string  m_FriendlyName;
 	bool m_LoadedAndValid = false;
 	bool m_Wireframe = false;
 	bool m_BackfaceCulling = true;

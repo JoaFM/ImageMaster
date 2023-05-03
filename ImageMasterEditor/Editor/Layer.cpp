@@ -11,7 +11,7 @@ Layer::Layer(std::string LayerName, class ImageProject* ParentProject)
 	m_BlendMode = L"Blend_Normal";
 	m_ParentProject = ParentProject;
 	m_ID = TAUtils::RandomString(10);
-	m_CanvasTexture = std::make_unique<RenderTarget>();
+	m_CanvasTexture = std::make_unique<RenderTarget>("Layer_" + LayerName);
 	m_CanvasTexture->CreateTarget(512, 512, DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT, ParentProject->GetRenderer());
 
 }

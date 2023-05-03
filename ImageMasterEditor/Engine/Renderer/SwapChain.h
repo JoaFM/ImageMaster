@@ -23,10 +23,7 @@ public:
 	RenderTarget* GetRenderTarget() { return m_SwapRT.get(); }
 	void Present(UINT SyncInterval, UINT Flags);
 
-	//virtual void OnNameOpdate() override;
-
 private:
-	//struct ID3D11RenderTargetView* m_SwapChainRT = nullptr;
 	struct IDXGISwapChain* m_SwapChain = nullptr;
 	std::unique_ptr<RenderTarget> m_SwapRT = nullptr;
 

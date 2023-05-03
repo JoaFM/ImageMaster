@@ -18,12 +18,14 @@
 #include "ShaderIncludes.h"
 #include "RenderTypes.h"
 #include "ShaderIncludeFramework.h"
+#include "SamplerState.h"
 
 
 
 
-Shader::Shader()
+Shader::Shader(std::string FriendlyName)
 {
+	m_FriendlyName = FriendlyName;
 }
 
 
@@ -99,9 +101,7 @@ void Shader::FindDefines(std::string& FileDataString)
 		m_EnableDepthTesting = true;
 
 	}
-	
 }
-
 
 
 
@@ -226,7 +226,7 @@ void Shader::LoadReload(Renderer* renderer)
 	}
 
 	/// use shaders
-
+	TA_SAFERELEASE(vertex_shader_ptr);
 
 	hr = renderer->GetDevice()->CreateVertexShader(
 		vs_blob_ptr->GetBufferPointer(),
@@ -241,6 +241,7 @@ void Shader::LoadReload(Renderer* renderer)
 	}
 	//assert(SUCCEEDED(hr));
 
+	TA_SAFERELEASE(pixel_shader_ptr);
 
 	hr = renderer->GetDevice()->CreatePixelShader(
 		ps_blob_ptr->GetBufferPointer(),
@@ -275,9 +276,13 @@ void Shader::LoadReload(Renderer* renderer)
 	CalcRelection(vs_blob_ptr);
 	CalcRelection(ps_blob_ptr);
 	
-	TAUtils::SetDebugObjectName(pixel_shader_ptr, m_ShaderPath.c_str());
-	//TA_SetName(pixel_shader_ptr, "Hello");
-	
+	TAUtils::SetDebugObjectName(pixel_shader_ptr, (L"pixelSahder:" + TAUtils::CharToWString(m_FriendlyName.c_str())).c_str());
+	TAUtils::SetDebugObjectName(vertex_shader_ptr, (L"vertexSahder:" + TAUtils::CharToWString(m_FriendlyName.c_str())).c_str());
+
+	renderer->SetBlendState(m_BlendMode);
+	renderer->SetRasterizer(m_Wireframe, m_BackfaceCulling);
+	renderer->SetStencilState(m_EnableDepthTesting);
+
 	m_LoadedAndValid = true;
 }
 
@@ -288,10 +293,9 @@ void Shader::Bind(Renderer* renderer)
 	Device_Context->IASetInputLayout(GetVertexLayout());
 
 	Device_Context->VSSetShader(GetVertexShader(), NULL, 0);
-	Device_Context->VSSetConstantBuffers(0, (UINT)RenderTypes::ConstanBuffer::NumConstantBuffers, renderer->GetConstantBuffers());
-
 	Device_Context->PSSetShader(GetPixelShader(), NULL, 0);
-	Device_Context->PSSetConstantBuffers(0, (UINT)RenderTypes::ConstanBuffer::NumConstantBuffers, renderer->GetConstantBuffers());
+
+	renderer->SetAllCB(GetVertexShader(), GetPixelShader());
 
 	std::set<std::wstring> SetShaders;
 
@@ -308,13 +312,13 @@ void Shader::Bind(Renderer* renderer)
 			ID3D11ShaderResourceView* textureView = CurrTexture->GetSRV();
 			Device_Context->PSSetShaderResources(PS_Texture.second, 1, &textureView);
 			m_SRVSlotsBoundInPS.push_back(PS_Texture.second);
-			struct ID3D11SamplerState* samplerState = renderer->GetSampler(CurrTexture->GetSampler());
+			SamplerState* samplerState = renderer->GetSampler(CurrTexture->GetSampler());
 
 			auto TexSampler = m_PS_BoundSamplers.find(TextureName + L"_sampler");
 			SetShaders.insert(TextureName + L"_sampler");
 			if (TexSampler != m_PS_BoundSamplers.end())
 			{
-				Device_Context->PSSetSamplers(TexSampler->second, 1, &samplerState);
+				samplerState->Bind(TexSampler->second);
 				m_ShaderSlotsBoundedPS.push_back(TexSampler->second);
 			}
 

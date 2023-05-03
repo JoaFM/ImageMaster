@@ -4,6 +4,32 @@
 #include "Renderer.h"
 #include "UXUI/Window.h"
 
+#include "dxgidebug.h"
+#include "dxgi1_3.h"
+
+Renderer::~Renderer()
+{
+	for (INT32 i = 0; i < (INT32)Shader::BlendMode::Blend_COUNT; i++)
+	{
+		TA_SAFERELEASE(m_Blendstates[i]);
+	}
+
+	TA_SAFERELEASE(m_CurrentStencilState);
+	TA_SAFERELEASE(m_CurrentRasterState);
+
+	TA_SAFERELEASE(m_Device_Context);
+	TA_SAFERELEASE(m_Device);
+
+}
+
+void Renderer::SetAllCB(ID3D11VertexShader* VS, ID3D11PixelShader* PS)
+{
+	for (auto& CB : m_ConstantBuffers )
+	{
+		CB.second->BindPS(PS);
+		CB.second->BindVS(VS);
+	}
+}
 
 void Renderer::Init(IM_Math::Int2 size, Window* MainWindow)
 {
@@ -120,7 +146,8 @@ void Renderer::CreateSwapChain(Window* MainWindow)
 void Renderer::DrawMesh(Mesh* meshToDraw)
 {
 	m_CB_PerScreenSprite.ObjectToWorld = meshToDraw->GetTransform().GetMatrix();
-	m_Device_Context->UpdateSubresource(m_ConstantBuffers[(UINT)RenderTypes::ConstanBuffer::CB_PerScreenSprite], 0, nullptr, &m_CB_PerScreenSprite, 0, 0);
+	//m_Device_Context->UpdateSubresource(m_ConstantBuffers[(UINT)RenderTypes::ConstanBuffer::CB_PerScreenSprite], 0, nullptr, &m_CB_PerScreenSprite, 0, 0);
+	m_ConstantBuffers[RenderTypes::ConstanBuffer::CB_PerScreenSprite]->UpdateData(&m_CB_PerScreenSprite);
 	m_Device_Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	meshToDraw->Render(this);
@@ -171,18 +198,15 @@ void Renderer::SetupGlobalHashDefines()
 
 void Renderer::CreateDefaultSamplers()
 {
+
 	D3D11_SAMPLER_DESC samplerDesc = {};
 	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	TA_HRCHECK_Simple(
-		GetDevice()->CreateSamplerState(&samplerDesc, &m_Samplers[(INT32)RenderTypes::DefaultSamplers::Sampler_WrapPoint]),
-		L"failed to make Sampler_WrapPoint"
-	);
+	m_Samplers[RenderTypes::DefaultSamplers::Sampler_WrapPoint] = std::make_unique<SamplerState>(samplerDesc, "Sampler_WrapPoint", this);
 
-	TAUtils::SetDebugObjectName(m_Samplers[(INT32)RenderTypes::DefaultSamplers::Sampler_WrapPoint], "Sampler_WrapPoint");
 
 	samplerDesc = {};
 	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
@@ -190,12 +214,8 @@ void Renderer::CreateDefaultSamplers()
 	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 	samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	TA_HRCHECK_Simple(
-		GetDevice()->CreateSamplerState(&samplerDesc, &m_Samplers[(INT32)RenderTypes::DefaultSamplers::Sampler_ClmapPoint]),
-		L"failed to make Sampler_WrapPoint"
-	);
+	m_Samplers[RenderTypes::DefaultSamplers::Sampler_ClmapPoint] = std::make_unique<SamplerState>(samplerDesc, "Sampler_ClmapPoint", this);
 
-	TAUtils::SetDebugObjectName(m_Samplers[(INT32)RenderTypes::DefaultSamplers::Sampler_ClmapPoint], "Sampler_ClmapPoint");
 
 	samplerDesc = {};
 	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -203,11 +223,8 @@ void Renderer::CreateDefaultSamplers()
 	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	TA_HRCHECK_Simple(
-		GetDevice()->CreateSamplerState(&samplerDesc, &m_Samplers[(INT32)RenderTypes::DefaultSamplers::Sampler_WrapLinear]),
-		L"failed to make Sampler_WrapPoint"
-	);
-	TAUtils::SetDebugObjectName(m_Samplers[(INT32)RenderTypes::DefaultSamplers::Sampler_WrapLinear], "Sampler_WrapLinear");
+	m_Samplers[RenderTypes::DefaultSamplers::Sampler_WrapLinear] = std::make_unique<SamplerState>(samplerDesc, "Sampler_WrapLinear", this);
+
 
 	samplerDesc = {};
 	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -215,11 +232,8 @@ void Renderer::CreateDefaultSamplers()
 	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 	samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	TA_HRCHECK_Simple(
-		GetDevice()->CreateSamplerState(&samplerDesc, &m_Samplers[(INT32)RenderTypes::DefaultSamplers::Sampler_ClmapLinear]),
-		L"failed to make Sampler_WrapPoint"
-	);
-	TAUtils::SetDebugObjectName(m_Samplers[(INT32)RenderTypes::DefaultSamplers::Sampler_ClmapLinear], "Sampler_ClmapLinear");
+
+	m_Samplers[RenderTypes::DefaultSamplers::Sampler_ClmapLinear] = std::make_unique<SamplerState>(samplerDesc, "Sampler_ClmapLinear", this);
 
 }
 
@@ -417,7 +431,7 @@ void Renderer::RefreshShaders(std::vector<std::wstring> FoundShaders, std::vecto
 			std::wstring fileName = p.stem();
 			if (!m_LoadedShaders.contains(fileName) || m_LoadedShaders[fileName] == nullptr)
 			{
-				m_LoadedShaders[fileName] = std::make_unique<Shader>();
+				m_LoadedShaders[fileName] = std::make_unique<Shader>(TAUtils::WStringToChar(fileName.c_str()));
 			}
 			m_LoadedShaders[fileName]->SetShaderPath(ShaderToProcess);
 			m_LoadedShaders[fileName]->LoadReload(this);
@@ -452,58 +466,46 @@ void Renderer::RefreshShaders(std::vector<std::wstring> FoundShaders, std::vecto
 			std::wstring fileName = p.stem();
 			if (!m_LoadedComputeShaders.contains(fileName) || m_LoadedComputeShaders[fileName] == nullptr)
 			{
-				m_LoadedComputeShaders[fileName] = std::make_unique<ComputeShader>();
+				m_LoadedComputeShaders[fileName] = std::make_unique<ComputeShader>("ComputeShader::fileName" + TAUtils::WStringToChar(fileName.c_str()));
 			}
 			m_LoadedComputeShaders[fileName]->SetShaderPath(ShaderToProcess);
 			m_LoadedComputeShaders[fileName]->LoadReload(GetDevice());
 		}
 	}
 
-	
-
 }
 
 void Renderer::SetupGeneral_CB()
 {
-	// General 
 	D3D11_BUFFER_DESC constantBufferDesc;
 
+	// General 
 	ZeroMemory(&constantBufferDesc, sizeof(D3D11_BUFFER_DESC));
 	constantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	constantBufferDesc.ByteWidth = sizeof(RenderTypes::CB_General_Struct);
 	constantBufferDesc.CPUAccessFlags = 0;
 	constantBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	TA_HRCHECK_Simple(
-		m_Device->CreateBuffer(&constantBufferDesc, nullptr, &m_ConstantBuffers[(UINT)RenderTypes::ConstanBuffer::CB_General]),
-		L"failed to make constant buffer : CB_General"
-	);
-	TAUtils::SetDebugObjectName(m_ConstantBuffers[(UINT)RenderTypes::ConstanBuffer::CB_General], "ConstanBuffer::CB_General");
+	m_ConstantBuffers[RenderTypes::ConstanBuffer::CB_General] = std::make_unique<ConstantBuffer>(constantBufferDesc, "CB_General", this, (UINT)RenderTypes::ConstanBuffer::CB_General);
+	GetConstantBuffers()[RenderTypes::ConstanBuffer::CB_General]->CSBind();
+
 
 	// Sprite??????
-
 	ZeroMemory(&constantBufferDesc, sizeof(D3D11_BUFFER_DESC));
 	constantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	constantBufferDesc.ByteWidth = sizeof(RenderTypes::CB_PerScreenSprite_Struct);
 	constantBufferDesc.CPUAccessFlags = 0;
 	constantBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	TA_HRCHECK_Simple(
-		m_Device->CreateBuffer(&constantBufferDesc, nullptr, &m_ConstantBuffers[(UINT)RenderTypes::ConstanBuffer::CB_PerScreenSprite]),
-		L"failed to make constant buffer : CB_PerScreenSprite"
-	);
-	TAUtils::SetDebugObjectName(m_ConstantBuffers[(UINT)RenderTypes::ConstanBuffer::CB_PerScreenSprite], "ConstanBuffer::CB_PerScreenSprite");
+	m_ConstantBuffers[RenderTypes::ConstanBuffer::CB_PerScreenSprite] = std::make_unique<ConstantBuffer>(constantBufferDesc, "CB_PerScreenSprite", this, (UINT)RenderTypes::ConstanBuffer::CB_PerScreenSprite);
+	GetConstantBuffers()[RenderTypes::ConstanBuffer::CB_PerScreenSprite]->CSBind();
 
 	// Brush
-
 	ZeroMemory(&constantBufferDesc, sizeof(D3D11_BUFFER_DESC));
 	constantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	constantBufferDesc.ByteWidth = sizeof(RenderTypes::CB_BrushInput_Struct);
 	constantBufferDesc.CPUAccessFlags = 0;
 	constantBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	TA_HRCHECK_Simple(
-		m_Device->CreateBuffer(&constantBufferDesc, nullptr, &m_ConstantBuffers[(UINT)RenderTypes::ConstanBuffer::CB_BrushInput]),
-		L"failed to make constant buffer : CB_BrushInput_Struct"
-	);
-	TAUtils::SetDebugObjectName(m_ConstantBuffers[(UINT)RenderTypes::ConstanBuffer::CB_BrushInput], "ConstanBuffer::CB_BrushInput_Struct");
+	m_ConstantBuffers[RenderTypes::ConstanBuffer::CB_BrushInput] = std::make_unique<ConstantBuffer>(constantBufferDesc, "CB_BrushInput", this, (UINT)RenderTypes::ConstanBuffer::CB_BrushInput);
+	GetConstantBuffers()[RenderTypes::ConstanBuffer::CB_BrushInput]->CSBind();
 
 
 }
@@ -517,12 +519,6 @@ void Renderer::UpdateCamera(CameraData CamData)
 
 void Renderer::ReadyNextFrame(Window* window)
 {
-	// 	if (m_testCompute->Bind(GetDeviceContext()))
-// 	{
-// 		m_testCompute->Dispatch(GetDeviceContext(), 16, 16, 1);
-// 		m_testCompute->UnBind(GetDeviceContext());
-// 	}
-
 	m_ActiveRenderTarget->Bind(this);
 
 	CheckWindowSize(window);
@@ -534,7 +530,6 @@ void Renderer::ReadyNextFrame(Window* window)
 
 	// General params --------------------------------
 	{
-
 		//Mouse
 		m_CB_General.MousePos.x = (float)window->GetMouseX();
 		m_CB_General.MousePos.y = (float)window->GetMouseY();
@@ -545,12 +540,9 @@ void Renderer::ReadyNextFrame(Window* window)
 
 		m_CB_General.ProjectionMatrix = m_ViewportCamera->GetProjectionMatrix();
 
-		m_Device_Context->UpdateSubresource(m_ConstantBuffers[(UINT)RenderTypes::ConstanBuffer::CB_General], 0, nullptr, &m_CB_General, 0, 0);
+		m_ConstantBuffers[RenderTypes::ConstanBuffer::CB_General]->UpdateData(&m_CB_General);
 
 	}
-
-
-
 
 
 	/////////////////////// Viewport /////////////////////////
@@ -561,7 +553,5 @@ void Renderer::ReadyNextFrame(Window* window)
 		D3D11_VIEWPORT viewport = CreateViewport();
 		m_Device_Context->RSSetViewports(1, &viewport);
 		m_ActiveRenderTarget->Bind(this);
-		//m_Device_Context->OMSetRenderTargets(1, &m_RenderTargetView, m_DepthStencilView);
-
 	}
 }

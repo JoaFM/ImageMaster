@@ -88,10 +88,12 @@
     <ClCompile Include="Engine\Renderer\Buffer.cpp" />
     <ClCompile Include="Engine\Renderer\Camera.cpp" />
     <ClCompile Include="Engine\Renderer\ComputeShader.cpp" />
+    <ClCompile Include="Engine\Renderer\ConstantBuffer.cpp" />
     <ClCompile Include="Engine\Renderer\Mesh.cpp" />
     <ClCompile Include="Engine\Renderer\Renderer.cpp" />
     <ClCompile Include="Engine\Renderer\RenderTarget.cpp" />
     <ClCompile Include="Engine\Renderer\RenderUtils.cpp" />
+    <ClCompile Include="Engine\Renderer\SamplerState.cpp" />
     <ClCompile Include="Engine\Renderer\Shader.cpp" />
     <ClCompile Include="Engine\Renderer\Swapchain.cpp" />
     <ClCompile Include="Engine\Renderer\Texture.cpp" />
@@ -115,11 +117,13 @@
     <ClInclude Include="Engine\Renderer\Camera.h" />
     <ClInclude Include="Engine\Renderer\CameraData.h" />
     <ClInclude Include="Engine\Renderer\ComputeShader.h" />
+    <ClInclude Include="Engine\Renderer\ConstantBuffer.h" />
     <ClInclude Include="Engine\Renderer\Mesh.h" />
     <ClInclude Include="Engine\Renderer\Renderer.h" />
     <ClInclude Include="Engine\Renderer\RenderTarget.h" />
     <ClInclude Include="Engine\Renderer\RenderTypes.h" />
     <ClInclude Include="Engine\Renderer\RenderUtils.h" />
+    <ClInclude Include="Engine\Renderer\SamplerState.h" />
     <ClInclude Include="Engine\Renderer\Shader.h" />
     <ClInclude Include="Engine\Renderer\ShaderIncludeFramework.h" />
     <ClInclude Include="Engine\Renderer\ShaderIncludes.h" />
