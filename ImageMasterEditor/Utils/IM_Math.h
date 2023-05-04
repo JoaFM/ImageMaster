@@ -1,6 +1,7 @@
 #pragma once
 #include "intsafe.h"
 #include <DirectXMath.h>
+#include <string>
 
 namespace IM_Math
 {
@@ -39,10 +40,18 @@ namespace IM_Math
 		float2();
 		float2(float _x, float _y);
 
-		static float Distance(const IM_Math::float2& A, const IM_Math::float2& B)
-		{
-			return (float)sqrtf(powf((A.x - B.x), 2) + powf((A.y - B.y), 2));
-		}
+		float2 operator-(const float2& InPut);
+		float2 operator+(const float2& InPut);
+		float2 operator/=(const float InPut);
+		float2 operator+=(const float2& InPut);
+		float2 operator*(const float InPut);
+
+
+		static float Distance(const IM_Math::float2& A, const IM_Math::float2& B);
+		
+		std::string ToString();
+		void Normalize();
+		const float Magnetude();
 	};
 
 	struct Int2

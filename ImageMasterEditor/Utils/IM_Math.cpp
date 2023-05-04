@@ -1,5 +1,6 @@
 #include "IM_Math.h"
 #include <cmath>
+#include <string>
 
 namespace IM_Math
 {
@@ -80,6 +81,57 @@ namespace IM_Math
 		y(_y)
 	{
 
+	}
+
+	IM_Math::float2 float2::operator-(const float2& InPut)
+	{
+		return IM_Math::float2(x - InPut.x, y - InPut.y);
+	}
+
+	IM_Math::float2 float2::operator+(const float2& InPut)
+	{
+		return IM_Math::float2(x + InPut.x, y + InPut.y);
+	}
+
+	IM_Math::float2 float2::operator+=(const float2& InPut)
+	{
+		this->x += InPut.x;
+		this->y += InPut.y;
+		return *this;
+	}
+
+	IM_Math::float2 float2::operator*(const float InPut)
+	{
+		return IM_Math::float2(x * InPut, y * InPut);
+	}
+
+	float float2::Distance(const IM_Math::float2& A, const IM_Math::float2& B)
+	{
+		return (float)sqrtf(powf((A.x - B.x), 2) + powf((A.y - B.y), 2));
+	}
+
+	std::string float2::ToString()
+	{
+		return std::string("float2(" + std::to_string(this->x) + "," + std::to_string(this->y) + ")");
+	}
+
+	IM_Math::float2 float2::operator/=(const float InPut)
+	{
+		this->x /= InPut;
+		this->y /= InPut;
+		return *this;
+	}
+
+	void float2::Normalize()
+	{
+		const float m = this->Magnetude();
+		this->x /= m;
+		this->y /= m;
+	}
+
+	const float float2::Magnetude()
+	{
+		return (float)sqrtf(powf((this->x), 2) + powf((this->y), 2));
 	}
 
 	Int2::Int2()

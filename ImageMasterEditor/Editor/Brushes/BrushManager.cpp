@@ -8,63 +8,71 @@ BrushManager::BrushManager(class MasterEditor* MainEditor)
 	m_MainEditor = MainEditor;
 	m_Renderer = MainEditor->GetRenderer();
 	m_Window = MainEditor->GetWindow();
+	m_Color = IM_Math::float3(1.0f, 1.0f, 1.0f);
 }
 
 void BrushManager::Tick(float DeltaTime)
 {
 	IM_Math::Int2 CanvasMousePos = m_MainEditor->GetMouseCanvasPosition();
-	m_ThisLocation = IM_Math::float2((float)CanvasMousePos.x, (float)CanvasMousePos.y);
-
+	m_CurrentMouseLocation = IM_Math::float2((float)CanvasMousePos.x, (float)CanvasMousePos.y);
+	
+	
+	//OutputDebugStringA((m_LastLocation.ToString() + "\n").c_str());
 
 	if (m_Window->OnMouseDown(0))
 	{
-		m_BrushTraveledDistance = 0;
-		m_IsDrawing = true;
 		StartDarwing();
 	}
 	else if (m_Window->OnMouseUP(0))
 	{
 		EndDrawing();
-		m_IsDrawing = false;;
 	}
 	else if (m_IsDrawing)
 	{
 		UpdateDrawing();
 	}
-
-
 }
 
 
 
 void BrushManager::StartDarwing()
 {
-	DrawBrushAtCurrentLocation();
+	m_BrushLocation = m_LastMouseLocation = m_CurrentMouseLocation;
+	m_BrushTraveledDistance = 0;
+	m_IsDrawing = true;
 }
 
 void BrushManager::EndDrawing()
 {
-	DrawBrushAtCurrentLocation();
+	m_IsDrawing = false;;
 }
 
 void BrushManager::UpdateDrawing()
 {
-	float d = IM_Math::float2::Distance(m_ThisLocation, m_LastLocation);
-	m_BrushTraveledDistance += d;
-	if (m_BrushTraveledDistance > m_BrushSpacing)
+
+	m_BrushSpacing = max(m_BrushSpacing, 0.1f);
+
+	const float brushSpacingRadiusAjusted = m_BrushSize * (m_BrushSpacing * 2);
+	float d = IM_Math::float2::Distance(m_CurrentMouseLocation, m_BrushLocation);
+	
+	while (d > brushSpacingRadiusAjusted)
 	{
-		DrawBrushAtCurrentLocation();
-		m_LastLocation = m_ThisLocation;
-		m_BrushTraveledDistance = 0;
+
+		IM_Math::float2 dir = m_CurrentMouseLocation - m_BrushLocation;
+		dir.Normalize();
+		m_BrushLocation += dir * brushSpacingRadiusAjusted;
+		DrawBrushAtLocation(m_BrushLocation);
+		d = IM_Math::float2::Distance(m_CurrentMouseLocation, m_BrushLocation);
 	}
+
 }
 
-void BrushManager::DrawBrushAtCurrentLocation()
+void BrushManager::DrawBrushAtLocation(IM_Math::float2 BrushLocation)
 {
 	//Mouse
 	RenderTypes::CB_BrushInput_Struct BrushInput;
 	BrushInput.MouseButton = 1;
-	BrushInput.MousePosition = m_ThisLocation;
+	BrushInput.MousePosition = BrushLocation;
 	BrushInput.BrushSize = m_BrushSize;
 	BrushInput.BrushAlpha = m_BrushAlpha;
 	BrushInput.BrushMainColour = m_Color;
@@ -89,13 +97,13 @@ void BrushManager::DrawBrushAtCurrentLocation()
 void BrushManager::DrawBrushUI()
 {
 	ImGui::Text("Spacing");
-	ImGui::SliderFloat("##Spacing_S", &m_BrushSpacing, 0, 200, "%.1f");
+	ImGui::SliderFloat("##Spacing_S", &m_BrushSpacing, 0.1f, 2.0f, "%.3f", ImGuiSliderFlags_NoRoundToFormat);
 
 	ImGui::Text("Size");
-	ImGui::SliderFloat("##Size_S", &m_BrushSize, 0, 100, "%.01f");
+	ImGui::SliderFloat("##Size_S", &m_BrushSize, 0, 100.0f, "%.1f");
 
 	ImGui::Text("Alpha");
-	ImGui::SliderFloat("##Alpha_S", &m_BrushAlpha, 0, 1, "%.01f");
+	ImGui::SliderFloat("##Alpha_S", &m_BrushAlpha, 0, 1.0f, "%.3f", ImGuiSliderFlags_NoRoundToFormat);
 }
 
 void BrushManager::DrawColorUI()
