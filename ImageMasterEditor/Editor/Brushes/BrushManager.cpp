@@ -13,8 +13,7 @@ BrushManager::BrushManager(class MasterEditor* MainEditor)
 
 void BrushManager::Tick(float DeltaTime)
 {
-	IM_Math::Int2 CanvasMousePos = m_MainEditor->GetMouseCanvasPosition();
-	m_CurrentMouseLocation = IM_Math::float2((float)CanvasMousePos.x, (float)CanvasMousePos.y);
+	m_CurrentMouseLocation = m_MainEditor->GetMouseCanvasPosition();;
 	
 	
 	//OutputDebugStringA((m_LastLocation.ToString() + "\n").c_str());
@@ -23,7 +22,7 @@ void BrushManager::Tick(float DeltaTime)
 	{
 		StartDarwing();
 	}
-	else if (m_Window->OnMouseUP(0))
+	else if (m_Window->OnMouseUp(0))
 	{
 		EndDrawing();
 	}
@@ -51,6 +50,7 @@ void BrushManager::UpdateDrawing()
 {
 
 	m_BrushSpacing = max(m_BrushSpacing, 0.1f);
+	m_BrushSize = max(m_BrushSize, 0.1f);
 
 	const float brushSpacingRadiusAjusted = m_BrushSize * (m_BrushSpacing * 2);
 	float d = IM_Math::float2::Distance(m_CurrentMouseLocation, m_BrushLocation);

@@ -192,7 +192,7 @@ void MainWindowUI::UI_DrawDebug()
 {
 	if (ImGui::Begin("Debug_Menue"))
 	{
-		ImGui::Text("Canvas X: %d y:%d", m_Editor->GetMouseCanvasPosition().x, m_Editor->GetMouseCanvasPosition().y);
+		ImGui::Text("Canvas X: %f y:%f", m_Editor->GetMouseCanvasPosition().x, m_Editor->GetMouseCanvasPosition().y);
 	}
 	ImGui::End();
 

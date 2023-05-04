@@ -41,20 +41,21 @@ void MasterEditor::StartBlockingLoop()
 		//Prep
 		m_Renderer->ReadyNextFrame(m_Window.get());
 
-		m_ActiveProject->CompositeRender();
+
 		if (m_ActiveProject)
 		{
 			UpdateState();
+			m_ActiveProject->CompositeRender();
 			m_Renderer->UpdateCamera(m_ActiveProject->GetCameraData());
-			m_Renderer->SetRenderSize(m_ActiveProject->GetSize());
 			m_Renderer->SetOutputRT(m_ActiveProject->GetOutputRT());
 			if (!IsInModalState)
 			{
 				m_BrushManager->Tick((float)m_deltaTime);
 			}
-		}
 
-		m_Renderer->DrawViewMesh(m_Window.get());
+			m_Renderer->DrawViewMesh(m_Window.get());
+			m_Renderer->SetRenderSize(m_ActiveProject->GetSize() * m_ActiveProject->GetZoom());
+		}
 
 		// UI
 		IsInModalState = DrawUI();
@@ -79,6 +80,11 @@ void MasterEditor::AddProject(std::string ProjectName, IM_Math::Int2 CanvasSize)
 	m_Projects.push_back(std::make_unique<ImageProject>(ProjectName + "##____" + rndS, CanvasSize, m_Renderer.get()));
 	ActiveProjectIndex = (INT32)(m_Projects.size() - 1);
 	m_ActiveProject = m_Projects[ActiveProjectIndex].get();
+}
+
+IM_Math::float2 MasterEditor::GetMouseCanvasPosition()
+{
+	return m_MouseCanvasPosition / m_ActiveProject->GetZoom(); 
 }
 
 class Window* MasterEditor::GetWindow() const
@@ -130,20 +136,63 @@ void MasterEditor::Behaviors(float DeltaTime)
 	if (m_ActiveProject == nullptr) { return; }
 
 	// move m_ActiveProject Camera
-	const float canvasSpeed = 1;
 	IM_Math::float2 CurrentOffset = m_ActiveProject->GetCameraOffset();
-	CurrentOffset.x -= m_Window->IsKeyDown(Window::KeyCode::A) ? canvasSpeed*DeltaTime : 0;
-	CurrentOffset.x += m_Window->IsKeyDown(Window::KeyCode::D) ? canvasSpeed*DeltaTime : 0;
-	CurrentOffset.y -= m_Window->IsKeyDown(Window::KeyCode::W) ? canvasSpeed*DeltaTime : 0;
-	CurrentOffset.y += m_Window->IsKeyDown(Window::KeyCode::S) ? canvasSpeed*DeltaTime : 0;
+	{
+		const float canvasSpeed = 1;
+		CurrentOffset.x += m_Window->IsKeyDown(Window::KeyCode::A) ? canvasSpeed * DeltaTime : 0;
+		CurrentOffset.x -= m_Window->IsKeyDown(Window::KeyCode::D) ? canvasSpeed * DeltaTime : 0;
+		CurrentOffset.y += m_Window->IsKeyDown(Window::KeyCode::W) ? canvasSpeed * DeltaTime : 0;
+		CurrentOffset.y -= m_Window->IsKeyDown(Window::KeyCode::S) ? canvasSpeed * DeltaTime : 0;
+	}
+
+	{
+		if (!IsMovingMouse && m_Window->OnMouseDown(2))
+		{
+			m_MouseMoveLoc = IM_Math::float2((float)m_Window->GetMouseX(), (float)m_Window->GetMouseY());
+			IsMovingMouse = true;
+		}
+		else if (m_Window->OnMouseUp(2))
+		{
+			IsMovingMouse = false;
+		}
+		IM_Math::float2 MouseOffset(0, 0);
+		if (IsMovingMouse)
+		{
+			MouseOffset = m_MouseMoveLoc - IM_Math::float2((float)m_Window->GetMouseX(), (float)m_Window->GetMouseY());
+			m_MouseMoveLoc = IM_Math::float2((float)m_Window->GetMouseX(), (float)m_Window->GetMouseY());
+		}
+		CurrentOffset += MouseOffset;
+	}
+
+	const float offset = (float)m_Window->MouseScroll();
+	const float ZoomStep = 2.0f;
+	if (offset > 0)
+	{
+		m_ActiveProject->SetZoom(m_ActiveProject->GetZoom() / ZoomStep);
+		CurrentOffset -= GetMouseCanvasPosition() * (m_ActiveProject->GetZoom() *.5f);
+		//OutputDebugStringW((L"\n Zoom1:" +std::to_wstring(m_ActiveProject->GetZoom()) + L"\n").c_str());
+
+	}
+	else if (offset < 0)
+	{
+		m_ActiveProject->SetZoom(m_ActiveProject->GetZoom() * ZoomStep);
+		CurrentOffset += GetMouseCanvasPosition() * m_ActiveProject->GetZoom();
+	}
+
 	m_ActiveProject->SetCameraOffset(CurrentOffset);
+
+	if (m_Window->IsKeyDown(Window::KeyCode::F))
+	{
+		m_ActiveProject->SetCameraOffset(IM_Math::float2(-100,-100));
+	}
+
+
 }
 
 void MasterEditor::UpdateState()
 {
 	IM_Math::float2 CamPos = GetActiveProject()->GetCameraOffset();
-	m_MouseCanvasPosition = IM_Math::Int2((INT32)(CamPos.x + m_Window->GetMouseX()), (INT32)(CamPos.y + m_Window->GetMouseY()));
-
+	m_MouseCanvasPosition = IM_Math::float2((float)(CamPos.x + m_Window->GetMouseX()), (float)(CamPos.y + m_Window->GetMouseY()));
 }
 
 

@@ -60,10 +60,26 @@ void Renderer::Init(IM_Math::Int2 size, Window* MainWindow)
 			NewMesh[5] = Mesh::VertData(0, 1, 0, 0, 1);
 			NewMesh[4] = Mesh::VertData(1, 1, 0, 1, 1);
 			m_ViewportMesh->SetData(this, NewMesh, 6);
+			m_ViewportMesh->SetShader(L"Default");
+		}
+
+		{
+			// Set up the viewport mesh that we show the RT on. This will kind of work. But will not resize
+			m_BackgroundMesh = std::make_unique<Mesh>();
+			Mesh::VertData* NewMesh = new  Mesh::VertData[6];
+			NewMesh[0] = Mesh::VertData(0, 0, 0, 0, 0);
+			NewMesh[1] = Mesh::VertData(1, 0, 0, 1, 0);
+			NewMesh[2] = Mesh::VertData(1, 1, 0, 1, 1);
+			NewMesh[3] = Mesh::VertData(0, 0, 0, 0, 0);
+			NewMesh[5] = Mesh::VertData(0, 1, 0, 0, 1);
+			NewMesh[4] = Mesh::VertData(1, 1, 0, 1, 1);
+			m_BackgroundMesh->SetData(this, NewMesh, 6);
+			m_BackgroundMesh->SetShader(L"Background");
+			m_BackgroundMesh->SetScale(IM_Math::float3(100000, 100000, 1));
+			m_BackgroundMesh->SetPosition(IM_Math::float3(-50000, -50000, -100));
 		}
 
 		
-		m_ViewportMesh->SetShader(L"Default");
 	}
 
 }
@@ -146,7 +162,6 @@ void Renderer::CreateSwapChain(Window* MainWindow)
 void Renderer::DrawMesh(Mesh* meshToDraw)
 {
 	m_CB_PerScreenSprite.ObjectToWorld = meshToDraw->GetTransform().GetMatrix();
-	//m_Device_Context->UpdateSubresource(m_ConstantBuffers[(UINT)RenderTypes::ConstanBuffer::CB_PerScreenSprite], 0, nullptr, &m_CB_PerScreenSprite, 0, 0);
 	m_ConstantBuffers[RenderTypes::ConstanBuffer::CB_PerScreenSprite]->UpdateData(&m_CB_PerScreenSprite);
 	m_Device_Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -161,7 +176,10 @@ void Renderer::Present(Window* MainWindow)
 
 void Renderer::DrawViewMesh(Window* MainWindow)
 {
+	DrawMesh(m_BackgroundMesh.get());
 	DrawMesh(m_ViewportMesh.get());
+
+	
 }
 
 std::vector<D3D_SHADER_MACRO> Renderer::GetGlobalHashDefines()
@@ -538,7 +556,7 @@ void Renderer::ReadyNextFrame(Window* window)
 		m_CB_General.MousePos.x = (float)window->GetMouseX();
 		m_CB_General.MousePos.y = (float)window->GetMouseY();
 		m_CB_General.ViewMatrix = m_ViewportCamera->GetViewMatrix();
-
+		
 		m_ViewportCamera->SetCameraSizeX((float)m_CB_General.DisplayWindowSize.x);
 		m_ViewportCamera->SetCameraSizeY((float)m_CB_General.DisplayWindowSize.y);
 

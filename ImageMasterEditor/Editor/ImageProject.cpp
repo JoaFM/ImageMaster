@@ -74,13 +74,21 @@ Layer* ImageProject::GetSelectedLayer()
 	return m_SelectedLayer;
 }
 
+float ImageProject::GetZoom()
+{
+	return m_zoom;
+}
+
+void ImageProject::SetZoom(float zoom)
+{
+	m_zoom = zoom;
+}
+
 void ImageProject::UpdateCamera()
 {
 	m_CameraData.Transform.Position.x = m_CameraOffset.x;
 	m_CameraData.Transform.Position.y = m_CameraOffset.y;
 }
-
-
 
 void ImageProject::Cleanup()
 {

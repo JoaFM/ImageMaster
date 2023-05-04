@@ -45,6 +45,12 @@ namespace IM_Math
 		return IM_Math::float3(this->x * InPut, this->y * InPut, this->z * InPut);
 	}
 
+	std::string float3::ToString()
+	{
+		return std::string("float3(" + std::to_string(this->x) + "," + std::to_string(this->y) + "," + std::to_string(this->z) + ")");
+
+	}
+
 	IM_Math::float3& float3::operator+=(const float3& InPut)
 	{
 		this->x += InPut.x;
@@ -100,6 +106,13 @@ namespace IM_Math
 		return *this;
 	}
 
+	IM_Math::float2 float2::operator-=(const float2& InPut)
+	{
+		this->x -= InPut.x;
+		this->y -= InPut.y;
+		return *this;
+	}
+
 	IM_Math::float2 float2::operator*(const float InPut)
 	{
 		return IM_Math::float2(x * InPut, y * InPut);
@@ -120,6 +133,11 @@ namespace IM_Math
 		this->x /= InPut;
 		this->y /= InPut;
 		return *this;
+	}
+
+	IM_Math::float2 float2::operator/(const float InPut)
+	{
+		return IM_Math::float2(x / InPut, y/InPut);
 	}
 
 	void float2::Normalize()
@@ -149,6 +167,17 @@ namespace IM_Math
 	{
 
 	}
+
+	IM_Math::Int2 Int2::operator*(const float InPut)
+	{
+		return IM_Math::Int2((INT32)(x * InPut), (INT32)(y * InPut));
+	}
+
+	IM_Math::Int2 Int2::operator/(const float InPut)
+	{
+		return IM_Math::Int2((INT32)(x / InPut), (INT32)(y / InPut));
+	}
+
 	IM_Math::Int2 Int2::operator-(const Int2 InPut)
 	{
 		return IM_Math::Int2(x - InPut.x, y - InPut.y);

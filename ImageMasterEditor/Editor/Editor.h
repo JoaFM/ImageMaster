@@ -18,7 +18,7 @@ public:
 	class ImageProject* GetActiveProject() const { return m_ActiveProject; }
 
 	Renderer* GetRenderer() { return m_Renderer.get(); }
-	IM_Math::Int2 GetMouseCanvasPosition() { return m_MouseCanvasPosition; }
+	IM_Math::float2 GetMouseCanvasPosition();
 	std::wstring GetRootPath() const { return m_RootPath; };
 	class Window* GetWindow() const;
 	BrushManager* GetBrushManager();
@@ -35,7 +35,10 @@ private:
 	//--
 	double m_deltaTime = -1;
 	std::wstring m_RootPath = L"";
-	IM_Math::Int2 m_MouseCanvasPosition;
+	IM_Math::float2 m_MouseCanvasPosition;
+	IM_Math::float2 m_MouseMoveLoc;
+	bool IsMovingMouse = false;
+
 	bool DrawUI();
 
 	// Workspace

@@ -99,6 +99,7 @@ private:
 	std::unique_ptr<Camera> m_ViewportCamera = nullptr;
 	RenderTarget* m_ActiveRenderTarget = nullptr;
 	std::unique_ptr<Mesh> m_ViewportMesh = nullptr;
+	std::unique_ptr<Mesh> m_BackgroundMesh = nullptr;
 
 	//------- Startup ----------
 	void InternalSetRenderTarget(RenderTarget* RTarget);

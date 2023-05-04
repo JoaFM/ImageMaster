@@ -153,6 +153,28 @@ void Window::OnRButtonUp(LPARAM lParam)
 }
 
 
+void Window::OnMButtonDown(LPARAM lParam)
+{
+	m_Mouse_MB_OnDown = true;
+}
+
+void Window::OnMButtonUp(LPARAM lParam)
+{
+	m_Mouse_MB_OnUp = true;
+	m_Mouse_MB_OnDown = false;
+	m_Mouse_MB_IsDown = false;
+}
+
+INT32 Window::MouseScroll() const
+{
+	return m_MouseWeelState;
+}
+
+void Window::OnMouseWeel(LPARAM lParam, WPARAM wParam)
+{
+	m_MouseWeelState = GET_WHEEL_DELTA_WPARAM(wParam);
+}
+
 void Window::OnKeyAction(LPARAM lParam, WPARAM wParam, bool IsDown)
 {
 	//https://docs.microsoft.com/en-us/windows/win32/inputdev/about-keyboard-input#keystroke-message-flags
@@ -202,6 +224,7 @@ void Window::OnKeyAction(LPARAM lParam, WPARAM wParam, bool IsDown)
 
 void Window::PumpWindowMessages()
 {
+	m_MouseWeelState = 0;
 	for (auto& keyS : m_CurrentKeyState)
 	{
 		if (keyS.second.keySatus == KeyStatus::OnUp)
@@ -217,30 +240,46 @@ void Window::PumpWindowMessages()
 	if (m_Mouse_LB_OnDown)
 	{
 		m_Mouse_LB_OnDown = false;
-		m_Mouse_LB_IsDown = true;
 		m_Mouse_LB_OnUp = false;
+		m_Mouse_LB_IsDown = true;
 	}
 
 	if (m_Mouse_LB_OnUp)
 	{
-		m_Mouse_LB_IsDown = false;
 		m_Mouse_LB_OnDown = false;
 		m_Mouse_LB_OnUp = false;
+		m_Mouse_LB_IsDown = false;
 	}
 
 	if (m_Mouse_RB_OnDown)
 	{
 		m_Mouse_RB_OnDown = false;
 		m_Mouse_RB_IsDown = true;
-		m_Mouse_LB_OnUp = false;
+		m_Mouse_RB_OnUp = false;
 
 	}
 
 	if (m_Mouse_RB_OnUp)
 	{
 		m_Mouse_RB_IsDown = false;
-		m_Mouse_LB_OnDown = false;
 		m_Mouse_RB_OnUp = false;
+		m_Mouse_RB_OnDown = false;
+	}
+
+
+	if (m_Mouse_MB_OnDown)
+	{
+		m_Mouse_MB_OnDown = false;
+		m_Mouse_MB_IsDown = true;
+		m_Mouse_MB_OnUp = false;
+
+	}
+
+	if (m_Mouse_MB_OnUp)
+	{
+		m_Mouse_MB_IsDown = false;
+		m_Mouse_MB_OnUp = false;
+		m_Mouse_MB_OnDown = false;
 	}
 
 
@@ -258,6 +297,12 @@ void Window::PumpWindowMessages()
 		case WM_MOUSEMOVE:
 			OnMouseMove(msg.lParam);
 			break;
+		case WM_MBUTTONDOWN:
+			OnMButtonDown(msg.lParam);
+			break;
+		case WM_MBUTTONUP:
+			OnMButtonUp(msg.lParam);
+			break;
 		case WM_LBUTTONDOWN:
 			OnLButtonDown(msg.lParam);
 			break;
@@ -272,6 +317,9 @@ void Window::PumpWindowMessages()
 			break;
 		case WM_KEYDOWN:
 			OnKeyAction(msg.lParam, msg.wParam, true);
+			break;
+		case WM_MOUSEWHEEL:
+			OnMouseWeel(msg.lParam, msg.wParam);
 			break;
 		case WM_KEYUP:
 			OnKeyAction(msg.lParam, msg.wParam, false);
@@ -336,6 +384,10 @@ bool Window::IsMouseDown(INT32 Index)const
 	{
 		return m_Mouse_RB_IsDown;
 	}
+	else if (Index == 2)
+	{
+		return m_Mouse_RB_IsDown;
+	}
 	else
 	{
 		return false;
@@ -352,13 +404,17 @@ bool Window::OnMouseDown(INT32 Index)const
 	{
 		return m_Mouse_RB_OnDown;
 	}
+	else if (Index == 2)
+	{
+		return m_Mouse_MB_OnDown;
+	}
 	else
 	{
 		return false;
 	}
 }
 
-bool Window::OnMouseUP(INT32 Index) const
+bool Window::OnMouseUp(INT32 Index) const
 {
 	if (Index == 0)
 	{
@@ -367,6 +423,10 @@ bool Window::OnMouseUP(INT32 Index) const
 	else if (Index == 1)
 	{
 		return m_Mouse_RB_OnUp;
+	}
+	else if (Index == 2)
+	{
+		return m_Mouse_MB_OnUp;
 	}
 	else
 	{

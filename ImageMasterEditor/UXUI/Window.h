@@ -219,7 +219,7 @@ public:
 
 	bool IsMouseDown(INT32 Index)const;
 	bool OnMouseDown(INT32 Index)const;
-	bool OnMouseUP(INT32 Index)const;
+	bool OnMouseUp(INT32 Index)const;
 	bool ResetMouseToCenter();
 
 	void ResizeSwapChainToWindow();
@@ -251,6 +251,11 @@ private:
 	bool m_Mouse_RB_OnDown = false;
 	bool m_Mouse_RB_OnUp = false;
 
+	bool m_Mouse_MB_IsDown = false;
+	bool m_Mouse_MB_OnDown = false;
+	bool m_Mouse_MB_OnUp = false;
+
+	INT32 m_MouseWeelState = 0;
 
 	std::map<WORD, KeyState> m_CurrentKeyState;
 
@@ -260,4 +265,10 @@ private:
 	void OnLButtonUp(LPARAM lParam);
 	void OnRButtonDown(LPARAM lParam);
 	void OnRButtonUp(LPARAM lParam);
+	void OnMButtonDown(LPARAM lParam);
+	void OnMButtonUp(LPARAM lParam);
+public:
+	INT32 MouseScroll() const;
+private:
+	void OnMouseWeel(LPARAM lParam, WPARAM wParam);
 };

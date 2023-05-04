@@ -29,6 +29,7 @@ namespace IM_Math
 		float3& operator-=(const float3& InPut);
 		float3 operator+(const float3 InPut);
 		float3 operator*(const float InPut) const;
+		std::string ToString();
 
 	};
 
@@ -43,7 +44,9 @@ namespace IM_Math
 		float2 operator-(const float2& InPut);
 		float2 operator+(const float2& InPut);
 		float2 operator/=(const float InPut);
+		float2 operator/(const float InPut);
 		float2 operator+=(const float2& InPut);
+		float2 operator-=(const float2& InPut);
 		float2 operator*(const float InPut);
 
 
@@ -61,6 +64,8 @@ namespace IM_Math
 
 		Int2();
 		Int2(INT32 _x, INT32 _y);
+		Int2 operator*(const float InPut);
+		Int2 operator/(const float InPut);
 
 		Int2 operator-(const Int2 InPut);
 	};

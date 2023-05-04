@@ -19,11 +19,9 @@ public:
 	std::string GetProjectName() const;
 
 
-	IM_Math::float2  GetCameraOffset() 
-	{
-		return m_CameraOffset; 
-	}
+	IM_Math::float2  GetCameraOffset() { return m_CameraOffset; }
 	void SetCameraOffset(IM_Math::float2 NewCameraOffset) { m_CameraOffset = NewCameraOffset; UpdateCamera(); }
+	//void SetCameraZoom(float zoom) { m_CameraData.Transform.Scale = ; UpdateCamera(); }
 
 	CameraData GetCameraData() const { return m_CameraData; }
 	
@@ -39,6 +37,8 @@ public:
 
 	Layer* GetSelectedLayer();
 
+	float GetZoom();
+	void SetZoom(float zoom);
 private:
 	// Project description
 	std::string m_ProjectName;
@@ -47,6 +47,7 @@ private:
 	//Camera
 	IM_Math::float2 m_CameraOffset = IM_Math::float2(0,0);
 	CameraData m_CameraData;
+	float m_zoom = 1;
 	void UpdateCamera();
 
 	// Render Data
