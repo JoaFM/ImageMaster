@@ -54,6 +54,7 @@ public:
 
 	// Loop
 	void Present(Window* MainWindow);
+	void DrawViewMesh(Window* MainWindow);
 	void ReadyNextFrame(Window* window);
 
 

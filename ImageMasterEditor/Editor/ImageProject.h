@@ -10,7 +10,8 @@ class ImageProject
 
 
 public:
-	static void UI_FileMenueUI(class MasterEditor* CallingEditor);
+	static void UI_FileMenuNewUI(class MasterEditor* CallingEditor, std::set<std::string>& Messages);
+	void UI_FileMenuWindowUI(class MasterEditor* CallingEditor);
 	ImageProject(std::string ProjectNamem, IM_Math::Int2 ImageSize, class Renderer* renderer);
 	ImageProject();
 	~ImageProject();

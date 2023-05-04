@@ -156,8 +156,12 @@ void Renderer::DrawMesh(Mesh* meshToDraw)
 
 void Renderer::Present(Window* MainWindow)
 {
-	DrawMesh(m_ViewportMesh.get());
 	m_SwapChain->Present(1, 0);
+}
+
+void Renderer::DrawViewMesh(Window* MainWindow)
+{
+	DrawMesh(m_ViewportMesh.get());
 }
 
 std::vector<D3D_SHADER_MACRO> Renderer::GetGlobalHashDefines()

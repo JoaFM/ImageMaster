@@ -12,8 +12,7 @@ Layer::Layer(std::string LayerName, class ImageProject* ParentProject)
 	m_ParentProject = ParentProject;
 	m_ID = TAUtils::RandomString(10);
 	m_CanvasTexture = std::make_unique<RenderTarget>("Layer_" + LayerName);
-	m_CanvasTexture->CreateTarget(512, 512, DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT, ParentProject->GetRenderer());
-
+	m_CanvasTexture->CreateTarget(ParentProject->GetSize().x, ParentProject->GetSize().y, DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT, ParentProject->GetRenderer());
 }
 
 void Layer::Composite(RenderTarget* OutputRT)

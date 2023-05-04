@@ -119,11 +119,18 @@ Layer* ImageProject::FindActiveLayer()
 
 }
 
-void ImageProject::UI_FileMenueUI(class MasterEditor* CallingEditor)
+void ImageProject::UI_FileMenuNewUI(class MasterEditor* CallingEditor, std::set<std::string>& Messages)
 {
 	if (ImGui::MenuItem("New"))
 	{
-		OutputDebugStringA("\n File->New Project");
-		CallingEditor->AddProject(std::string("New Project"));
+		Messages.insert("NewProjectPopUp");
+	}
+}
+
+void ImageProject::UI_FileMenuWindowUI(class MasterEditor* CallingEditor)
+{
+	if (ImGui::MenuItem((this->GetProjectName() + "##___WindowMenue").c_str()))
+	{
+		CallingEditor->SetActiveProject(this);
 	}
 }

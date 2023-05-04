@@ -29,6 +29,9 @@
     <Filter Include="Editor\Brushes">
       <UniqueIdentifier>{c9fa5862-f401-48fc-91bf-f932c67cb3be}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Editor\PopUps">
+      <UniqueIdentifier>{f72e23bb-0c4d-4f22-b156-93d89373accc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Editor\Editor.cpp">
@@ -111,6 +114,12 @@
     </ClCompile>
     <ClCompile Include="Editor\Brushes\BrushManager.cpp">
       <Filter>Editor\Brushes</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\PopUps\PopUp.cpp">
+      <Filter>Editor\PopUps</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\PopUps\NewProject.cpp">
+      <Filter>Editor\PopUps</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -212,6 +221,12 @@
     </ClInclude>
     <ClInclude Include="Editor\Brushes\BrushManager.h">
       <Filter>Editor\Brushes</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\PopUps\PopUp.h">
+      <Filter>Editor\PopUps</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\PopUps\NewProject.h">
+      <Filter>Editor\PopUps</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

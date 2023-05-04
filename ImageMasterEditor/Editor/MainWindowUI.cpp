@@ -4,6 +4,7 @@
 #include "Utils/IM_STD.h"
 #include "Editor.h"
 #include "IMGUI/imgui_internal.h"
+#include "PopUps/NewProject.h"
 
 MainWindowUI::MainWindowUI(class Window* ParentWindow, class MasterEditor* Editor)
 	:
@@ -31,24 +32,31 @@ MainWindowUI::MainWindowUI(class Window* ParentWindow, class MasterEditor* Edito
 
 }
 
-void MainWindowUI::DrawUI()
+bool MainWindowUI::DrawUI()
 {
+
+	bool IsInModalState = false;
+	std::set<std::string> Messages;
+
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
-	UI_DrawDebug();
-
 	ImGui::PushFont(m_mainFont);
+	//======================
+	UI_DrawDebug();
+	//======================
 
 	UI_DrawLayer();
-	UI_DrawAppMenuBar();
+	UI_DrawAppMenuBar(Messages);
 	UI_DrawBrushUI();
+	IsInModalState = UI_DrawPopUps(Messages);
 
+	//======================
 	ImGui::PopFont();
 	ImGui::EndFrame();
-
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	return IsInModalState;
 }
 
 
@@ -137,7 +145,7 @@ void MainWindowUI::UI_SetGlobalStyle()
 	CurrentStype.ScrollbarRounding = 0;
 }
 
-void MainWindowUI::UI_DrawAppMenuBar()
+void MainWindowUI::UI_DrawAppMenuBar(std::set<std::string>& Messages)
 {
 	if (ImGui::BeginMainMenuBar())
 	{
@@ -146,9 +154,22 @@ void MainWindowUI::UI_DrawAppMenuBar()
 		if (ImGui::BeginMenu("File"))
 		{
 
-			ImageProject::UI_FileMenueUI(m_Editor);
+			ImageProject::UI_FileMenuNewUI(m_Editor, Messages);
 			ImGui::EndMenu();
 		}
+
+		if (ImGui::BeginMenu("Window"))
+		{
+			auto& Projects = m_Editor->GetProjects();
+			for (auto& project : Projects)
+			{
+				project->UI_FileMenuWindowUI(m_Editor);
+			}
+			ImGui::EndMenu();
+		}
+
+
+
 		if (m_Editor->GetActiveProject() != nullptr)
 		{
 			std::string Title = std::string("\t\t\t[ ") + m_Editor->GetActiveProject()->GetProjectName() + " ]";
@@ -163,6 +184,8 @@ void MainWindowUI::UI_DrawAppMenuBar()
 
 		ImGui::EndMainMenuBar();
 	}
+
+
 }
 
 void MainWindowUI::UI_DrawDebug()
@@ -209,4 +232,23 @@ void MainWindowUI::UI_DrawBrushUI()
 	ImGui::End();
 
 
+}
+
+bool MainWindowUI::UI_DrawPopUps(std::set<std::string>& Messages)
+{
+	if (Messages.contains("NewProjectPopUp")) {
+		CurrentPopup = std::make_unique<Popup_NewProject>();
+	}
+	if (CurrentPopup)
+	{
+		if (!CurrentPopup->UI_Tick(m_Editor))
+		{
+			CurrentPopup.reset();
+		}
+		else
+		{
+			return true;
+		}
+	}
+	return false;
 }
