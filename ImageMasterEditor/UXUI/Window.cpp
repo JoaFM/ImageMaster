@@ -7,6 +7,9 @@
 
 #include "IMGUI/imgui_impl_win32.h"
 
+#include <dwmapi.h>
+#include <intsafe.h>
+
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 
@@ -95,6 +98,12 @@ void Window::Init(UINT32 Width, UINT32 Height)
 		//Free the Win32's string's buffer.
 		LocalFree(messageBuffer);
 	}
+
+	COLORREF DARK_COLOR = 0x00303030;
+	BOOL SET_CAPTION_COLOR = SUCCEEDED(DwmSetWindowAttribute(
+		m_hwnd, DWMWINDOWATTRIBUTE::DWMWA_CAPTION_COLOR,
+		&DARK_COLOR, sizeof(DARK_COLOR)));
+
 	ShowTheWindow();
 }
 

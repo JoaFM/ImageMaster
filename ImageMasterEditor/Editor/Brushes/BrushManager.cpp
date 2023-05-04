@@ -14,9 +14,6 @@ BrushManager::BrushManager(class MasterEditor* MainEditor)
 void BrushManager::Tick(float DeltaTime)
 {
 	m_CurrentMouseLocation = m_MainEditor->GetMouseCanvasPosition();;
-	
-	
-	//OutputDebugStringA((m_LastLocation.ToString() + "\n").c_str());
 
 	if (m_Window->OnMouseDown(0))
 	{
@@ -109,5 +106,5 @@ void BrushManager::DrawBrushUI()
 void BrushManager::DrawColorUI()
 {
 	float* Col = reinterpret_cast<float*>(&m_Color);
-	ImGui::ColorEdit3("Foreground", Col);
+	ImGui::ColorEdit3("Foreground", Col, ImGuiColorEditFlags_NoInputs);
 }

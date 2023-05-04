@@ -62,7 +62,7 @@ bool MainWindowUI::DrawUI()
 
 void MainWindowUI::UI_DrawLayer()
 {
-
+	if (!m_Editor->GetActiveProject()) return;
 	const ImGuiViewport* viewport = ImGui::GetMainViewport();
 	// 
 	ImGui::SetNextWindowPos(ImVec2(viewport->WorkSize.x -200, ImGui::GetFrameHeight() + 200));
@@ -166,18 +166,6 @@ void MainWindowUI::UI_DrawAppMenuBar(std::set<std::string>& Messages)
 				project->UI_FileMenuWindowUI(m_Editor);
 			}
 			ImGui::EndMenu();
-		}
-
-
-
-		if (m_Editor->GetActiveProject() != nullptr)
-		{
-			std::string Title = std::string("\t\t\t[ ") + m_Editor->GetActiveProject()->GetProjectName() + " ]";
-			ImGui::Text(Title.c_str());
-		}
-		else
-		{
-			ImGui::Text("\t\t\t[ No active project ]");  
 		}
 
 		ImGui::PopFont();

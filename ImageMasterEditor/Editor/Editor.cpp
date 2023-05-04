@@ -76,15 +76,19 @@ void MasterEditor::StartBlockingLoop()
 
 void MasterEditor::AddProject(std::string ProjectName, IM_Math::Int2 CanvasSize)
 {
-	std::string rndS =TAUtils::RandomString(6).c_str();
-	m_Projects.push_back(std::make_unique<ImageProject>(ProjectName + "##____" + rndS, CanvasSize, m_Renderer.get()));
+	m_Projects.push_back(std::make_unique<ImageProject>(ProjectName, CanvasSize, m_Renderer.get()));
 	ActiveProjectIndex = (INT32)(m_Projects.size() - 1);
-	m_ActiveProject = m_Projects[ActiveProjectIndex].get();
+	SetActiveProject(m_Projects[ActiveProjectIndex].get());
 }
 
 IM_Math::float2 MasterEditor::GetMouseCanvasPosition()
 {
-	return m_MouseCanvasPosition / m_ActiveProject->GetZoom(); 
+	if (m_ActiveProject) 
+	{
+		return m_MouseCanvasPosition / m_ActiveProject->GetZoom();
+	}
+	
+	return IM_Math::float2(-1,-1);
 }
 
 class Window* MasterEditor::GetWindow() const
@@ -100,6 +104,8 @@ BrushManager* MasterEditor::GetBrushManager()
 void MasterEditor::SetActiveProject(ImageProject* ProjectToSetAsActive)
 {
 	m_ActiveProject = ProjectToSetAsActive; 
+	if (m_ActiveProject) { m_Window->SetTitle("Image Master - " + m_ActiveProject->GetProjectName()); }
+	else { m_Window->SetTitle("Image Master"); }
 }
 
 bool MasterEditor::DrawUI()
@@ -122,11 +128,11 @@ void MasterEditor::Behaviors(float DeltaTime)
 			{
 				ActiveProjectIndex = 0;
 			}
-			m_ActiveProject = m_Projects[ActiveProjectIndex].get();
+			SetActiveProject(m_Projects[ActiveProjectIndex].get());
 		}
 		else 
 		{
-			m_ActiveProject = nullptr;
+			SetActiveProject(nullptr);
 			ActiveProjectIndex = -1;
 		}
 	}

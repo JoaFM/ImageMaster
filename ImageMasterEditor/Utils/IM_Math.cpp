@@ -23,6 +23,11 @@ namespace IM_Math
 	{
 	}
 
+	IM_Math::float3 float4::xyz()
+	{
+		return IM_Math::float3(x, y, z);
+	}
+
 	float3::float3()
 		:
 		x(0),

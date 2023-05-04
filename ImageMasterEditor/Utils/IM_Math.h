@@ -5,6 +5,8 @@
 
 namespace IM_Math
 {
+	struct float3;
+
 	struct float4
 	{
 		float x;
@@ -14,6 +16,8 @@ namespace IM_Math
 
 		float4();
 		float4(float _x, float _y, float _z, float _w);
+
+		float3 xyz();
 	};
 
 	struct float3
