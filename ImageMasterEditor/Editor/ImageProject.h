@@ -10,9 +10,9 @@ class ImageProject
 
 
 public:
-	static void UI_FileMenuNewUI(class MasterEditor* CallingEditor, std::set<std::string>& Messages);
-	void UI_FileMenuWindowUI(class MasterEditor* CallingEditor);
-	ImageProject(std::string ProjectNamem, IM_Math::Int2 ImageSize, class Renderer* renderer);
+	static void UI_FileMenuNewUI(std::set<std::string>& Messages);
+	void UI_FileMenuWindowUI();
+	ImageProject(std::string ProjectNamem, IM_Math::Int2 ImageSize, class Renderer* renderer, class MasterEditor* CallingEditor);
 	ImageProject();
 	~ImageProject();
 		
@@ -43,7 +43,7 @@ private:
 	// Project description
 	std::string m_ProjectName;
 	IM_Math::Int2 m_ImageSize;
-
+	class MasterEditor* m_Editor = nullptr;
 	//Camera
 	IM_Math::float2 m_CameraOffset = IM_Math::float2(0,0);
 	CameraData m_CameraData;
@@ -62,4 +62,5 @@ public:
 	std::vector<std::string> GetLayerModesAsString();
 	class Renderer* GetRenderer() {return m_renderer; };
 	Layer* FindActiveLayer();
+	class MasterEditor* GetEditor() { return m_Editor; };
 };

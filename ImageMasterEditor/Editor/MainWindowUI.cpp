@@ -3,7 +3,7 @@
 #include "ImageProject.h"
 #include "Utils/IM_STD.h"
 #include "Editor.h"
-#include "IMGUI/imgui_internal.h"
+#include "External/IMGUI/imgui_internal.h"
 #include "PopUps/NewProject.h"
 
 MainWindowUI::MainWindowUI(class Window* ParentWindow, class MasterEditor* Editor)
@@ -84,6 +84,10 @@ void MainWindowUI::UI_DrawLayer()
 
 	if (ImGui::Begin("Layers",nullptr, flags))
 	{
+		ImGui::Text("Layers");
+		ImGui::Separator();
+		ImGui::NewLine();
+
 		// Get blend Options
 		std::vector<std::string> LayerModes = m_Editor->GetActiveProject()->GetLayerModesAsString();
 		char** Items = new char* [LayerModes.size()];
@@ -111,7 +115,7 @@ void MainWindowUI::UI_DrawLayer()
 		{
 			for (INT32 i = (UINT)m_Editor->GetActiveProject()->GetLayers().size() - 1; i >= 0; i--)
 			{
-				m_Editor->GetActiveProject()->GetLayers()[i]->UI_DrawLayer();
+				m_Editor->GetActiveProject()->GetLayers()[i]->UI_DrawLayer(this);
 			}
 		}
 		ImGui::EndListBox();
@@ -154,7 +158,7 @@ void MainWindowUI::UI_DrawAppMenuBar(std::set<std::string>& Messages)
 		if (ImGui::BeginMenu("File"))
 		{
 
-			ImageProject::UI_FileMenuNewUI(m_Editor, Messages);
+			ImageProject::UI_FileMenuNewUI(Messages);
 			ImGui::EndMenu();
 		}
 
@@ -163,7 +167,7 @@ void MainWindowUI::UI_DrawAppMenuBar(std::set<std::string>& Messages)
 			auto& Projects = m_Editor->GetProjects();
 			for (auto& project : Projects)
 			{
-				project->UI_FileMenuWindowUI(m_Editor);
+				project->UI_FileMenuWindowUI();
 			}
 			ImGui::EndMenu();
 		}
@@ -212,7 +216,7 @@ void MainWindowUI::UI_DrawBrushUI()
 
 
 	ImGui::SetNextWindowPos(ImVec2(viewport->WorkSize.x - 200, ImGui::GetFrameHeight()));
-	ImGui::SetNextWindowSize(ImVec2(200, 50));
+	ImGui::SetNextWindowSize(ImVec2(200, 200));
 	if (ImGui::Begin("Color##Window", nullptr, flags))
 	{
 		m_Editor->GetBrushManager()->DrawColorUI();

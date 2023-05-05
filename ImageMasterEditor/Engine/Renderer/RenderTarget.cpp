@@ -2,6 +2,7 @@
 
 #include "RenderTarget.h"
 #include "Engine/Renderer/Renderer.h"
+#include "Editor/SaveLoad/SaveLoad.h"
 
 
 RenderTarget::RenderTarget(std::string FriendlyName)
@@ -10,8 +11,10 @@ RenderTarget::RenderTarget(std::string FriendlyName)
 	SetFriendlyName("RenderTarget:" + FriendlyName);
 }
 
-bool RenderTarget::CreateTarget(INT32 Width, INT32 Height, UINT8 DGIFormat, Renderer* Render)
+bool RenderTarget::CreateTarget(INT32 Width, INT32 Height, UINT8 DGIFormat, Renderer* renderer)
 {
+	m_Renderer = renderer;
+	m_DGIFormat = (DXGI_FORMAT)DGIFormat; ;
 	Release();
 	m_Size = IM_Math::Int2(Width, Height);
 
@@ -20,7 +23,7 @@ bool RenderTarget::CreateTarget(INT32 Width, INT32 Height, UINT8 DGIFormat, Rend
 	textureDesc.Height = (UINT)m_Size.y;
 	textureDesc.MipLevels = 1;
 	textureDesc.ArraySize = 1;
-	textureDesc.Format = (DXGI_FORMAT)DGIFormat;
+	textureDesc.Format = m_DGIFormat;
 	textureDesc.SampleDesc.Count = 1;
 	textureDesc.Usage = D3D11_USAGE_DEFAULT;
 	textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
@@ -30,9 +33,9 @@ bool RenderTarget::CreateTarget(INT32 Width, INT32 Height, UINT8 DGIFormat, Rend
 	//#TODO 1st some of the settings may be off 
 	//#TODO https://stackoverflow.com/questions/44377201/directx-write-to-texture-with-compute-shader
 
-	TA_HRCHECK(Render->GetDevice()->CreateTexture2D(&textureDesc, nullptr, &m_textureBuffer), L"Clould not create renter tartget texture 2D\n");
-	TA_HRCHECK(Render->GetDevice()->CreateRenderTargetView(m_textureBuffer, nullptr, &m_RenderTargetView), L"Could not create a render target view for the texture\n");
-	TA_HRCHECK(Render->GetDevice()->CreateShaderResourceView(m_textureBuffer, nullptr, &m_SRV), L"Could not create a shader resource view for the texture\n");
+	TA_HRCHECK(m_Renderer->GetDevice()->CreateTexture2D(&textureDesc, nullptr, &m_textureBuffer), L"Clould not create renter tartget texture 2D\n");
+	TA_HRCHECK(m_Renderer->GetDevice()->CreateRenderTargetView(m_textureBuffer, nullptr, &m_RenderTargetView), L"Could not create a render target view for the texture\n");
+	TA_HRCHECK(m_Renderer->GetDevice()->CreateShaderResourceView(m_textureBuffer, nullptr, &m_SRV), L"Could not create a shader resource view for the texture\n");
 	
 	D3D11_UNORDERED_ACCESS_VIEW_DESC descBuf = {};
 
@@ -42,9 +45,9 @@ bool RenderTarget::CreateTarget(INT32 Width, INT32 Height, UINT8 DGIFormat, Rend
 	descBuf.Buffer.NumElements = m_Size.x * m_Size.y;
 	descBuf.Buffer.Flags = D3D11_BIND_UNORDERED_ACCESS; //https://docs.microsoft.com/en-us/windows/win32/api/d3d11/ne-d3d11-d3d11_buffer_uav_flag
 
-	TA_HRCHECK(Render->GetDevice()->CreateUnorderedAccessView(m_textureBuffer, &descBuf, &m_UAV), L"Failed to make view UAV for buffer");
+	TA_HRCHECK(m_Renderer->GetDevice()->CreateUnorderedAccessView(m_textureBuffer, &descBuf, &m_UAV), L"Failed to make view UAV for buffer");
 
-	CreateStencilBuffer(Render);
+	CreateStencilBuffer(m_Renderer);
 	OnNameOpdate();
 	return true;
 }
@@ -151,6 +154,7 @@ void RenderTarget::Clear(float R, float G, float B, float A, Renderer* Render)
 	ClearDepth(Render);
 }
 
+
 void RenderTarget::OnNameOpdate()
 {
 	TAUtils::SetDebugObjectName(m_RenderTargetView, GetFriendlyName() + "_RenderTargetView:");
@@ -160,3 +164,47 @@ void RenderTarget::OnNameOpdate()
 	TAUtils::SetDebugObjectName(m_SRV, GetFriendlyName() + "_m_SRV:");
 }
 
+bool RenderTarget::CopyBackData(char* Filepath)
+{
+
+	D3D11_TEXTURE2D_DESC textureDesc = {};
+	textureDesc.Width = (UINT)m_Size.x;
+	textureDesc.Height = (UINT)m_Size.y;
+	textureDesc.MipLevels = 1;
+	textureDesc.ArraySize = 1;
+	textureDesc.Format = m_DGIFormat;
+	textureDesc.SampleDesc.Count = 1;
+	textureDesc.Usage = D3D11_USAGE_STAGING;// D3D11_USAGE_DEFAULT;
+	textureDesc.BindFlags = 0;// D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;//D3D11_BIND_RENDER_TARGET |
+	textureDesc.MiscFlags = 0;
+	textureDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+
+
+	ID3D11Texture2D* StagingTexture_readBack = nullptr;
+
+	
+	TA_HRCHECK(m_Renderer->GetDevice()->CreateTexture2D(&textureDesc, nullptr, &StagingTexture_readBack), L"Clould not create renter tartget texture 2D\n");
+
+	
+
+	m_Renderer->GetDeviceContext()->CopyResource(StagingTexture_readBack, m_textureBuffer);
+
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
+
+	m_Renderer->GetDeviceContext()->Map(StagingTexture_readBack, 0, D3D11_MAP_READ, 0, &mappedResource);
+	
+	INT32 TextureSizeInBytes = (GetSize().x * GetSize().y) * 4 * sizeof(float);
+
+	std::vector<float> cpuData((GetSize().x * GetSize().y)*4,0);
+
+	memcpy(&(cpuData[0]), mappedResource.pData, TextureSizeInBytes);
+	//  Re-enable GPU access to the vertex buffer data.
+	m_Renderer->GetDeviceContext()->Unmap(StagingTexture_readBack, 0);
+
+	
+	TA_SAFERELEASE(StagingTexture_readBack);
+
+	SaveLoad::Save(Filepath, m_Size.x, m_Size.y,nullptr, &(cpuData[0]));
+	return true;
+}

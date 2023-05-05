@@ -107,4 +107,19 @@ void BrushManager::DrawColorUI()
 {
 	float* Col = reinterpret_cast<float*>(&m_Color);
 	ImGui::ColorEdit3("Foreground", Col, ImGuiColorEditFlags_NoInputs);
+	ImGui::Separator();
+	ImGui::NewLine();
+
+	int num = 10;
+	for (int i = 0; i < m_Swatches.size(); i++)
+	{
+		if (num < 5) { ImGui::SameLine(); }
+		else { (num = 0); }
+
+		if (ImGui::ColorButton((std::string("Swatch ") + std::to_string(i)).c_str(), ImVec4(m_Swatches[i].x, m_Swatches[i].y, m_Swatches[i].z, 1)))
+		{ 
+			m_Color = m_Swatches[i];
+		}
+		num++;
+	}
 }

@@ -23,14 +23,23 @@
     <Filter Include="UXUI">
       <UniqueIdentifier>{ebfda1e6-8db4-4c2f-beab-6438c09377c3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="IMGUI">
-      <UniqueIdentifier>{bc158476-8d6f-44f5-a309-546970d7f192}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Editor\Brushes">
       <UniqueIdentifier>{c9fa5862-f401-48fc-91bf-f932c67cb3be}</UniqueIdentifier>
     </Filter>
     <Filter Include="Editor\PopUps">
       <UniqueIdentifier>{f72e23bb-0c4d-4f22-b156-93d89373accc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External">
+      <UniqueIdentifier>{6bdbaeec-fe64-4f85-b265-72bce17bdf68}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\IMGUI">
+      <UniqueIdentifier>{420ccdf4-6db6-4840-99ca-d6df395f6ca3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\STB_libs">
+      <UniqueIdentifier>{3015c3cf-a56f-44bc-98a1-ad9856a17f6f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Editor\SaveLoad">
+      <UniqueIdentifier>{337ab26e-fd52-42a9-8e12-3cceef1d70a2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -60,24 +69,6 @@
     </ClCompile>
     <ClCompile Include="Utils\IM_STD.cpp">
       <Filter>Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="IMGUI\imgui_draw.cpp">
-      <Filter>IMGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="IMGUI\imgui_impl_dx11.cpp">
-      <Filter>IMGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="IMGUI\imgui_impl_win32.cpp">
-      <Filter>IMGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="IMGUI\imgui_tables.cpp">
-      <Filter>IMGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="IMGUI\imgui_widgets.cpp">
-      <Filter>IMGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="IMGUI\imgui.cpp">
-      <Filter>IMGUI</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Renderer\ComputeShader.cpp">
       <Filter>Engine\Renderer</Filter>
@@ -121,6 +112,30 @@
     <ClCompile Include="Editor\PopUps\NewProject.cpp">
       <Filter>Editor\PopUps</Filter>
     </ClCompile>
+    <ClCompile Include="External\IMGUI\imgui_impl_dx11.cpp">
+      <Filter>External\IMGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="External\IMGUI\imgui_impl_win32.cpp">
+      <Filter>External\IMGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="External\IMGUI\imgui_tables.cpp">
+      <Filter>External\IMGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="External\IMGUI\imgui_widgets.cpp">
+      <Filter>External\IMGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="External\IMGUI\imgui.cpp">
+      <Filter>External\IMGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="External\IMGUI\imgui_draw.cpp">
+      <Filter>External\IMGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\SaveLoad\SaveLoad.cpp">
+      <Filter>Editor\SaveLoad</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\PopUps\SaveLayer.cpp">
+      <Filter>Editor\PopUps</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Editor\Editor.h">
@@ -149,30 +164,6 @@
     </ClInclude>
     <ClInclude Include="Utils\IM_STD.h">
       <Filter>Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="IMGUI\imgui_impl_dx11.h">
-      <Filter>IMGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="IMGUI\imgui_impl_win32.h">
-      <Filter>IMGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="IMGUI\imgui_internal.h">
-      <Filter>IMGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="IMGUI\imstb_rectpack.h">
-      <Filter>IMGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="IMGUI\imstb_textedit.h">
-      <Filter>IMGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="IMGUI\imstb_truetype.h">
-      <Filter>IMGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="IMGUI\imconfig.h">
-      <Filter>IMGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="IMGUI\imgui.h">
-      <Filter>IMGUI</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Renderer\ComputeShader.h">
       <Filter>Engine\Renderer</Filter>
@@ -226,6 +217,42 @@
       <Filter>Editor\PopUps</Filter>
     </ClInclude>
     <ClInclude Include="Editor\PopUps\NewProject.h">
+      <Filter>Editor\PopUps</Filter>
+    </ClInclude>
+    <ClInclude Include="External\STB_libs\stb_image.h">
+      <Filter>External\STB_libs</Filter>
+    </ClInclude>
+    <ClInclude Include="External\STB_libs\stb_image_write.h">
+      <Filter>External\STB_libs</Filter>
+    </ClInclude>
+    <ClInclude Include="External\IMGUI\imgui_impl_dx11.h">
+      <Filter>External\IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="External\IMGUI\imgui_impl_win32.h">
+      <Filter>External\IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="External\IMGUI\imgui_internal.h">
+      <Filter>External\IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="External\IMGUI\imstb_rectpack.h">
+      <Filter>External\IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="External\IMGUI\imstb_textedit.h">
+      <Filter>External\IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="External\IMGUI\imstb_truetype.h">
+      <Filter>External\IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="External\IMGUI\imconfig.h">
+      <Filter>External\IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="External\IMGUI\imgui.h">
+      <Filter>External\IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\SaveLoad\SaveLoad.h">
+      <Filter>Editor\SaveLoad</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\PopUps\SaveLayer.h">
       <Filter>Editor\PopUps</Filter>
     </ClInclude>
   </ItemGroup>

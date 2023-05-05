@@ -1,9 +1,9 @@
-#include "NewProject.h"
+#include "SaveLayer.h"
 #include "External/IMGUI/imgui.h"
 #include "External/IMGUI/imgui_internal.h"
 #include "../Editor.h"
 
-bool Popup_NewProject::UI_Tick(class MasterEditor* MainEditor)
+bool Popup_SaveLayer::UI_Tick(class MasterEditor* MainEditor)
 {
 	ImGui::OpenPopup("NewProjectPopUp");
 	bool IsPopUpOpen = false;
@@ -16,33 +16,37 @@ bool Popup_NewProject::UI_Tick(class MasterEditor* MainEditor)
 	))
 	{
 		IsPopUpOpen = true;
-		ImGui::Text("NewProject !\n\n");
+		ImGui::Text("Save layer !\n\n");
+		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(.12f, .12f, .12f, 1));
 		ImGui::Separator();
 		ImGui::NewLine();
 
-		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(.12f, .12f, .12f, 1));
-		ImGui::Text("Image Name"); ImGui::SameLine(); ImGui::InputText("##ImageName", ProjectName, 100);;
-		ImGui::Text("Image Size"); ImGui::SameLine(); ImGui::InputInt2("##ImageSize", ProjectSize);
+		ImGui::Text("File Path"); ImGui::SameLine(); ImGui::InputText("##ImageName", Filepath, 1000);;
 		ImGui::PopStyleColor();
 		ImGui::NewLine();
 
 		ImGui::Separator();
 		ImGui::NewLine();
 		{// buttons
+			ImGui::Indent(100);
 			if (ImGui::Button("OK", ImVec2(120, 0)))
 			{
-				MainEditor->AddProject(std::string(ProjectName), IM_Math::Int2(ProjectSize[0], ProjectSize[1]));
+				LayerToSave->ReadBackData(Filepath);
 				ImGui::CloseCurrentPopup();
 				IsPopUpOpen = false;
 			}
 
 			ImGui::SetItemDefaultFocus();
 			ImGui::SameLine();
+			ImGui::Indent(100);
+
 			if (ImGui::Button("Cancel", ImVec2(120, 0)))
 			{
 				ImGui::CloseCurrentPopup();
 				IsPopUpOpen = false;
 			}
+			ImGui::Indent(100);
+
 		}
 		ImGui::EndPopup();
 	}

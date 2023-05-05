@@ -76,7 +76,7 @@ void MasterEditor::StartBlockingLoop()
 
 void MasterEditor::AddProject(std::string ProjectName, IM_Math::Int2 CanvasSize)
 {
-	m_Projects.push_back(std::make_unique<ImageProject>(ProjectName, CanvasSize, m_Renderer.get()));
+	m_Projects.push_back(std::make_unique<ImageProject>(ProjectName, CanvasSize, m_Renderer.get(), this));
 	ActiveProjectIndex = (INT32)(m_Projects.size() - 1);
 	SetActiveProject(m_Projects[ActiveProjectIndex].get());
 }

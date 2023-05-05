@@ -10,8 +10,9 @@ public:
 	Layer() {};
 	
 	void Composite(class RenderTarget* OutputRT);
-	void UI_DrawLayer();
+	void UI_DrawLayer(class MainWindowUI * MainUI);
 	bool IsSelected() const;
+	void ReadBackData(char* Filepath);
 	class RenderTarget* GetCanvasTexture() { return m_CanvasTexture.get(); }
 private:
 	// Project description

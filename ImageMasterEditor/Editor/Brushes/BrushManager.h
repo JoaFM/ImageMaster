@@ -24,6 +24,16 @@ private:
 	IM_Math::float2 m_CurrentMouseLocation;
 	IM_Math::float3 m_Color;
 
+	std::vector<IM_Math::float3> m_Swatches = {
+		{0,0,0},{1,1,1},{1,0,0},{0,1,0},{0,0,1},
+		{1,1,0},{0,1,1},{1,0,1},{.025f,.025f,.025f},{.05f,.05f,.05f},
+		{.1f,.1f,.1f},{.2f,.2f,.2f},{.3f,.3f,.3f},{.4f,.4f,.4f},{.5f,.5f,.5f},
+		{.6f,.6f,.6f},{.7f,.7f,.7f},{.8f,.8f,.8f},{.9f,.9f,.9f},
+	
+	};
+	
+
+
 
 	void StartDarwing();
 	void EndDrawing();

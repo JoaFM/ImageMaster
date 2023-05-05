@@ -3,11 +3,12 @@
 #include "Editor.h"
 #include <string>
 
-ImageProject::ImageProject(std::string ProjectName, IM_Math::Int2 ImageSize, class Renderer* renderer)
+ImageProject::ImageProject(std::string ProjectName, IM_Math::Int2 ImageSize, class Renderer* renderer, class MasterEditor* CallingEditor)
 {
 	m_ProjectName = ProjectName;
 	m_ImageSize = ImageSize;
 	m_renderer = renderer;
+	m_Editor = CallingEditor;
 	m_OutputRT = std::make_unique<RenderTarget>("ImageProject_MainRT_" + ProjectName);;
 	m_OutputRT->CreateTarget(m_ImageSize.x, m_ImageSize.y, DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT, m_renderer);
 	m_CameraOffset = IM_Math::float2(-300, -90);
@@ -127,7 +128,7 @@ Layer* ImageProject::FindActiveLayer()
 
 }
 
-void ImageProject::UI_FileMenuNewUI(class MasterEditor* CallingEditor, std::set<std::string>& Messages)
+void ImageProject::UI_FileMenuNewUI( std::set<std::string>& Messages)
 {
 	if (ImGui::MenuItem("New"))
 	{
@@ -135,10 +136,10 @@ void ImageProject::UI_FileMenuNewUI(class MasterEditor* CallingEditor, std::set<
 	}
 }
 
-void ImageProject::UI_FileMenuWindowUI(class MasterEditor* CallingEditor)
+void ImageProject::UI_FileMenuWindowUI()
 {
 	if (ImGui::MenuItem((this->GetProjectName() + "##___WindowMenue").c_str()))
 	{
-		CallingEditor->SetActiveProject(this);
+		m_Editor->SetActiveProject(this);
 	}
 }

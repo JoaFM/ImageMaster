@@ -19,9 +19,9 @@
 #include "SwapChain.h"
 #include "RenderTarget.h"
 
-#include "IMGUI/imgui.h"
-#include "IMGUI/imgui_impl_dx11.h"
-#include "IMGUI/imgui_impl_win32.h"
+#include "External/IMGUI/imgui.h"
+#include "External/IMGUI/imgui_impl_dx11.h"
+#include "External/IMGUI/imgui_impl_win32.h"
 #include "Buffer.h"
 #include "ComputeShader.h"
 #include "Shader.h"

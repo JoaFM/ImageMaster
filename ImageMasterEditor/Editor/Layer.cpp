@@ -1,8 +1,10 @@
 #include "Layer.h"
-#include <IMGUI/imgui.h>
+#include <External/IMGUI/imgui.h>
 #include "ImageProject.h"
 #include "Utils/IM_STD.h"
 #include <array>
+#include "PopUps/SaveLayer.h"
+#include "MainWindowUI.h"
 
 
 Layer::Layer(std::string LayerName, class ImageProject* ParentProject)
@@ -14,6 +16,12 @@ Layer::Layer(std::string LayerName, class ImageProject* ParentProject)
 	m_CanvasTexture = std::make_unique<RenderTarget>("Layer_" + LayerName);
 	m_CanvasTexture->CreateTarget(ParentProject->GetSize().x, ParentProject->GetSize().y, DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT, ParentProject->GetRenderer());
 }
+
+void Layer::ReadBackData(char* Filepath)
+{
+	m_CanvasTexture->CopyBackData(Filepath);
+}
+
 
 void Layer::Composite(RenderTarget* OutputRT)
 {
@@ -40,7 +48,7 @@ void Layer::Composite(RenderTarget* OutputRT)
 // 	}
 }
 
-void Layer::UI_DrawLayer()
+void Layer::UI_DrawLayer(MainWindowUI* MainUI)
 {
 	
 	ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(.1f, 0.5f));
@@ -60,9 +68,12 @@ void Layer::UI_DrawLayer()
 	}
 	if (ImGui::BeginPopupContextItem())
 	{
-		ImGui::Text("Layer");
-		ImGui::Text("-------");
 		if (ImGui::Selectable("Delete Layer")) { m_ParentProject->DeleteLayer(this); }
+		if (ImGui::Selectable("Save layer to Disk"))
+		{
+			MainUI->CurrentPopup = std::make_unique<Popup_SaveLayer>();
+			reinterpret_cast<Popup_SaveLayer*>(MainUI->CurrentPopup.get())->LayerToSave = this;
+		}
 		ImGui::EndPopup();
 	}
 	
@@ -74,6 +85,7 @@ bool Layer::IsSelected() const
 {
 	return m_ParentProject->IsLayerSelected(this);
 }
+
 
 int& Layer::GetCurrentItemIndex()
 {
