@@ -5,6 +5,7 @@
 #include "MainWindowUI.h"
 #include "ImageProject.h"
 #include "Brushes/BrushManager.h"
+#include "Engine/Renderer/Texture2D.h"
 
 class MasterEditor
 {
@@ -25,6 +26,8 @@ public:
 	std::vector<std::unique_ptr<ImageProject>>& GetProjects() { return m_Projects; }
 
 	void SetActiveProject(ImageProject* ProjectToSetAsActive);
+	class Texture2D* GetIcon(std::string IconName);
+	
 private:
 	//System
 	std::unique_ptr<Window> m_Window;
@@ -55,8 +58,9 @@ private:
 	void UpdateState();
 
 
-public: // --- Actions should go on the undo stack
-	void Action_New();
+	void RefreshIcons(std::vector<std::string> FoundIcons);
+
+	std::map<std::string, std::unique_ptr<Texture2D>> m_Icons;
 
 
 };

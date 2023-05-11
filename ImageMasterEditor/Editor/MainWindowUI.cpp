@@ -49,6 +49,7 @@ bool MainWindowUI::DrawUI()
 	UI_DrawLayer();
 	UI_DrawAppMenuBar(Messages);
 	UI_DrawBrushUI();
+	UI_DrawToolSelectorBar();
 	IsInModalState = UI_DrawPopUps(Messages);
 
 	//======================
@@ -62,10 +63,11 @@ bool MainWindowUI::DrawUI()
 
 void MainWindowUI::UI_DrawLayer()
 {
+	const float SpaceFromTop = 200;
 	if (!m_Editor->GetActiveProject()) return;
 	const ImGuiViewport* viewport = ImGui::GetMainViewport();
 	// 
-	ImGui::SetNextWindowPos(ImVec2(viewport->WorkSize.x -200, ImGui::GetFrameHeight() + 200));
+	ImGui::SetNextWindowPos(ImVec2(viewport->WorkSize.x -200, ImGui::GetFrameHeight() + SpaceFromTop));
 
 	// Add menu bar flag and disable everything else
 	ImGuiWindowFlags flags =
@@ -80,11 +82,26 @@ void MainWindowUI::UI_DrawLayer()
 		//ImGuiWindowFlags_MenuBar;
 
 
-	ImGui::SetNextWindowSize(ImVec2(200, 500), 1);
+	
+
+	ImGui::SetNextWindowSize(ImVec2(200, viewport->Size.y - (SpaceFromTop + ImGui::GetFrameHeight())), 1);
 
 	if (ImGui::Begin("Layers",nullptr, flags))
 	{
+
 		ImGui::Text("Layers");
+		
+		ImGui::SameLine();
+		if (ImGui::SmallButton("+##LayerButton"))
+		{
+			TAUtils::Log("Add Layer");
+		}
+		ImGui::SameLine();
+		if (ImGui::SmallButton("-##layerButton"))
+		{
+			TAUtils::Log("Remove Layer");
+		}
+
 		ImGui::Separator();
 		ImGui::NewLine();
 
@@ -117,8 +134,8 @@ void MainWindowUI::UI_DrawLayer()
 			{
 				m_Editor->GetActiveProject()->GetLayers()[i]->UI_DrawLayer(this);
 			}
+			ImGui::EndListBox();
 		}
-		ImGui::EndListBox();
 
 		// clean up blend mode options
 		for (INT32 i = 0; i < LayerModes.size(); i++)
@@ -126,10 +143,12 @@ void MainWindowUI::UI_DrawLayer()
 			delete[] Items[i];
 		}
 		delete[] Items;
+
+		ImGui::End();
 	}
 
-
-	ImGui::End();
+	
+	
 }
 
 void MainWindowUI::UI_SetGlobalStyle()
@@ -182,7 +201,7 @@ void MainWindowUI::UI_DrawAppMenuBar(std::set<std::string>& Messages)
 
 void MainWindowUI::UI_DrawDebug()
 {
-	if (ImGui::Begin("Debug_Menue"))
+	if (ImGui::Begin("Debug_Menu"))
 	{
 		ImGui::Text("Canvas X: %f y:%f", m_Editor->GetMouseCanvasPosition().x, m_Editor->GetMouseCanvasPosition().y);
 	}
@@ -193,7 +212,7 @@ void MainWindowUI::UI_DrawDebug()
 void MainWindowUI::UI_DrawBrushUI()
 {
  	const ImGuiViewport* viewport = ImGui::GetMainViewport();
-	ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetFrameHeight()));
+	ImGui::SetNextWindowPos(ImVec2(45, ImGui::GetFrameHeight()));
  	ImGui::SetNextWindowSize(ImVec2(200,200));
  
  	// Add menu bar flag and disable everything else
@@ -243,4 +262,52 @@ bool MainWindowUI::UI_DrawPopUps(std::set<std::string>& Messages)
 		}
 	}
 	return false;
+}
+
+void MainWindowUI::UI_DrawToolSelectorBar()
+{
+	const ImGuiViewport* viewport = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetFrameHeight()));
+	ImGui::SetNextWindowSize(ImVec2(45, viewport->Size.y - ImGui::GetFrameHeight()));
+
+	// Add menu bar flag and disable everything else
+	ImGuiWindowFlags flags =
+		ImGuiWindowFlags_NoDecoration |
+		//ImGuiWindowFlags_NoInputs |
+		ImGuiWindowFlags_NoMove |
+		//ImGuiWindowFlags_NoScrollWithMouse |
+		ImGuiWindowFlags_NoSavedSettings |
+		ImGuiWindowFlags_NoBringToFrontOnFocus// |
+		//ImGuiWindowFlags_NoBackground
+		;// |
+		//ImGuiWindowFlags_MenuBar;
+
+	if (ImGui::Begin("Tool Selection", nullptr, flags))
+	{
+		ImGui::Text("Tools");
+		ImGui::Separator();
+		ImGui::NewLine();
+		if (Texture2D* Icon = m_Editor->GetIcon(std::string("Move")))
+		{
+			if (ImGui::ImageButton((void*)Icon->GetSRV(), ImVec2(20, 20)))
+			{
+				TAUtils::Log("Go into move mode ");
+			}
+		}
+
+		if (Texture2D* Icon = m_Editor->GetIcon(std::string("Brush")))
+		{
+			if (ImGui::ImageButton((void*)Icon->GetSRV(), ImVec2(20, 20)))
+			{
+				//OutputDebugStringA("Go into move mode \n");
+				//OutputDebugStringW(L"Go into move mode \n");
+				TAUtils::Log("Go into move mode ");
+			}
+		}
+
+
+	}
+	ImGui::End();
+
+
 }

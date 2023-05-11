@@ -37,15 +37,6 @@ void Layer::Composite(RenderTarget* OutputRT)
 		renderer->GetCurrentComputeShader()->Dispatch(renderer->GetDeviceContext());
 		BlendCP->Dispatch(renderer->GetDeviceContext());
 	}
-
-
-// 	if (renderer->BindComputeShader(TAUtils::CharToWString(("Blend_" + CurrentModeKey).c_str())))
-// 	{
-// 		renderer->GetCurrentComputeShader()->SetTexture("BufferOut", OutputRT);
-// 		renderer->GetCurrentComputeShader()->SetTexture("CanvasTexture", m_CanvasTexture.get());
-// 		renderer->GetCurrentComputeShader()->Dispatch(renderer->GetDeviceContext());
-// 		renderer->UnbindCurrentComputeShader();
-// 	}
 }
 
 void Layer::UI_DrawLayer(MainWindowUI* MainUI)

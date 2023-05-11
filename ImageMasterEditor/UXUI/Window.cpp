@@ -5,7 +5,7 @@
 #include <windowsx.h>
 #include "Utils/IM_Math.h"
 
-#include "IMGUI/imgui_impl_win32.h"
+#include "External/IMGUI/imgui_impl_win32.h"
 
 #include <dwmapi.h>
 #include <intsafe.h>

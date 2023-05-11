@@ -170,6 +170,20 @@ namespace TAUtils
 #endif
 	}
 
+	static void Log(const LPCWSTR TextToLog, bool NL = true)
+	{
+		OutputDebugStringW(TextToLog + NL ? L"\n" : L""); 
+	}
+
+	static void Log(const LPCSTR TextToLog, bool NL = true)
+	{
+		std::string logPhrase(NL ? "\n" : "");
+		
+		OutputDebugStringA((logPhrase + TextToLog).c_str() );
+	}
+
+
+
 	class Paths
 	{
 	private:

@@ -136,6 +136,9 @@
     <ClCompile Include="Editor\PopUps\SaveLayer.cpp">
       <Filter>Editor\PopUps</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Renderer\Texture2D.cpp">
+      <Filter>Engine\Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Editor\Editor.h">
@@ -254,6 +257,9 @@
     </ClInclude>
     <ClInclude Include="Editor\PopUps\SaveLayer.h">
       <Filter>Editor\PopUps</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Renderer\Texture2D.h">
+      <Filter>Engine\Renderer</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

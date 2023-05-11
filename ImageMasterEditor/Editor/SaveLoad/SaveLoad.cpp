@@ -1,8 +1,10 @@
 #include "SaveLoad.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
 #define __STDC_LIB_EXT1__
 #include "External/STB_libs/stb_image_write.h"
+#include "External/STB_libs/stb_image.h"
 
 bool SaveLoad::Save(char const* filename, int x, int y, const void* Bytedata , const float* FloatData)
 {
@@ -34,4 +36,13 @@ bool SaveLoad::Save(char const* filename, int x, int y, const void* Bytedata , c
 	}
 	return true;
 
+}
+unsigned char* SaveLoad::Load(char const* filename, int* Width, int* heght, int* comp, int req_comp)
+{
+	return stbi_load(filename, Width, heght, comp, req_comp) ;
+}
+
+void SaveLoad::Load_FreeData(unsigned char* image_data)
+{
+	stbi_image_free(image_data);
 }

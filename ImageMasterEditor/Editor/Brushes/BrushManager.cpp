@@ -116,7 +116,12 @@ void BrushManager::DrawColorUI()
 		if (num < 5) { ImGui::SameLine(); }
 		else { (num = 0); }
 
-		if (ImGui::ColorButton((std::string("Swatch ") + std::to_string(i)).c_str(), ImVec4(m_Swatches[i].x, m_Swatches[i].y, m_Swatches[i].z, 1)))
+		if (ImGui::ColorButton((std::string("Swatch ") + std::to_string(i)).c_str(), 
+			ImVec4(
+				powf(m_Swatches[i].x,  2.2f),
+				powf(m_Swatches[i].y,  2.2f),
+				powf(m_Swatches[i].z,  2.2f),
+				1)))
 		{ 
 			m_Color = m_Swatches[i];
 		}

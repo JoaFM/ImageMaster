@@ -138,7 +138,7 @@ void ImageProject::UI_FileMenuNewUI( std::set<std::string>& Messages)
 
 void ImageProject::UI_FileMenuWindowUI()
 {
-	if (ImGui::MenuItem((this->GetProjectName() + "##___WindowMenue").c_str()))
+	if (ImGui::MenuItem((this->GetProjectName() + "##___WindowMenu").c_str()))
 	{
 		m_Editor->SetActiveProject(this);
 	}

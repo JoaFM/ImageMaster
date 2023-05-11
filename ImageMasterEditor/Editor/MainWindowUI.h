@@ -25,4 +25,5 @@ private:
 	void UI_DrawDebug();
 	void UI_DrawBrushUI();
 	bool UI_DrawPopUps(std::set<std::string>& Messages);
+	void UI_DrawToolSelectorBar();
 };

@@ -108,6 +108,7 @@ void MasterEditor::SetActiveProject(ImageProject* ProjectToSetAsActive)
 	else { m_Window->SetTitle("Image Master"); }
 }
 
+
 bool MasterEditor::DrawUI()
 {
 	return m_MainWindowUI->DrawUI();
@@ -202,6 +203,7 @@ void MasterEditor::UpdateState()
 }
 
 
+
 void MasterEditor::RefreshAssets()
 {
 	OutputDebugStringW(L"\n----- Loading Assets ---- \n");
@@ -210,6 +212,7 @@ void MasterEditor::RefreshAssets()
 	std::wstring ContentFolder = m_RootPath + L"\\Content";
 	std::wstring ShaderFolder = ContentFolder + L"\\Shaders";
 	std::wstring ComputeShaderFolder = ContentFolder + L"\\ComputeShaders";
+	std::wstring IconFolder = ContentFolder + L"\\Icons";
 
 	std::vector<std::wstring> FoundShaders;
 	for (const auto& entry : std::filesystem::directory_iterator(ShaderFolder))
@@ -231,18 +234,77 @@ void MasterEditor::RefreshAssets()
 		OutputDebugStringW(FoundShader.c_str());
 	}
 
+	std::vector<std::string> FoundIcons;
+	for (const auto& entry : std::filesystem::directory_iterator(IconFolder))
+	{
+		FoundIcons.push_back(TAUtils::WStringToChar(entry.path().c_str()));
+
+		std::wstring FoundIcon(L"\n>>> Icon: :\t");
+		FoundIcon += entry.path().c_str();
+		OutputDebugStringW(FoundIcon.c_str());
+	}
+
+
 	OutputDebugStringW(L"\n--- Loading Shaders\n");
 	m_Renderer->RefreshShaders(FoundShaders, FoundComputeShaders);
 	OutputDebugStringW(L"--- Shaders Done \n");
+	
+	OutputDebugStringW(L"\n--- Loading Icons\n");
+	RefreshIcons(FoundIcons);
+	OutputDebugStringW(L"--- Icons Done \n");
+
 	OutputDebugStringW(L"----- Finish Loading Assets ---- \n");
 
 
 }
 
 
-void MasterEditor::Action_New()
+void MasterEditor::RefreshIcons(std::vector<std::string> FoundIcons)
 {
+	{
+		{// delete removed Icons
 
+			std::set<std::string> CurrentIcons;
+			for (auto& IconTexture : m_Icons)
+			{
+				CurrentIcons.insert(IconTexture.first);
+			}
 
+			for (auto& Exisitingshader : FoundIcons)
+			{
+				std::filesystem::path p(Exisitingshader);
+				std::string fileName = TAUtils::WStringToChar(p.stem().c_str());
+				CurrentIcons.erase(fileName);
+			}
+
+			for (auto& ShaderToDelete : CurrentIcons)
+			{
+				CurrentIcons.erase(ShaderToDelete);
+			}
+		}
+
+		for (std::string& IconToProcess : FoundIcons)
+		{
+			std::filesystem::path p(IconToProcess.c_str());
+			std::string fileName = TAUtils::WStringToChar(p.stem().c_str());
+			if (!m_Icons.contains(fileName) || m_Icons[fileName] == nullptr)
+			{
+				m_Icons[fileName] = std::make_unique<Texture2D>(GetRenderer());
+			}
+
+			m_Icons[fileName]->SetTexturePath(IconToProcess);
+			m_Icons[fileName]->LoadReload();
+		}
+	}
+
+}
+
+class Texture2D* MasterEditor::GetIcon(std::string IconName)
+{
+	if (m_Icons.contains(IconName) && m_Icons[IconName] != nullptr)
+	{
+		return m_Icons[IconName].get();
+	}
+	return nullptr;
 }
 
