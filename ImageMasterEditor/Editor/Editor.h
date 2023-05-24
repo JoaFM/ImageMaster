@@ -4,8 +4,8 @@
 #include <Engine/Renderer/Renderer.h>
 #include "MainWindowUI.h"
 #include "ImageProject.h"
-#include "Brushes/BrushManager.h"
 #include "Engine/Renderer/Texture2D.h"
+#include "EditorTools/EditorToolBase.h"
 
 class MasterEditor
 {
@@ -22,18 +22,20 @@ public:
 	IM_Math::float2 GetMouseCanvasPosition();
 	std::wstring GetRootPath() const { return m_RootPath; };
 	class Window* GetWindow() const;
-	BrushManager* GetBrushManager();
 	std::vector<std::unique_ptr<ImageProject>>& GetProjects() { return m_Projects; }
 
 	void SetActiveProject(ImageProject* ProjectToSetAsActive);
 	class Texture2D* GetIcon(std::string IconName);
+	void SetActiveTool(EditorToolBase* NewTool) { m_ActiveTool = NewTool; }
+	EditorToolBase* GetActiveTool() { return m_ActiveTool; }
 	
+	const std::vector<std::unique_ptr<EditorToolBase>>& GetTools();
+	IM_Math::float3& GetForegroundColor() { return ForegroundColor; }
 private:
 	//System
 	std::unique_ptr<Window> m_Window;
 	std::unique_ptr<Renderer> m_Renderer;
 	std::unique_ptr<MainWindowUI> m_MainWindowUI;
-	std::unique_ptr<BrushManager> m_BrushManager;
 
 	//--
 	double m_deltaTime = -1;
@@ -41,8 +43,7 @@ private:
 	IM_Math::float2 m_MouseCanvasPosition;
 	IM_Math::float2 m_MouseMoveLoc;
 	bool IsMovingMouse = false;
-
-	bool DrawUI();
+	IM_Math::float3 ForegroundColor;
 
 	// Workspace
 	std::vector<std::unique_ptr<ImageProject>> m_Projects;
@@ -57,10 +58,14 @@ private:
 
 	void UpdateState();
 
-
 	void RefreshIcons(std::vector<std::string> FoundIcons);
-
 	std::map<std::string, std::unique_ptr<Texture2D>> m_Icons;
 
+	void LoadTools();
+	std::vector<std::unique_ptr<EditorToolBase>> m_EditorTools;
+	class EditorToolBase*  m_ActiveTool = nullptr;
+
+
+	bool DrawUI();
 
 };

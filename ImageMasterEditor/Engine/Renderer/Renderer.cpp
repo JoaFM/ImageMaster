@@ -38,7 +38,7 @@ void Renderer::Init(IM_Math::Int2 size, Window* MainWindow)
 	m_CB_General.RenderBufferSize.y = m_CB_General.DisplayWindowSize.y = (float)size.y;
 	CreateSwapChain(MainWindow);
 	SetupGlobalHashDefines();
-	SetupGeneral_CB();
+	SetupInitialConstantBuffers();
 	CreateDefaultSamplers();
 	CreateDefaultBlendStates();
 	SetStencilState(true);
@@ -497,38 +497,36 @@ void Renderer::RefreshShaders(std::vector<std::wstring> FoundShaders, std::vecto
 
 }
 
-void Renderer::SetupGeneral_CB()
+void Renderer::SetupInitialConstantBuffers()
 {
 	D3D11_BUFFER_DESC constantBufferDesc;
 
-	// General 
-	ZeroMemory(&constantBufferDesc, sizeof(D3D11_BUFFER_DESC));
-	constantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	constantBufferDesc.ByteWidth = sizeof(RenderTypes::CB_General_Struct);
-	constantBufferDesc.CPUAccessFlags = 0;
-	constantBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	m_ConstantBuffers[RenderTypes::ConstanBuffer::CB_General] = std::make_unique<ConstantBuffer>(constantBufferDesc, "CB_General", this, (UINT)RenderTypes::ConstanBuffer::CB_General);
-	GetConstantBuffers()[RenderTypes::ConstanBuffer::CB_General]->CSBind();
-
-
-	// Sprite??????
 	ZeroMemory(&constantBufferDesc, sizeof(D3D11_BUFFER_DESC));
 	constantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	constantBufferDesc.ByteWidth = sizeof(RenderTypes::CB_PerScreenSprite_Struct);
 	constantBufferDesc.CPUAccessFlags = 0;
 	constantBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+
+
+	// General 
+	constantBufferDesc.ByteWidth = sizeof(RenderTypes::CB_General_Struct);
+	m_ConstantBuffers[RenderTypes::ConstanBuffer::CB_General] = std::make_unique<ConstantBuffer>(constantBufferDesc, "CB_General", this, (UINT)RenderTypes::ConstanBuffer::CB_General);
+	GetConstantBuffers()[RenderTypes::ConstanBuffer::CB_General]->CSBind();
+
+	// Sprite??????
+	constantBufferDesc.ByteWidth = sizeof(RenderTypes::CB_PerScreenSprite_Struct);
 	m_ConstantBuffers[RenderTypes::ConstanBuffer::CB_PerScreenSprite] = std::make_unique<ConstantBuffer>(constantBufferDesc, "CB_PerScreenSprite", this, (UINT)RenderTypes::ConstanBuffer::CB_PerScreenSprite);
 	GetConstantBuffers()[RenderTypes::ConstanBuffer::CB_PerScreenSprite]->CSBind();
 
 	// Brush
-	ZeroMemory(&constantBufferDesc, sizeof(D3D11_BUFFER_DESC));
-	constantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	constantBufferDesc.ByteWidth = sizeof(RenderTypes::CB_BrushInput_Struct);
-	constantBufferDesc.CPUAccessFlags = 0;
-	constantBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	m_ConstantBuffers[RenderTypes::ConstanBuffer::CB_BrushInput] = std::make_unique<ConstantBuffer>(constantBufferDesc, "CB_BrushInput", this, (UINT)RenderTypes::ConstanBuffer::CB_BrushInput);
 	GetConstantBuffers()[RenderTypes::ConstanBuffer::CB_BrushInput]->CSBind();
 
+	// Brush
+	constantBufferDesc.ByteWidth = sizeof(RenderTypes::CB_Layer_Struct);
+	m_ConstantBuffers[RenderTypes::ConstanBuffer::CB_Layer] = std::make_unique<ConstantBuffer>(constantBufferDesc, "CB_Layer", this, (UINT)RenderTypes::ConstanBuffer::CB_Layer);
+	GetConstantBuffers()[RenderTypes::ConstanBuffer::CB_Layer]->CSBind();
 
 }
 

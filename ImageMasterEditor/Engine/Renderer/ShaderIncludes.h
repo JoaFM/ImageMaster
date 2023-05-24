@@ -40,7 +40,8 @@ private:
 		Includes["TAGlobals.h"] =
 			RenderTypes::CB_General_Struct::GetHeaderDefine() +
 			RenderTypes::CB_PerScreenSprite_Struct::GetHeaderDefine() +
-			RenderTypes::CB_BrushInput_Struct::GetHeaderDefine();
+			RenderTypes::CB_BrushInput_Struct::GetHeaderDefine() + 
+			RenderTypes::CB_Layer_Struct::GetHeaderDefine();
 	}
 
 };

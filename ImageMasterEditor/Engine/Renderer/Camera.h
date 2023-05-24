@@ -11,9 +11,6 @@ public:
 	
 	Camera();
 	~Camera();
-public:
-	
-
 
 public:
 	void UpdateCamera(CameraData CamData);

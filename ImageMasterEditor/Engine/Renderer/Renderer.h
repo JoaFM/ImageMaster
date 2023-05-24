@@ -107,7 +107,7 @@ private:
 	void SetupGlobalHashDefines();
 	void CreateDefaultSamplers();
 	void CreateDefaultBlendStates();
-	void SetupGeneral_CB();
+	void SetupInitialConstantBuffers();
 
 
 	D3D11_VIEWPORT CreateViewport();

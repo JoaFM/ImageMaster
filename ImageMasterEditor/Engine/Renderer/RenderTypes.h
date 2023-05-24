@@ -10,6 +10,7 @@ public:
 		CB_General,
 		CB_PerScreenSprite,
 		CB_BrushInput,
+		CB_Layer,
 		NumConstantBuffers
 	};
 
@@ -121,6 +122,26 @@ public:
 			return ResultStr;
 		}
 	};
+
+	struct CB_Layer_Struct
+	{
+		IM_Math::Int2 LayerOffset;
+		IM_Math::Int2 LayerSize;
+
+		static std::string GetHeaderDefine()
+		{
+
+			std::string ResultStr;
+			ResultStr += "cbuffer CB_Layer_Struct : register(b3)\n";
+			ResultStr += "{\n";
+			ResultStr += "	int2 LayerOffset;\n";
+			ResultStr += "	int2 LayerSize;\n";
+			ResultStr += "}\n";
+			ResultStr += "\n";
+			return ResultStr;
+		}
+	};
+
 
 
 

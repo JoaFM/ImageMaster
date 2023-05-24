@@ -49,6 +49,7 @@ bool MainWindowUI::DrawUI()
 	UI_DrawLayer();
 	UI_DrawAppMenuBar(Messages);
 	UI_DrawBrushUI();
+	UI_DrawColourUI();
 	UI_DrawToolSelectorBar();
 	IsInModalState = UI_DrawPopUps(Messages);
 
@@ -229,19 +230,12 @@ void MainWindowUI::UI_DrawBrushUI()
 
 	if (ImGui::Begin("Tool Bar", nullptr, flags))
 	{
-			m_Editor->GetBrushManager()->DrawBrushUI();
+		if (EditorToolBase* Tool = m_Editor->GetActiveTool())
+		{
+			Tool->UI_DrawToolSettings();
+		}
 	}
 	ImGui::End();
-
-
-	ImGui::SetNextWindowPos(ImVec2(viewport->WorkSize.x - 200, ImGui::GetFrameHeight()));
-	ImGui::SetNextWindowSize(ImVec2(200, 200));
-	if (ImGui::Begin("Color##Window", nullptr, flags))
-	{
-		m_Editor->GetBrushManager()->DrawColorUI();
-	}
-	ImGui::End();
-
 
 }
 
@@ -287,27 +281,63 @@ void MainWindowUI::UI_DrawToolSelectorBar()
 		ImGui::Text("Tools");
 		ImGui::Separator();
 		ImGui::NewLine();
-		if (Texture2D* Icon = m_Editor->GetIcon(std::string("Move")))
+		
+		for (const auto& tool: m_Editor->GetTools())
 		{
-			if (ImGui::ImageButton((void*)Icon->GetSRV(), ImVec2(20, 20)))
-			{
-				TAUtils::Log("Go into move mode ");
-			}
+			tool->UI_DrawToolbarIcon();
 		}
-
-		if (Texture2D* Icon = m_Editor->GetIcon(std::string("Brush")))
-		{
-			if (ImGui::ImageButton((void*)Icon->GetSRV(), ImVec2(20, 20)))
-			{
-				//OutputDebugStringA("Go into move mode \n");
-				//OutputDebugStringW(L"Go into move mode \n");
-				TAUtils::Log("Go into move mode ");
-			}
-		}
-
+		
 
 	}
 	ImGui::End();
 
 
 }
+
+ void MainWindowUI::UI_DrawColourUI()
+ {
+
+	 const ImGuiViewport* viewport = ImGui::GetMainViewport();
+
+	 // Add menu bar flag and disable everything else
+	 ImGuiWindowFlags flags =
+		 ImGuiWindowFlags_NoDecoration |
+		 //ImGuiWindowFlags_NoInputs |
+		 ImGuiWindowFlags_NoMove |
+		 //ImGuiWindowFlags_NoScrollWithMouse |
+		 ImGuiWindowFlags_NoSavedSettings |
+		 ImGuiWindowFlags_NoBringToFrontOnFocus// |
+		 //ImGuiWindowFlags_NoBackground
+		 ;// |
+		 //ImG
+
+	 ImGui::SetNextWindowPos(ImVec2(viewport->WorkSize.x - 200, ImGui::GetFrameHeight()));
+	 ImGui::SetNextWindowSize(ImVec2(200, 200));
+	 if (ImGui::Begin("Color##Window", nullptr, flags))
+	 {
+
+		 float* Col = reinterpret_cast<float*>(&m_Editor->GetForegroundColor());
+		 ImGui::ColorEdit3("Foreground", Col, ImGuiColorEditFlags_NoInputs);
+		 ImGui::Separator();
+		 ImGui::NewLine();
+
+		 int num = 10;
+		 for (int i = 0; i < m_Swatches.size(); i++)
+		 {
+			 if (num < 5) { ImGui::SameLine(); }
+			 else { (num = 0); }
+
+			 if (ImGui::ColorButton((std::string("Swatch ") + std::to_string(i)).c_str(),
+				 ImVec4(
+					 powf(m_Swatches[i].x, 2.2f),
+					 powf(m_Swatches[i].y, 2.2f),
+					 powf(m_Swatches[i].z, 2.2f),
+					 1)))
+			 {
+				 m_Editor->GetForegroundColor() = m_Swatches[i];
+			 }
+			 num++;
+		 }
+	 }
+	 ImGui::End();
+ }

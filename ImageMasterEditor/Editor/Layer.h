@@ -19,10 +19,12 @@ private:
 	std::wstring m_BlendMode;
 	std::string m_LayerName;
 	std::string m_ID;
-	IM_Math::Int2 m_LayerSize;
+	//IM_Math::Int2 m_LayerSize;
 	int m_CurrentBlendMode = 1;
 	std::unique_ptr<RenderTarget> m_CanvasTexture = nullptr;
 	
+	RenderTypes::CB_Layer_Struct m_RenderData;
+
 	//ref
 	class ImageProject* m_ParentProject = nullptr;
 

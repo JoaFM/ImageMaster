@@ -1,4 +1,6 @@
 #include "Editor.h"
+#include "EditorTools/MoveTool.h"
+#include "EditorTools/BrushTool.h"
 
 MasterEditor::MasterEditor(std::wstring RootPath, HINSTANCE hInstance)
 {
@@ -12,9 +14,10 @@ MasterEditor::MasterEditor(std::wstring RootPath, HINSTANCE hInstance)
 
 	m_MainWindowUI = std::make_unique<MainWindowUI>(m_Window.get(),this);
 
-	m_BrushManager = std::make_unique<BrushManager>(this);
-
 	RefreshAssets();
+
+	LoadTools();
+
 
 #ifdef _DEBUG
 	// Just add a default project just so we don't start on an empty page
@@ -27,7 +30,7 @@ MasterEditor::MasterEditor(std::wstring RootPath, HINSTANCE hInstance)
 
 void MasterEditor::StartBlockingLoop()
 {
-	OutputDebugStringA(">>>>  Start App Loop ");
+	OutputDebugStringA("\n !!! Start App Loop !!! ");
 	auto t_start = std::chrono::high_resolution_clock::now();
 	auto t_end = std::chrono::high_resolution_clock::now();
 
@@ -48,9 +51,9 @@ void MasterEditor::StartBlockingLoop()
 			m_ActiveProject->CompositeRender();
 			m_Renderer->UpdateCamera(m_ActiveProject->GetCameraData());
 			m_Renderer->SetOutputRT(m_ActiveProject->GetOutputRT());
-			if (!IsInModalState)
+			if (!IsInModalState && m_ActiveTool)
 			{
-				m_BrushManager->Tick((float)m_deltaTime);
+				m_ActiveTool->Tick((float)m_deltaTime);
 			}
 
 			m_Renderer->DrawViewMesh(m_Window.get());
@@ -96,18 +99,12 @@ class Window* MasterEditor::GetWindow() const
 	return m_Window.get();
 }
 
-BrushManager* MasterEditor::GetBrushManager()
-{
-	return m_BrushManager.get();
-}
-
 void MasterEditor::SetActiveProject(ImageProject* ProjectToSetAsActive)
 {
 	m_ActiveProject = ProjectToSetAsActive; 
 	if (m_ActiveProject) { m_Window->SetTitle("Image Master - " + m_ActiveProject->GetProjectName()); }
 	else { m_Window->SetTitle("Image Master"); }
 }
-
 
 bool MasterEditor::DrawUI()
 {
@@ -206,8 +203,8 @@ void MasterEditor::UpdateState()
 
 void MasterEditor::RefreshAssets()
 {
-	OutputDebugStringW(L"\n----- Loading Assets ---- \n");
-	OutputDebugStringW(L"--- Reading Shaders");
+	OutputDebugStringW(L"\n----- Finding Assets ---- ");
+	OutputDebugStringW(L"\n Shaders");
 
 	std::wstring ContentFolder = m_RootPath + L"\\Content";
 	std::wstring ShaderFolder = ContentFolder + L"\\Shaders";
@@ -219,41 +216,40 @@ void MasterEditor::RefreshAssets()
 	{
 		FoundShaders.push_back(entry.path().c_str());
 
-		std::wstring FoundShader(L"\n>>> Shader :\t");
+		std::wstring FoundShader(L"\n\t Shader :\t");
 		FoundShader += entry.path().c_str();
 		OutputDebugStringW(FoundShader.c_str());
 	}
+	OutputDebugStringW(L"\n ComputeShaders");
 
 	std::vector<std::wstring> FoundComputeShaders;
 	for (const auto& entry : std::filesystem::directory_iterator(ComputeShaderFolder))
 	{
 		FoundComputeShaders.push_back(entry.path().c_str());
 
-		std::wstring FoundShader(L"\n>>> ComputeShader :\t");
+		std::wstring FoundShader(L"\n\t ComputeShader :\t");
 		FoundShader += entry.path().c_str();
 		OutputDebugStringW(FoundShader.c_str());
 	}
+	OutputDebugStringW(L"\n Icons");
 
 	std::vector<std::string> FoundIcons;
 	for (const auto& entry : std::filesystem::directory_iterator(IconFolder))
 	{
 		FoundIcons.push_back(TAUtils::WStringToChar(entry.path().c_str()));
 
-		std::wstring FoundIcon(L"\n>>> Icon: :\t");
+		std::wstring FoundIcon(L"\n\t Icon: :\t");
 		FoundIcon += entry.path().c_str();
 		OutputDebugStringW(FoundIcon.c_str());
 	}
 
-
-	OutputDebugStringW(L"\n--- Loading Shaders\n");
+	OutputDebugStringW(L"\n-------------------------------\nLoading");
+	OutputDebugStringW(L"\n\tShaders");
 	m_Renderer->RefreshShaders(FoundShaders, FoundComputeShaders);
-	OutputDebugStringW(L"--- Shaders Done \n");
-	
-	OutputDebugStringW(L"\n--- Loading Icons\n");
+	OutputDebugStringW(L"\n\tIcons");
 	RefreshIcons(FoundIcons);
-	OutputDebugStringW(L"--- Icons Done \n");
-
-	OutputDebugStringW(L"----- Finish Loading Assets ---- \n");
+	OutputDebugStringW(L"\nFinish Loading Assets");
+	OutputDebugStringW(L"\n-------------------------------");
 
 
 }
@@ -308,3 +304,14 @@ class Texture2D* MasterEditor::GetIcon(std::string IconName)
 	return nullptr;
 }
 
+const std::vector<std::unique_ptr<EditorToolBase>>& MasterEditor::GetTools()
+{
+	return m_EditorTools;
+}
+
+
+void MasterEditor::LoadTools()
+{
+	m_EditorTools.push_back(std::make_unique<MoveTool>(this));
+	m_EditorTools.push_back(std::make_unique<BrushTool>(this));
+}

@@ -41,6 +41,9 @@
     <Filter Include="Editor\SaveLoad">
       <UniqueIdentifier>{337ab26e-fd52-42a9-8e12-3cceef1d70a2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Editor\EditorTools">
+      <UniqueIdentifier>{fff3a37d-009f-4e62-a8bf-34f2ab1c27c3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Editor\Editor.cpp">
@@ -103,9 +106,6 @@
     <ClCompile Include="Engine\Renderer\ConstantBuffer.cpp">
       <Filter>Engine\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Editor\Brushes\BrushManager.cpp">
-      <Filter>Editor\Brushes</Filter>
-    </ClCompile>
     <ClCompile Include="Editor\PopUps\PopUp.cpp">
       <Filter>Editor\PopUps</Filter>
     </ClCompile>
@@ -138,6 +138,15 @@
     </ClCompile>
     <ClCompile Include="Engine\Renderer\Texture2D.cpp">
       <Filter>Engine\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\EditorTools\EditorToolBase.cpp">
+      <Filter>Editor\EditorTools</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\EditorTools\BrushTool.cpp">
+      <Filter>Editor\EditorTools</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor\EditorTools\MoveTool.cpp">
+      <Filter>Editor\EditorTools</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -213,9 +222,6 @@
     <ClInclude Include="Engine\Renderer\ConstantBuffer.h">
       <Filter>Engine\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Editor\Brushes\BrushManager.h">
-      <Filter>Editor\Brushes</Filter>
-    </ClInclude>
     <ClInclude Include="Editor\PopUps\PopUp.h">
       <Filter>Editor\PopUps</Filter>
     </ClInclude>
@@ -260,6 +266,15 @@
     </ClInclude>
     <ClInclude Include="Engine\Renderer\Texture2D.h">
       <Filter>Engine\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\EditorTools\EditorToolBase.h">
+      <Filter>Editor\EditorTools</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\EditorTools\BrushTool.h">
+      <Filter>Editor\EditorTools</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\EditorTools\MoveTool.h">
+      <Filter>Editor\EditorTools</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

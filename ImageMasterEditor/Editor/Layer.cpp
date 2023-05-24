@@ -14,6 +14,7 @@ Layer::Layer(std::string LayerName, class ImageProject* ParentProject)
 	m_ParentProject = ParentProject;
 	m_ID = TAUtils::RandomString(10);
 	m_CanvasTexture = std::make_unique<RenderTarget>("Layer_" + LayerName);
+	m_RenderData.LayerSize = IM_Math::Int2(ParentProject->GetSize().x, ParentProject->GetSize().y);
 	m_CanvasTexture->CreateTarget(ParentProject->GetSize().x, ParentProject->GetSize().y, DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT, ParentProject->GetRenderer());
 }
 
@@ -26,6 +27,10 @@ void Layer::ReadBackData(char* Filepath)
 void Layer::Composite(RenderTarget* OutputRT)
 {
 	Renderer* renderer = m_ParentProject->GetRenderer();
+
+	renderer->GetConstantBuffers()[RenderTypes::ConstanBuffer::CB_Layer]->UpdateData(&m_RenderData);
+
+
 	std::vector<std::string> LayerModes = m_ParentProject->GetLayerModesAsString();
 	std::string CurrentModeKey = LayerModes[m_CurrentBlendMode];
 	ComputeShader* BlendCP = m_ParentProject->GetRenderer()->GetComputeShaders()[TAUtils::CharToWString(("Blend_" + CurrentModeKey).c_str())].get();
