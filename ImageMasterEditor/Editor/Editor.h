@@ -26,11 +26,14 @@ public:
 
 	void SetActiveProject(ImageProject* ProjectToSetAsActive);
 	class Texture2D* GetIcon(std::string IconName);
-	void SetActiveTool(EditorToolBase* NewTool) { m_ActiveTool = NewTool; }
-	EditorToolBase* GetActiveTool() { return m_ActiveTool; }
+	void AddSetActiveTool(EditorToolBase* NewTool);
+	std::vector<class EditorToolBase*>& GetActiveTool() { return m_ActiveTools; }
 	
-	const std::vector<std::unique_ptr<EditorToolBase>>& GetTools();
+	const std::map<UINT64, std::unique_ptr<EditorToolBase>>& GetTools();
 	IM_Math::float3& GetForegroundColor() { return ForegroundColor; }
+
+	UINT64 KeyStateToUniqueKey(UINT32 ModifierState, UINT32 Key);
+	bool IsToolActive(EditorToolBase* ToolToCheck) const;
 private:
 	//System
 	std::unique_ptr<Window> m_Window;
@@ -62,10 +65,10 @@ private:
 	std::map<std::string, std::unique_ptr<Texture2D>> m_Icons;
 
 	void LoadTools();
-	std::vector<std::unique_ptr<EditorToolBase>> m_EditorTools;
-	class EditorToolBase*  m_ActiveTool = nullptr;
+	std::map<UINT64, std::unique_ptr<EditorToolBase>> m_EditorTools;
+	std::vector<class EditorToolBase*> m_ActiveTools ;
 
 
 	bool DrawUI();
-
+	UINT32 BuildKeyModifierState(bool shift, bool ctrl, bool alt) const;
 };

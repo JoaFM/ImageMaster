@@ -417,6 +417,10 @@ bool Window::OnMouseDown(INT32 Index)const
 	{
 		return m_Mouse_MB_OnDown;
 	}
+	else if (Index == -1)
+	{
+		return m_Mouse_MB_OnDown || m_Mouse_RB_OnDown || m_Mouse_LB_OnDown;
+	}
 	else
 	{
 		return false;
@@ -436,6 +440,10 @@ bool Window::OnMouseUp(INT32 Index) const
 	else if (Index == 2)
 	{
 		return m_Mouse_MB_OnUp;
+	}
+	else if (Index == -1)
+	{
+		return m_Mouse_LB_OnUp || m_Mouse_MB_OnUp || m_Mouse_RB_OnUp;
 	}
 	else
 	{
@@ -474,6 +482,21 @@ INT32 Window::GetSwapChainHeight()
 bool Window::DoneAndWaitingToQuit() const
 {
 	return !m_WaitingToQuit;
+}
+
+Window::KeyCode Window::GetActiveKey() const
+{
+	for (auto key : m_CurrentKeyState)
+	{
+		if (key.first == (WORD)Window::KeyCode::Shift) { continue; }
+		if (key.first == (WORD)Window::KeyCode::Control) { continue; }
+		if (key.first == (WORD)Window::KeyCode::Alt) { continue; }
+		if (key.second.keySatus == KeyStatus::OnDown || key.second.keySatus == KeyStatus::IsDown)
+		{
+			return (Window::KeyCode)key.first;
+		}
+	}
+	return (Window::KeyCode)0;
 }
 
 void Window::Present(UINT SyncInterval, UINT Flags)

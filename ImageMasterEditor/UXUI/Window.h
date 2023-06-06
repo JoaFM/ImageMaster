@@ -227,6 +227,8 @@ public:
 	INT32 GetSwapChainHeight();
 
 	bool DoneAndWaitingToQuit() const;
+	Window::KeyCode GetActiveKey() const;
+
 public:
 	void SetSwapChain(class SwapChain* WindowsSwapchain);
 	class SwapChain* GetSwapChain() { return m_SwapChain; }

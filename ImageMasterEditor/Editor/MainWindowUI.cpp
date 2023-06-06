@@ -230,7 +230,7 @@ void MainWindowUI::UI_DrawBrushUI()
 
 	if (ImGui::Begin("Tool Bar", nullptr, flags))
 	{
-		if (EditorToolBase* Tool = m_Editor->GetActiveTool())
+		for (EditorToolBase* Tool : m_Editor->GetActiveTool())
 		{
 			Tool->UI_DrawToolSettings();
 		}
@@ -284,7 +284,7 @@ void MainWindowUI::UI_DrawToolSelectorBar()
 		
 		for (const auto& tool: m_Editor->GetTools())
 		{
-			tool->UI_DrawToolbarIcon();
+			tool.second->UI_DrawToolbarIcon();
 		}
 		
 

@@ -87,6 +87,7 @@
   <ItemGroup>
     <ClCompile Include="Editor\Editor.cpp" />
     <ClCompile Include="Editor\EditorTools\BrushTool.cpp" />
+    <ClCompile Include="Editor\EditorTools\CanvasMoveTool.cpp" />
     <ClCompile Include="Editor\EditorTools\EditorToolBase.cpp" />
     <ClCompile Include="Editor\EditorTools\MoveTool.cpp" />
     <ClCompile Include="Editor\ImageProject.cpp" />
@@ -123,6 +124,7 @@
   <ItemGroup>
     <ClInclude Include="Editor\Editor.h" />
     <ClInclude Include="Editor\EditorTools\BrushTool.h" />
+    <ClInclude Include="Editor\EditorTools\CanvasMoveTool.h" />
     <ClInclude Include="Editor\EditorTools\EditorToolBase.h" />
     <ClInclude Include="Editor\EditorTools\MoveTool.h" />
     <ClInclude Include="Editor\ImageProject.h" />

@@ -1,6 +1,7 @@
 #include "Editor.h"
 #include "EditorTools/MoveTool.h"
 #include "EditorTools/BrushTool.h"
+#include "EditorTools/CanvasMoveTool.h"
 
 MasterEditor::MasterEditor(std::wstring RootPath, HINSTANCE hInstance)
 {
@@ -51,9 +52,12 @@ void MasterEditor::StartBlockingLoop()
 			m_ActiveProject->CompositeRender();
 			m_Renderer->UpdateCamera(m_ActiveProject->GetCameraData());
 			m_Renderer->SetOutputRT(m_ActiveProject->GetOutputRT());
-			if (!IsInModalState && m_ActiveTool)
+			if (!IsInModalState)
 			{
-				m_ActiveTool->Tick((float)m_deltaTime);
+				for (EditorToolBase* ActiveTool : m_ActiveTools)
+				{
+					ActiveTool->Tick((float)m_deltaTime);
+				}
 			}
 
 			m_Renderer->DrawViewMesh(m_Window.get());
@@ -111,8 +115,35 @@ bool MasterEditor::DrawUI()
 	return m_MainWindowUI->DrawUI();
 }
 
+UINT32 MasterEditor::BuildKeyModifierState(bool shift, bool ctrl, bool alt) const 
+{
+	UINT32 ModState =
+		shift ? 1 : 0 +
+		ctrl ? 2 : 0 +
+		alt ? 4 : 0;
+	return ModState;
+}
+
 void MasterEditor::Behaviors(float DeltaTime)
 {
+	
+	Window::KeyCode ActiveKey = m_Window->GetActiveKey();
+	if (ActiveKey != (Window::KeyCode)0)
+	{
+		UINT32 ModState = BuildKeyModifierState(
+			m_Window->IsKeyDown(Window::KeyCode::Shift),
+			m_Window->IsKeyDown(Window::KeyCode::Control),
+			m_Window->IsKeyDown(Window::KeyCode::Alt)
+		);
+
+
+		UINT64 ActiveKeyCode = KeyStateToUniqueKey(ModState, (UINT32)ActiveKey);
+
+		if (m_EditorTools.find(ActiveKeyCode) != m_EditorTools.end())
+		{
+			AddSetActiveTool(m_EditorTools[ActiveKeyCode].get());
+		}
+	}
 	// quit on escape
 	m_Quiting = m_Window->OnKeyDown(Window::KeyCode::Escape);
 
@@ -136,54 +167,22 @@ void MasterEditor::Behaviors(float DeltaTime)
 	}
 
 
-	// ----------------- Active project -----------
-	if (m_ActiveProject == nullptr) { return; }
+ 	IM_Math::float2 CurrentOffset = m_ActiveProject->GetCameraOffset();
 
-	// move m_ActiveProject Camera
-	IM_Math::float2 CurrentOffset = m_ActiveProject->GetCameraOffset();
-	{
-		const float canvasSpeed = 1;
-		CurrentOffset.x += m_Window->IsKeyDown(Window::KeyCode::A) ? canvasSpeed * DeltaTime : 0;
-		CurrentOffset.x -= m_Window->IsKeyDown(Window::KeyCode::D) ? canvasSpeed * DeltaTime : 0;
-		CurrentOffset.y += m_Window->IsKeyDown(Window::KeyCode::W) ? canvasSpeed * DeltaTime : 0;
-		CurrentOffset.y -= m_Window->IsKeyDown(Window::KeyCode::S) ? canvasSpeed * DeltaTime : 0;
-	}
-
-	{
-		if (!IsMovingMouse && m_Window->OnMouseDown(2))
-		{
-			m_MouseMoveLoc = IM_Math::float2((float)m_Window->GetMouseX(), (float)m_Window->GetMouseY());
-			IsMovingMouse = true;
-		}
-		else if (m_Window->OnMouseUp(2))
-		{
-			IsMovingMouse = false;
-		}
-		IM_Math::float2 MouseOffset(0, 0);
-		if (IsMovingMouse)
-		{
-			MouseOffset = m_MouseMoveLoc - IM_Math::float2((float)m_Window->GetMouseX(), (float)m_Window->GetMouseY());
-			m_MouseMoveLoc = IM_Math::float2((float)m_Window->GetMouseX(), (float)m_Window->GetMouseY());
-		}
-		CurrentOffset += MouseOffset;
-	}
-
-	const float offset = (float)m_Window->MouseScroll();
-	const float ZoomStep = 2.0f;
-	if (offset > 0)
-	{
-		m_ActiveProject->SetZoom(m_ActiveProject->GetZoom() / ZoomStep);
-		CurrentOffset -= GetMouseCanvasPosition() * (m_ActiveProject->GetZoom() *.5f);
-		//OutputDebugStringW((L"\n Zoom1:" +std::to_wstring(m_ActiveProject->GetZoom()) + L"\n").c_str());
-
-	}
-	else if (offset < 0)
-	{
-		m_ActiveProject->SetZoom(m_ActiveProject->GetZoom() * ZoomStep);
-		CurrentOffset += GetMouseCanvasPosition() * m_ActiveProject->GetZoom();
-	}
-
-	m_ActiveProject->SetCameraOffset(CurrentOffset);
+ 	const float offset = (float)m_Window->MouseScroll();
+ 	const float ZoomStep = 2.0f;
+ 	if (offset > 0)
+ 	{
+ 		m_ActiveProject->SetZoom(m_ActiveProject->GetZoom() / ZoomStep);
+ 		CurrentOffset -= GetMouseCanvasPosition() * (m_ActiveProject->GetZoom() *.5f);
+ 	}
+ 	else if (offset < 0)
+ 	{
+ 		m_ActiveProject->SetZoom(m_ActiveProject->GetZoom() * ZoomStep);
+ 		CurrentOffset += GetMouseCanvasPosition() * m_ActiveProject->GetZoom();
+ 	}
+ 
+ 	m_ActiveProject->SetCameraOffset(CurrentOffset);
 
 	if (m_Window->IsKeyDown(Window::KeyCode::F))
 	{
@@ -304,14 +303,51 @@ class Texture2D* MasterEditor::GetIcon(std::string IconName)
 	return nullptr;
 }
 
-const std::vector<std::unique_ptr<EditorToolBase>>& MasterEditor::GetTools()
+void MasterEditor::AddSetActiveTool(EditorToolBase* NewTool)
+{
+
+	if (NewTool->GetToolType() == EditorToolBase::ToolType::ToolType_NoneUnique) {
+		m_ActiveTools.push_back(NewTool);
+		return;
+	}
+	for (INT32 i = 0; i < m_ActiveTools.size(); i++)
+	{
+		EditorToolBase* Tool = m_ActiveTools[i];
+		if (Tool->GetToolType() != EditorToolBase::ToolType::ToolType_NoneUnique)
+		{
+			if (Tool->GetToolType() == EditorToolBase::ToolType::ToolType_UniqueSubmissive)
+			{
+				m_ActiveTools[i] = NewTool;
+				return;
+			}
+		}
+	}
+	m_ActiveTools.push_back(NewTool);
+}
+
+const std::map<UINT64, std::unique_ptr<EditorToolBase>>& MasterEditor::GetTools()
 {
 	return m_EditorTools;
 }
 
+UINT64 MasterEditor::KeyStateToUniqueKey(UINT32 ModifierState, UINT32 Key)
+{
+	return (UINT64)ModifierState + ((UINT64)Key << 32);
+}
+
+bool MasterEditor::IsToolActive(EditorToolBase* ToolToCheck) const
+{
+	for (EditorToolBase* tool : m_ActiveTools)
+	{
+		if (tool == ToolToCheck) { return true; }
+	}
+	return false;
+}
 
 void MasterEditor::LoadTools()
 {
-	m_EditorTools.push_back(std::make_unique<MoveTool>(this));
-	m_EditorTools.push_back(std::make_unique<BrushTool>(this));
+	m_EditorTools[KeyStateToUniqueKey(0, (UINT32)Window::KeyCode::Space )] = std::make_unique<MoveTool>(this);
+	m_EditorTools[KeyStateToUniqueKey(BuildKeyModifierState(true,false,false), (UINT32)Window::KeyCode::V)] = std::make_unique<CanvasMoveTool>(this);
+	m_EditorTools[KeyStateToUniqueKey(BuildKeyModifierState(true, false, false), (UINT32)Window::KeyCode::B)] = std::make_unique<BrushTool>(this);
+
 }
