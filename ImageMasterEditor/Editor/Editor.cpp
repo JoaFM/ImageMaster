@@ -147,7 +147,7 @@ void MasterEditor::Behaviors(float DeltaTime)
 
 		if (m_ToolsShortcut.find(ActiveKeyCode) != m_ToolsShortcut.end())
 		{
-			AddSetActiveTool(m_EditorTools[ActiveKeyCode].get());
+			AddSetActiveTool(m_ToolsShortcut[ActiveKeyCode]);
 		}
 
 
