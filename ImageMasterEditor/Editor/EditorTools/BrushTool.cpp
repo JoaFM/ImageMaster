@@ -85,6 +85,10 @@ void BrushTool::Tick(float DeltaTime)
 }
 
 
+UINT64 BrushTool::GetShortcut()
+{
+	return MasterEditor::KeyStateToUniqueKey(MasterEditor::BuildKeyModifierState(false, false, false), (UINT32)Window::KeyCode::B);
+}
 
 void BrushTool::StartDarwing()
 {
@@ -100,7 +104,6 @@ void BrushTool::EndDrawing()
 
 void BrushTool::UpdateDrawing()
 {
-
 	m_BrushSpacing = max(m_BrushSpacing, 0.1f);
 	m_BrushSize = max(m_BrushSize, 0.1f);
 

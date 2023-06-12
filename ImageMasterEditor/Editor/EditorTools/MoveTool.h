@@ -10,5 +10,6 @@ public:
 	virtual void UI_DrawToolbarIcon() override;
 	virtual void UI_DrawToolSettings() override;
 	virtual void Tick(float deltaTime) override;
+	virtual UINT64 GetShortcut() override;
 
 };

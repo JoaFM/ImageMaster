@@ -68,3 +68,13 @@ void CanvasMoveTool::Tick(float DeltaTime)
 
 	m_ActiveProject->SetCameraOffset(CurrentOffset);
 }
+
+UINT64 CanvasMoveTool::GetShortcut()
+{
+	return MasterEditor::KeyStateToUniqueKey(MasterEditor::BuildKeyModifierState(true, false, false), (UINT32)Window::KeyCode::Space);
+}
+
+UINT64 CanvasMoveTool::GetShortcutWhilePressed()
+{
+	return MasterEditor::KeyStateToUniqueKey(MasterEditor::BuildKeyModifierState(false, false, false), (UINT32)Window::KeyCode::Space);
+}

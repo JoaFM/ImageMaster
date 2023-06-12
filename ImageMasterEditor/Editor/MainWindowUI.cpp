@@ -284,10 +284,8 @@ void MainWindowUI::UI_DrawToolSelectorBar()
 		
 		for (const auto& tool: m_Editor->GetTools())
 		{
-			tool.second->UI_DrawToolbarIcon();
+			tool->UI_DrawToolbarIcon();
 		}
-		
-
 	}
 	ImGui::End();
 

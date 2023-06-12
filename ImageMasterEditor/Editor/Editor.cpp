@@ -45,7 +45,6 @@ void MasterEditor::StartBlockingLoop()
 		//Prep
 		m_Renderer->ReadyNextFrame(m_Window.get());
 
-
 		if (m_ActiveProject)
 		{
 			UpdateState();
@@ -56,7 +55,14 @@ void MasterEditor::StartBlockingLoop()
 			{
 				for (EditorToolBase* ActiveTool : m_ActiveTools)
 				{
-					ActiveTool->Tick((float)m_deltaTime);
+					if (!(ActiveTool->GetToolType() == EditorToolBase::ToolType::ToolType_UniqueSubmissive && m_OverrideUniqueTool))
+					{
+						ActiveTool->Tick((float)m_deltaTime);
+					}
+				}
+				if (m_OverrideUniqueTool)
+				{
+					m_OverrideUniqueTool->Tick((float)m_deltaTime);
 				}
 			}
 
@@ -115,7 +121,7 @@ bool MasterEditor::DrawUI()
 	return m_MainWindowUI->DrawUI();
 }
 
-UINT32 MasterEditor::BuildKeyModifierState(bool shift, bool ctrl, bool alt) const 
+UINT32 MasterEditor::BuildKeyModifierState(bool shift, bool ctrl, bool alt)  
 {
 	UINT32 ModState =
 		shift ? 1 : 0 +
@@ -139,10 +145,27 @@ void MasterEditor::Behaviors(float DeltaTime)
 
 		UINT64 ActiveKeyCode = KeyStateToUniqueKey(ModState, (UINT32)ActiveKey);
 
-		if (m_EditorTools.find(ActiveKeyCode) != m_EditorTools.end())
+		if (m_ToolsShortcut.find(ActiveKeyCode) != m_ToolsShortcut.end())
 		{
 			AddSetActiveTool(m_EditorTools[ActiveKeyCode].get());
 		}
+
+
+		if (m_ToolsShortcutOnDown.find(ActiveKeyCode) != m_ToolsShortcutOnDown.end())
+		{
+			if (m_OverrideUniqueTool == nullptr || (m_OverrideUniqueTool && m_ToolsShortcutOnDown[ActiveKeyCode] != m_OverrideUniqueTool))
+			{
+				m_OverrideUniqueTool = m_ToolsShortcutOnDown[ActiveKeyCode];
+			}
+		}
+		else
+		{
+			m_OverrideUniqueTool = nullptr;
+		}
+	}
+	else
+	{
+		m_OverrideUniqueTool = nullptr;
 	}
 	// quit on escape
 	m_Quiting = m_Window->OnKeyDown(Window::KeyCode::Escape);
@@ -188,8 +211,6 @@ void MasterEditor::Behaviors(float DeltaTime)
 	{
 		m_ActiveProject->SetCameraOffset(IM_Math::float2(-100,-100));
 	}
-
-
 }
 
 void MasterEditor::UpdateState()
@@ -197,7 +218,6 @@ void MasterEditor::UpdateState()
 	IM_Math::float2 CamPos = GetActiveProject()->GetCameraOffset();
 	m_MouseCanvasPosition = IM_Math::float2((float)(CamPos.x + m_Window->GetMouseX()), (float)(CamPos.y + m_Window->GetMouseY()));
 }
-
 
 
 void MasterEditor::RefreshAssets()
@@ -325,7 +345,7 @@ void MasterEditor::AddSetActiveTool(EditorToolBase* NewTool)
 	m_ActiveTools.push_back(NewTool);
 }
 
-const std::map<UINT64, std::unique_ptr<EditorToolBase>>& MasterEditor::GetTools()
+const std::vector<std::unique_ptr<EditorToolBase>>& MasterEditor::GetTools()
 {
 	return m_EditorTools;
 }
@@ -344,10 +364,25 @@ bool MasterEditor::IsToolActive(EditorToolBase* ToolToCheck) const
 	return false;
 }
 
+void MasterEditor::AddToolShortcut(UINT64 Key, EditorToolBase* Tool)
+{
+	m_ToolsShortcut[Key] = Tool;
+}
+
+void MasterEditor::AddToolsShortcutOnDown(UINT64 Key, EditorToolBase* Tool)
+{
+	m_ToolsShortcutOnDown[Key] = Tool;
+}
+
 void MasterEditor::LoadTools()
 {
-	m_EditorTools[KeyStateToUniqueKey(0, (UINT32)Window::KeyCode::Space )] = std::make_unique<MoveTool>(this);
-	m_EditorTools[KeyStateToUniqueKey(BuildKeyModifierState(true,false,false), (UINT32)Window::KeyCode::V)] = std::make_unique<CanvasMoveTool>(this);
-	m_EditorTools[KeyStateToUniqueKey(BuildKeyModifierState(true, false, false), (UINT32)Window::KeyCode::B)] = std::make_unique<BrushTool>(this);
+	m_EditorTools.push_back(std::make_unique<MoveTool>(this));
+	m_EditorTools.push_back(std::make_unique<CanvasMoveTool>(this));
+	m_EditorTools.push_back(std::make_unique<BrushTool>(this));
+
+	for (auto& tool : m_EditorTools)
+	{
+		tool->Setup();
+	}
 
 }

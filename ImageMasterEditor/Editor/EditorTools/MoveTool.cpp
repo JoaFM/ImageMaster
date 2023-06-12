@@ -27,9 +27,13 @@ void MoveTool::UI_DrawToolbarIcon()
 void MoveTool::UI_DrawToolSettings()
 {
 	ImGui::Text("I am a move tool");
-
 }
 
 void MoveTool::Tick(float deltaTime)
 {
+}
+
+UINT64 MoveTool::GetShortcut()
+{
+	return MasterEditor::KeyStateToUniqueKey(MasterEditor::BuildKeyModifierState(false, false, false), (UINT32)Window::KeyCode::V);
 }

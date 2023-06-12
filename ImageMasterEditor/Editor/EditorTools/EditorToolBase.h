@@ -1,5 +1,6 @@
 #pragma once
 #include "MainApp/Default_Headers.h"
+#include <intsafe.h>
 
 
 class EditorToolBase
@@ -7,9 +8,13 @@ class EditorToolBase
 public:
 
 	EditorToolBase(class MasterEditor* Editor);
+	void Setup();
 	virtual void UI_DrawToolbarIcon();
 	virtual void UI_DrawToolSettings();
 	virtual void Tick(float deltaTime) {};
+
+	virtual UINT64 GetShortcut() { return 0; };
+	virtual UINT64 GetShortcutWhilePressed() { return 0; };
 
 	enum class ToolType {
 		ToolType_NoneUnique,// Have as many as you want

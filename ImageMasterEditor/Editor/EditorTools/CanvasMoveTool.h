@@ -11,6 +11,10 @@ public:
 	virtual void UI_DrawToolSettings() override;
 	virtual void Tick(float deltaTime) override;
 
+
+	virtual UINT64 GetShortcut() override;
+	virtual UINT64 GetShortcutWhilePressed() override;
+
 private:
 	bool IsMovingMouse = false;
 	IM_Math::float2 m_MouseMoveLoc;

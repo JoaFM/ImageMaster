@@ -29,11 +29,18 @@ public:
 	void AddSetActiveTool(EditorToolBase* NewTool);
 	std::vector<class EditorToolBase*>& GetActiveTool() { return m_ActiveTools; }
 	
-	const std::map<UINT64, std::unique_ptr<EditorToolBase>>& GetTools();
+	const std::vector<std::unique_ptr<EditorToolBase>>& GetTools();
 	IM_Math::float3& GetForegroundColor() { return ForegroundColor; }
 
-	UINT64 KeyStateToUniqueKey(UINT32 ModifierState, UINT32 Key);
 	bool IsToolActive(EditorToolBase* ToolToCheck) const;
+	void AddToolShortcut(UINT64 Key, EditorToolBase* Tool);
+	void AddToolsShortcutOnDown(UINT64 Key, EditorToolBase* Tool);
+
+public://util
+	static UINT64 KeyStateToUniqueKey(UINT32 ModifierState, UINT32 Key);
+	static UINT32 BuildKeyModifierState(bool shift, bool ctrl, bool alt) ;
+
+
 private:
 	//System
 	std::unique_ptr<Window> m_Window;
@@ -46,7 +53,7 @@ private:
 	IM_Math::float2 m_MouseCanvasPosition;
 	IM_Math::float2 m_MouseMoveLoc;
 	bool IsMovingMouse = false;
-	IM_Math::float3 ForegroundColor;
+	IM_Math::float3 ForegroundColor = IM_Math::float3(1,1,1);
 
 	// Workspace
 	std::vector<std::unique_ptr<ImageProject>> m_Projects;
@@ -65,10 +72,13 @@ private:
 	std::map<std::string, std::unique_ptr<Texture2D>> m_Icons;
 
 	void LoadTools();
-	std::map<UINT64, std::unique_ptr<EditorToolBase>> m_EditorTools;
-	std::vector<class EditorToolBase*> m_ActiveTools ;
+	std::vector<std::unique_ptr<EditorToolBase>> m_EditorTools;
+	std::map<UINT64, EditorToolBase*> m_ToolsShortcut;
+	std::map<UINT64, EditorToolBase*> m_ToolsShortcutOnDown;
+
+	std::vector<class EditorToolBase*> m_ActiveTools;
+	class EditorToolBase* m_OverrideUniqueTool = nullptr;
 
 
 	bool DrawUI();
-	UINT32 BuildKeyModifierState(bool shift, bool ctrl, bool alt) const;
 };
