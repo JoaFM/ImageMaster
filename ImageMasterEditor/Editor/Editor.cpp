@@ -1,7 +1,9 @@
 #include "Editor.h"
+
 #include "EditorTools/MoveTool.h"
 #include "EditorTools/BrushTool.h"
 #include "EditorTools/CanvasMoveTool.h"
+#include "EditorTools/EditorShortcuts.h"
 
 MasterEditor::MasterEditor(std::wstring RootPath, HINSTANCE hInstance)
 {
@@ -374,11 +376,33 @@ void MasterEditor::AddToolsShortcutOnDown(UINT64 Key, EditorToolBase* Tool)
 	m_ToolsShortcutOnDown[Key] = Tool;
 }
 
+void MasterEditor::ClearActiveLayer(int NewClearState)
+{
+	Layer* later = m_ActiveProject->GetSelectedLayer();
+	RenderTarget* CT = later->GetCanvasTexture();
+	IM_Math::float3& FC = GetForegroundColor();
+
+	switch (NewClearState)
+	{
+	case 1:
+		CT->Clear(FC.x, FC.y, FC.z, 1.0f,GetRenderer());
+		break;
+	case -1:
+		CT->Clear(0, 0, 0, 0.0f, GetRenderer());
+		break;
+	default:
+		break;
+	}
+
+}
+
 void MasterEditor::LoadTools()
 {
 	m_EditorTools.push_back(std::make_unique<MoveTool>(this));
 	m_EditorTools.push_back(std::make_unique<CanvasMoveTool>(this));
 	m_EditorTools.push_back(std::make_unique<BrushTool>(this));
+	m_EditorTools.push_back(std::make_unique<EditorShortcuts>(this));
+	AddSetActiveTool(m_EditorTools[m_EditorTools.size() - 1].get());
 
 	for (auto& tool : m_EditorTools)
 	{

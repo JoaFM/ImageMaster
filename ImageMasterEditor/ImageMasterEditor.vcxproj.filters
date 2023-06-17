@@ -151,6 +151,9 @@
     <ClCompile Include="Editor\EditorTools\CanvasMoveTool.cpp">
       <Filter>Editor\EditorTools</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\EditorTools\EditorShortcuts.cpp">
+      <Filter>Editor\EditorTools</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Editor\Editor.h">
@@ -280,6 +283,9 @@
       <Filter>Editor\EditorTools</Filter>
     </ClInclude>
     <ClInclude Include="Editor\EditorTools\CanvasMoveTool.h">
+      <Filter>Editor\EditorTools</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\EditorTools\EditorShortcuts.h">
       <Filter>Editor\EditorTools</Filter>
     </ClInclude>
   </ItemGroup>

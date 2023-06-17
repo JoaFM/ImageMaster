@@ -17,6 +17,7 @@ private:
 	float m_BrushTraveledDistance = 0;
 	float m_BrushSpacing = 0.1f;
 	float m_BrushSize = 10;
+	float m_BrushFalloff = 0.5f;
 	float m_BrushAlpha = 0.1f;
 	bool m_IsDrawing = false;
 	IM_Math::float2 m_LastMouseLocation;

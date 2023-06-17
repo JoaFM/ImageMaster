@@ -35,6 +35,9 @@ void BrushTool::UI_DrawToolSettings()
 
 	ImGui::Text("Alpha");
 	ImGui::SliderFloat("##Alpha_S", &m_BrushAlpha, 0, 1.0f, "%.3f", ImGuiSliderFlags_NoRoundToFormat);
+
+	ImGui::Text("BrushFalloff");
+	ImGui::SliderFloat("##BrushFalloff_S", &m_BrushFalloff, 0, 1.0f, "%.3f", ImGuiSliderFlags_NoRoundToFormat);
 }
 
 
@@ -46,6 +49,7 @@ void BrushTool::DrawBrushAtLocation(IM_Math::float2 BrushLocation)
 	BrushInput.MousePosition = BrushLocation;
 	BrushInput.BrushSize = m_BrushSize;
 	BrushInput.BrushAlpha = m_BrushAlpha;
+	BrushInput.BrushFalloff = m_BrushFalloff;
 	BrushInput.BrushMainColour = GetEditor()->GetForegroundColor();
 
 	GetRenderer()->GetConstantBuffers()[RenderTypes::ConstanBuffer::CB_BrushInput]->UpdateData(&BrushInput);

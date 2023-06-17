@@ -36,9 +36,11 @@ public:
 	void AddToolShortcut(UINT64 Key, EditorToolBase* Tool);
 	void AddToolsShortcutOnDown(UINT64 Key, EditorToolBase* Tool);
 
+	void ClearActiveLayer(int NewClearState);
 public://util
 	static UINT64 KeyStateToUniqueKey(UINT32 ModifierState, UINT32 Key);
 	static UINT32 BuildKeyModifierState(bool shift, bool ctrl, bool alt) ;
+	void RefreshAssets();
 
 
 private:
@@ -59,7 +61,6 @@ private:
 	std::vector<std::unique_ptr<ImageProject>> m_Projects;
 	ImageProject* m_ActiveProject = nullptr;
 	INT32 ActiveProjectIndex = -1;
-	void RefreshAssets();
 
 	//--------- Behaviors
 	void Behaviors(float DeltaTime);

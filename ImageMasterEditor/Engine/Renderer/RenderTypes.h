@@ -105,6 +105,10 @@ public:
 		float BrushAlpha;
 		IM_Math::float3 BrushMainColour;
 		float MouseButton;
+		float BrushFalloff;
+		float PAD0;
+		float PAD1;
+		float PAD2;
 
 		static std::string GetHeaderDefine()
 		{
@@ -117,6 +121,10 @@ public:
 			ResultStr += "	float BrushAlpha;\n";
 			ResultStr += "	float3 BrushMainColour;\n";
 			ResultStr += "	float MouseButton;\n";
+			ResultStr += "	float BrushFalloff;\n";
+			ResultStr += "	float PAD0;\n";
+			ResultStr += "	float PAD1;\n";
+			ResultStr += "	float PAD2;\n";
 			ResultStr += "}\n";
 			ResultStr += "\n";
 			return ResultStr;
