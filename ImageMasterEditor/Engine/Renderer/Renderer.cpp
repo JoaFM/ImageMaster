@@ -31,6 +31,17 @@ void Renderer::SetAllCB(ID3D11VertexShader* VS, ID3D11PixelShader* PS)
 	}
 }
 
+RenderTarget* Renderer::GetSmallStageTexture()
+{
+	if (!m_UtilRT64)
+	{
+		m_UtilRT64 = std::make_unique<RenderTarget>("Render_target_m_UtilRT64");
+		m_UtilRT64->CreateTarget(8, 8, DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT, this);
+		m_UtilRT64->SetKeepStagingActive(true);
+	}
+	return m_UtilRT64.get();
+}
+
 void Renderer::Init(IM_Math::Int2 size, Window* MainWindow)
 {
 	//#TODO: Get this data from the window rect
@@ -104,7 +115,7 @@ bool Renderer::BindComputeShader(std::wstring ShaderName)
 {
 	if (m_LoadedComputeShaders.contains(ShaderName))
 	{
-		m_LoadedComputeShaders[ShaderName]->Bind(GetDeviceContext());
+		m_LoadedComputeShaders[ShaderName]->Bind();
 		CurrentBoundComputeShader = m_LoadedComputeShaders[ShaderName].get();
 		return true;
 	}
@@ -123,7 +134,7 @@ void Renderer::UnbindCurrentShader()
 
 void Renderer::UnbindCurrentComputeShader()
 {
-	CurrentBoundComputeShader->UnBind(GetDeviceContext());
+	CurrentBoundComputeShader->UnBind();
 	CurrentBoundComputeShader = nullptr;
 }
 
@@ -423,6 +434,15 @@ void Renderer::CheckWindowSize(Window* MainWindow)
 	TA_WARN_WS(L"Resized window");
 }
 
+ComputeShader* Renderer::GetComputeShader(std::wstring ShaderName)
+{
+	if (m_LoadedComputeShaders.contains(ShaderName))
+	{
+		return m_LoadedComputeShaders[ShaderName].get();
+	}
+	return nullptr;
+}
+
 void Renderer::RefreshShaders(std::vector<std::wstring> FoundShaders, std::vector<std::wstring> FoundComputeShaders)
 {
 	{
@@ -488,7 +508,7 @@ void Renderer::RefreshShaders(std::vector<std::wstring> FoundShaders, std::vecto
 			std::wstring fileName = p.stem();
 			if (!m_LoadedComputeShaders.contains(fileName) || m_LoadedComputeShaders[fileName] == nullptr)
 			{
-				m_LoadedComputeShaders[fileName] = std::make_unique<ComputeShader>("ComputeShader::fileName" + TAUtils::WStringToChar(fileName.c_str()));
+				m_LoadedComputeShaders[fileName] = std::make_unique<ComputeShader>("ComputeShader::fileName" + TAUtils::WStringToChar(fileName.c_str()), this);
 			}
 			m_LoadedComputeShaders[fileName]->SetShaderPath(ShaderToProcess);
 			m_LoadedComputeShaders[fileName]->LoadReload(GetDevice());
@@ -511,22 +531,22 @@ void Renderer::SetupInitialConstantBuffers()
 	// General 
 	constantBufferDesc.ByteWidth = sizeof(RenderTypes::CB_General_Struct);
 	m_ConstantBuffers[RenderTypes::ConstanBuffer::CB_General] = std::make_unique<ConstantBuffer>(constantBufferDesc, "CB_General", this, (UINT)RenderTypes::ConstanBuffer::CB_General);
-	GetConstantBuffers()[RenderTypes::ConstanBuffer::CB_General]->CSBind();
+	GetConstantBuffers()[RenderTypes::ConstanBuffer::CB_General]->Bind_CB_to_CS();
 
 	// Sprite??????
 	constantBufferDesc.ByteWidth = sizeof(RenderTypes::CB_PerScreenSprite_Struct);
 	m_ConstantBuffers[RenderTypes::ConstanBuffer::CB_PerScreenSprite] = std::make_unique<ConstantBuffer>(constantBufferDesc, "CB_PerScreenSprite", this, (UINT)RenderTypes::ConstanBuffer::CB_PerScreenSprite);
-	GetConstantBuffers()[RenderTypes::ConstanBuffer::CB_PerScreenSprite]->CSBind();
+	GetConstantBuffers()[RenderTypes::ConstanBuffer::CB_PerScreenSprite]->Bind_CB_to_CS();
 
 	// Brush
 	constantBufferDesc.ByteWidth = sizeof(RenderTypes::CB_BrushInput_Struct);
 	m_ConstantBuffers[RenderTypes::ConstanBuffer::CB_BrushInput] = std::make_unique<ConstantBuffer>(constantBufferDesc, "CB_BrushInput", this, (UINT)RenderTypes::ConstanBuffer::CB_BrushInput);
-	GetConstantBuffers()[RenderTypes::ConstanBuffer::CB_BrushInput]->CSBind();
+	GetConstantBuffers()[RenderTypes::ConstanBuffer::CB_BrushInput]->Bind_CB_to_CS();
 
 	// Brush
 	constantBufferDesc.ByteWidth = sizeof(RenderTypes::CB_Layer_Struct);
 	m_ConstantBuffers[RenderTypes::ConstanBuffer::CB_Layer] = std::make_unique<ConstantBuffer>(constantBufferDesc, "CB_Layer", this, (UINT)RenderTypes::ConstanBuffer::CB_Layer);
-	GetConstantBuffers()[RenderTypes::ConstanBuffer::CB_Layer]->CSBind();
+	GetConstantBuffers()[RenderTypes::ConstanBuffer::CB_Layer]->Bind_CB_to_CS();
 
 }
 

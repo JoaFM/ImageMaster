@@ -10,8 +10,8 @@ public:
 	Texture();
 	~Texture() { Release(); }
 
-	virtual struct ID3D11UnorderedAccessView* GetUAV() { return m_UAV; }
-	struct ID3D11ShaderResourceView* GetSRV() { return m_SRV; }
+	virtual struct ID3D11UnorderedAccessView* GetUAV() const { return m_UAV; }
+	struct ID3D11ShaderResourceView* GetSRV() const { return m_SRV; }
 	void SetSampler(RenderTypes::DefaultSamplers NewSampler) { m_MySampler = NewSampler; }
 	RenderTypes::DefaultSamplers GetSampler() { return m_MySampler; }
 

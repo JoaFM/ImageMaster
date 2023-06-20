@@ -128,6 +128,12 @@ Layer* ImageProject::FindActiveLayer()
 
 }
 
+void ImageProject::ReadBackOutput(const IM_Math::Int2& PixelPos, std::vector<float>& ReadbackBuffer8X8)
+{
+	RenderTarget* RT = GetOutputRT();
+	RT->CopyBackPixel(PixelPos, ReadbackBuffer8X8);
+}
+
 void ImageProject::UI_FileMenuNewUI( std::set<std::string>& Messages)
 {
 	if (ImGui::MenuItem("New"))

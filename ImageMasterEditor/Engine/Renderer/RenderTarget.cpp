@@ -75,6 +75,7 @@ void RenderTarget::Release()
 	TA_SAFERELEASE(m_RenderTargetView);
 	TA_SAFERELEASE(m_DepthStencilBuffer);
 	TA_SAFERELEASE(m_DepthStencilView);
+	TA_SAFERELEASE(m_StagingTexture_readBack);
 }
 
 void RenderTarget::Bind(Renderer* Render)
@@ -164,8 +165,9 @@ void RenderTarget::OnNameOpdate()
 	TAUtils::SetDebugObjectName(m_SRV, GetFriendlyName() + "_m_SRV:");
 }
 
-bool RenderTarget::CopyBackData(char* Filepath)
+bool RenderTarget::CreateStaging()
 {
+	if (m_StagingTexture_readBack) { return true; }
 
 	D3D11_TEXTURE2D_DESC textureDesc = {};
 	textureDesc.Width = (UINT)m_Size.x;
@@ -179,32 +181,84 @@ bool RenderTarget::CopyBackData(char* Filepath)
 	textureDesc.MiscFlags = 0;
 	textureDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
 
+	TA_HRCHECK(m_Renderer->GetDevice()->CreateTexture2D(&textureDesc, nullptr, &m_StagingTexture_readBack), L"Clould not create renter tartget texture 2D\n");
 
-	ID3D11Texture2D* StagingTexture_readBack = nullptr;
+	return true;
+}
 
-	
-	TA_HRCHECK(m_Renderer->GetDevice()->CreateTexture2D(&textureDesc, nullptr, &StagingTexture_readBack), L"Clould not create renter tartget texture 2D\n");
+void RenderTarget::KillStaging()
+{
+	TA_SAFERELEASE(m_StagingTexture_readBack);
+}
 
-	
+void RenderTarget::CopyToStagingTexture()
+{
+	if (m_StagingTexture_readBack != nullptr && m_textureBuffer)
+	{
+		m_Renderer->GetDeviceContext()->CopyResource(m_StagingTexture_readBack, m_textureBuffer);
+	}
+}
 
-	m_Renderer->GetDeviceContext()->CopyResource(StagingTexture_readBack, m_textureBuffer);
+void RenderTarget::ReadBackDataFromStagingTexture(std::vector<float>& returnBuffer)
+{
+	if (!CreateStaging()) { return ; }
+
+	CopyToStagingTexture();
 
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
 
-	m_Renderer->GetDeviceContext()->Map(StagingTexture_readBack, 0, D3D11_MAP_READ, 0, &mappedResource);
-	
+	m_Renderer->GetDeviceContext()->Map(m_StagingTexture_readBack, 0, D3D11_MAP_READ, 0, &mappedResource);
 	INT32 TextureSizeInBytes = (GetSize().x * GetSize().y) * 4 * sizeof(float);
 
-	std::vector<float> cpuData((GetSize().x * GetSize().y)*4,0);
-
-	memcpy(&(cpuData[0]), mappedResource.pData, TextureSizeInBytes);
+	memcpy(&(returnBuffer[0]), mappedResource.pData, TextureSizeInBytes);
 	//  Re-enable GPU access to the vertex buffer data.
-	m_Renderer->GetDeviceContext()->Unmap(StagingTexture_readBack, 0);
+	m_Renderer->GetDeviceContext()->Unmap(m_StagingTexture_readBack, 0);
+}
 
+bool RenderTarget::SaveLayerToPath(char* Filepath)
+{
+	if (!CreateStaging()) { return false; }
+
+	CopyToStagingTexture();
 	
-	TA_SAFERELEASE(StagingTexture_readBack);
+	std::vector<float> cpuData((GetSize().x * GetSize().y) * 4, 0);
+
+	ReadBackDataFromStagingTexture(cpuData);
+
+	if (!m_KeepStagingActive)
+	{
+		KillStaging();
+	}
 
 	SaveLoad::Save(Filepath, m_Size.x, m_Size.y,nullptr, &(cpuData[0]));
+
 	return true;
+}
+
+bool RenderTarget::CopyBackPixel(IM_Math::Int2 PixelLocation, std::vector<float>& ReadbackBuffer8X8)
+{
+	RenderTarget* RT = m_Renderer->GetSmallStageTexture();
+	ComputeShader* ComS = m_Renderer->GetComputeShader(L"UTIL_CopyBackDataArea");
+	if (!ComS) { return false; }
+
+
+	MaterialInstance Params;
+	Params.m_TexturesOut["BufferOut"] = RT;
+	Params.m_TexturesIn["CanvasTexture"] = this;
+	Params.SetParamater(std::string("PixelOffset2"), PixelLocation);
+	ComS->Dispatch(Params);
+	
+	RT->ReadBackDataFromStagingTexture(ReadbackBuffer8X8);
+
+	if (!m_KeepStagingActive)
+	{
+		KillStaging();
+	}
+	return true;
+}
+
+void RenderTarget::SetKeepStagingActive(bool ShouldKeepStagingActive) 
+{
+	m_KeepStagingActive = ShouldKeepStagingActive;
 }

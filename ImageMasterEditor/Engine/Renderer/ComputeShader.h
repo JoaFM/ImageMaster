@@ -2,11 +2,12 @@
 
 #include "MainApp/Default_Headers.h"
 #include "../IMBase.h"
+#include "ConstantBufferManager.h"
 
 class ComputeShader : IMBase
 {
 public:
-	ComputeShader(std::string Name);
+	ComputeShader(std::string Name, class Renderer* renderer);
 	~ComputeShader();
 
 	void SetShaderPath(std::wstring Newpath) { m_ShaderPath = Newpath; };
@@ -20,12 +21,14 @@ public:
 
 	bool IsValid() { return LoadedAndValid; }
 	
-	void Dispatch(ID3D11DeviceContext* DeviceContext, INT32 ThreadsX, INT32 ThreadsY, INT32 ThreadsZ);
-	void Dispatch(ID3D11DeviceContext* DeviceContext);
+	void Dispatch(INT32 ThreadsX, INT32 ThreadsY, INT32 ThreadsZ);
+	void Dispatch();
+	void Dispatch( MaterialInstance& Params);
 	
 	
-	bool Bind(ID3D11DeviceContext* DeviceContext);
-	bool UnBind(ID3D11DeviceContext* DeviceContext);
+	bool BindTExturesFromParam(MaterialInstance& Params);
+	bool Bind();
+	bool UnBind();
 	void Release();
 
 private:
@@ -35,7 +38,7 @@ private:
 
 	bool LoadedAndValid = false;
 	struct ID3D11ComputeShader* m_ComputeShader = nullptr;
-
+	class Renderer* m_Renderer = nullptr;
 private:
 
 	void CalcRelection(ID3DBlob* Shader_blob_ptr);
@@ -49,5 +52,6 @@ private:
 	std::vector<UINT> m_ShaderBound_UAV;
 	std::vector<UINT> m_ShaderBound_SRV;
 
+	std::unique_ptr<ConstantBufferManager> GlobalsCBManager;
 
 };

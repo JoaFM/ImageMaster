@@ -63,4 +63,5 @@ public:
 	class Renderer* GetRenderer() {return m_renderer; };
 	Layer* FindActiveLayer();
 	class MasterEditor* GetEditor() { return m_Editor; };
+	void ReadBackOutput(const IM_Math::Int2& PixelPos, std::vector<float>& ReadbackBuffer8X8);
 };

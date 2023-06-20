@@ -46,6 +46,8 @@ public:
 	~Renderer();
 
 	void SetAllCB(ID3D11VertexShader* VS, ID3D11PixelShader* PS);
+	RenderTarget* GetSmallStageTexture();
+	
 public:
 
 	//Internal for rendering
@@ -120,8 +122,11 @@ private:
 	std::map<std::wstring, std::unique_ptr<ComputeShader>> m_LoadedComputeShaders;
 	Shader* CurrentBoundShader = nullptr;
 	ComputeShader* CurrentBoundComputeShader = nullptr;
+	std::unique_ptr<RenderTarget> m_UtilRT64 = nullptr;
+
 public:
 	std::map<std::wstring, std::unique_ptr<ComputeShader>>& GetComputeShaders() { return m_LoadedComputeShaders; };
+	ComputeShader* GetComputeShader(std::wstring ShaderName);
 	void RefreshShaders(std::vector<std::wstring> FoundShaders, std::vector<std::wstring> FoundComputeShaders);
 	ComputeShader* GetCurrentComputeShader() const {return CurrentBoundComputeShader; }
 };

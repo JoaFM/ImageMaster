@@ -7,9 +7,11 @@
 #include "Texture.h"
 #include "ShaderIncludeFramework.h"
 
-ComputeShader::ComputeShader(std::string Name)
+ComputeShader::ComputeShader(std::string Name, class Renderer* renderer)
 {
+	m_Renderer = renderer;
 	SetFriendlyName(Name + TAUtils::RandomString(5));
+	GlobalsCBManager = std::make_unique<ConstantBufferManager>(m_Renderer);
 }
 
 ComputeShader::~ComputeShader()
@@ -99,23 +101,45 @@ void ComputeShader::SetTexture(std::string Name, class Texture* NewTexture)
 }
 
 
-void ComputeShader::Dispatch(ID3D11DeviceContext* DeviceContext,  INT32 ThreadsX, INT32 ThreadsY, INT32 ThreadsZ)
+void ComputeShader::Dispatch(INT32 ThreadsX, INT32 ThreadsY, INT32 ThreadsZ)
 {
-	Bind(DeviceContext);
-	DeviceContext->Dispatch(ThreadsX, ThreadsY, ThreadsZ);
-	UnBind(DeviceContext);
+	Bind();
+	m_Renderer->GetDeviceContext()->Dispatch(ThreadsX, ThreadsY, ThreadsZ);
+	UnBind();
 }
 
 
-void ComputeShader::Dispatch(ID3D11DeviceContext* DeviceContext)
+void ComputeShader::Dispatch()
 {
 	if (m_App_BoundTextures.contains("BufferOut") && m_App_BoundTextures["BufferOut"])
 	{
-		Dispatch(DeviceContext, m_App_BoundTextures["BufferOut"]->GetSize().x / 8, m_App_BoundTextures["BufferOut"]->GetSize().y / 8, 1);
+		Dispatch( m_App_BoundTextures["BufferOut"]->GetSize().x / 8, m_App_BoundTextures["BufferOut"]->GetSize().y / 8, 1);
 	}
+
 }
 
-bool ComputeShader::Bind(ID3D11DeviceContext* DeviceContext)
+void ComputeShader::Dispatch(MaterialInstance& Params)
+{
+	// update custom constant buffer
+	if (!LoadedAndValid) { return; }
+
+	std::string StdOutputTexture = "BufferOut";
+	auto it = Params.m_TexturesOut.find(StdOutputTexture);
+	if (it != Params.m_TexturesOut.end())
+	{
+		GlobalsCBManager->UpdateCB(Params);
+
+		if (ConstantBuffer* CB = GlobalsCBManager->GetCB())
+		{
+			BindTExturesFromParam(Params);
+			CB->Bind_CB_to_CS();
+			m_Renderer->GetDeviceContext()->Dispatch(Params.m_TexturesOut["BufferOut"]->GetSize().x / 8, Params.m_TexturesOut["BufferOut"]->GetSize().y / 8, 1);
+			CB->UnBind_CB();
+			UnBind();
+		}
+	}
+}
+bool ComputeShader::BindTExturesFromParam(MaterialInstance& Params)
 {
 
 	if (!LoadedAndValid)
@@ -124,14 +148,65 @@ bool ComputeShader::Bind(ID3D11DeviceContext* DeviceContext)
 		return false;
 	}
 
-	DeviceContext->CSSetShader(m_ComputeShader, NULL, 0);
+	m_Renderer->GetDeviceContext()->CSSetShader(m_ComputeShader, NULL, 0);
+
+	for (auto& RWTexture : m_TextureRW_BindPoints)
+	{
+		
+		if (Params.m_TexturesOut.contains(RWTexture.first))
+		{
+			ID3D11UnorderedAccessView* m_UAV = Params.m_TexturesOut[RWTexture.first]->GetUAV();
+			m_Renderer->GetDeviceContext()->CSSetUnorderedAccessViews(RWTexture.second, 1, &m_UAV, 0);
+			m_ShaderBound_UAV.push_back(RWTexture.second);
+		}
+		else
+		{
+			TA_ERROR_WS(L"Could not bind RW texture in compute shader. Texture not set\n");
+			return false;
+		}
+	}
+
+	for (auto& TextureBP : m_Texture_BindPoints)
+	{
+		if (Params.m_TexturesIn.contains(TextureBP.first))
+		{
+			ID3D11ShaderResourceView* m_SRV = Params.m_TexturesIn[TextureBP.first]->GetSRV();
+			m_Renderer->GetDeviceContext()->CSSetShaderResources(TextureBP.second, 1, &m_SRV);
+			m_ShaderBound_SRV.push_back(TextureBP.second);
+		}
+		else
+		{
+			TA_ERROR_WS(L"Could not bind RW texture in compute shader. Texture not set\n");
+			return false;
+		}
+	}
+
+
+	ID3D11UnorderedAccessView* UAV = nullptr;
+	if (m_PropertiesStructuredBuffer)
+	{
+		UAV = m_PropertiesStructuredBuffer->GetUAV();
+	}
+	return true;
+}
+
+bool ComputeShader::Bind()
+{
+
+	if (!LoadedAndValid)
+	{
+		TA_ERROR_WS(L"Compute Shader not Valid cannot run, Not Properly loaded\n");
+		return false;
+	}
+
+	m_Renderer->GetDeviceContext()->CSSetShader(m_ComputeShader, NULL, 0);
 	
 	for (auto& RWTexture : m_TextureRW_BindPoints)
 	{
 		if (m_App_BoundTextures.contains(RWTexture.first))
 		{
 			ID3D11UnorderedAccessView* m_UAV = m_App_BoundTextures[RWTexture.first]->GetUAV();
-			DeviceContext->CSSetUnorderedAccessViews(RWTexture.second, 1, &m_UAV, 0);
+			m_Renderer->GetDeviceContext()->CSSetUnorderedAccessViews(RWTexture.second, 1, &m_UAV, 0);
 			m_ShaderBound_UAV.push_back(RWTexture.second);
 		}
 		else
@@ -146,7 +221,7 @@ bool ComputeShader::Bind(ID3D11DeviceContext* DeviceContext)
 		if (m_App_BoundTextures.contains(TextureBP.first))
 		{
 			ID3D11ShaderResourceView* m_SRV = m_App_BoundTextures[TextureBP.first]->GetSRV();
-			DeviceContext->CSSetShaderResources(TextureBP.second, 1, &m_SRV);
+			m_Renderer->GetDeviceContext()->CSSetShaderResources(TextureBP.second, 1, &m_SRV);
 			m_ShaderBound_SRV.push_back(TextureBP.second);
 		}
 		else
@@ -165,23 +240,23 @@ bool ComputeShader::Bind(ID3D11DeviceContext* DeviceContext)
 	return true;
 }
 
-bool ComputeShader::UnBind(ID3D11DeviceContext* DeviceContext)
+bool ComputeShader::UnBind()
 {
 	ID3D11UnorderedAccessView* nullUAV = { NULL };
 	for (INT32 i = 0; i < m_ShaderBound_UAV.size(); i++)
 	{
-		DeviceContext->CSSetUnorderedAccessViews(m_ShaderBound_UAV[i], 1, &nullUAV, 0);
+		m_Renderer->GetDeviceContext()->CSSetUnorderedAccessViews(m_ShaderBound_UAV[i], 1, &nullUAV, 0);
 	}
 	ID3D11ShaderResourceView* nullSRV = { NULL };
 	for (INT32 i = 0; i < m_ShaderBound_SRV.size(); i++)
 	{
-		DeviceContext->CSSetShaderResources(m_ShaderBound_SRV[i], 1, &nullSRV);
+		m_Renderer->GetDeviceContext()->CSSetShaderResources(m_ShaderBound_SRV[i], 1, &nullSRV);
 	}
 	m_ShaderBound_SRV.clear();
 	m_ShaderBound_UAV.clear();
 	SetBuffer(nullptr);
 	m_App_BoundTextures.clear();
-	DeviceContext->CSSetShader(nullptr, nullptr, 0);
+	m_Renderer->GetDeviceContext()->CSSetShader(nullptr, nullptr, 0);
 	return true;
 }
 
@@ -195,6 +270,7 @@ void ComputeShader::CalcRelection(ID3DBlob* Shader_blob_ptr)
 
 	D3D11_SHADER_DESC desc;
 	pReflector->GetDesc(&desc);
+
 
 	for (UINT i = 0; i < desc.BoundResources; i++)
 	{
@@ -213,5 +289,15 @@ void ComputeShader::CalcRelection(ID3DBlob* Shader_blob_ptr)
 			TA_ERROR_WS(L"Unknown Texture Resource type in Compute Shader");
 		}
 	}
+
+	if (m_CBuffer_BindPoints.contains("$Globals"))
+	{
+		GlobalsCBManager->Update(m_CBuffer_BindPoints["$Globals"], pReflector);
+	}
+	else
+	{
+		GlobalsCBManager->Update(0, nullptr);
+	}
+
 	TA_SAFERELEASE(pReflector);
 }

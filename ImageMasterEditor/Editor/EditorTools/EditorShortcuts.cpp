@@ -31,6 +31,12 @@ void EditorShortcuts::Tick(float DeltaTime)
 	{
 		GetEditor()->ClearActiveLayer(1);
 	}
+	
+
+	if (GetWindow()->IsKeyDown(Window::KeyCode::Control) && GetWindow()->OnMouseDown(0))
+	{
+		GetEditor()->SetForegroundColour(GetEditor()->GetUnderMousePixel());
+	}
 }
 
 

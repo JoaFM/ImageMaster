@@ -205,6 +205,7 @@ void MainWindowUI::UI_DrawDebug()
 	if (ImGui::Begin("Debug_Menu"))
 	{
 		ImGui::Text("Canvas X: %f y:%f", m_Editor->GetMouseCanvasPosition().x, m_Editor->GetMouseCanvasPosition().y);
+		ImGui::Text("Color %f, %f, %f, %f", m_Editor->GetUnderMousePixel().x, m_Editor->GetUnderMousePixel().y, m_Editor->GetUnderMousePixel().z, m_Editor->GetUnderMousePixel().w);
 	}
 	ImGui::End();
 

@@ -31,17 +31,19 @@ public:
 	
 	const std::vector<std::unique_ptr<EditorToolBase>>& GetTools();
 	IM_Math::float3& GetForegroundColor() { return ForegroundColor; }
+	void SetForegroundColour(IM_Math::float4 NewColor);
 
 	bool IsToolActive(EditorToolBase* ToolToCheck) const;
 	void AddToolShortcut(UINT64 Key, EditorToolBase* Tool);
 	void AddToolsShortcutOnDown(UINT64 Key, EditorToolBase* Tool);
 
 	void ClearActiveLayer(int NewClearState);
+
 public://util
 	static UINT64 KeyStateToUniqueKey(UINT32 ModifierState, UINT32 Key);
 	static UINT32 BuildKeyModifierState(bool shift, bool ctrl, bool alt) ;
 	void RefreshAssets();
-
+	IM_Math::float4 GetUnderMousePixel() const { return m_UnderMousePixelValue; }
 
 private:
 	//System
@@ -61,6 +63,8 @@ private:
 	std::vector<std::unique_ptr<ImageProject>> m_Projects;
 	ImageProject* m_ActiveProject = nullptr;
 	INT32 ActiveProjectIndex = -1;
+	IM_Math::float4 m_UnderMousePixelValue;
+
 
 	//--------- Behaviors
 	void Behaviors(float DeltaTime);
@@ -68,6 +72,7 @@ private:
 	bool m_Quiting = false;
 
 	void UpdateState();
+	void UpdateUnderMousePixel();
 
 	void RefreshIcons(std::vector<std::string> FoundIcons);
 	std::map<std::string, std::unique_ptr<Texture2D>> m_Icons;
@@ -80,6 +85,6 @@ private:
 	std::vector<class EditorToolBase*> m_ActiveTools;
 	class EditorToolBase* m_OverrideUniqueTool = nullptr;
 
-
 	bool DrawUI();
+public:
 };

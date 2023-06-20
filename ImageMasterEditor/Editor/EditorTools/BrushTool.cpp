@@ -62,7 +62,7 @@ void BrushTool::DrawBrushAtLocation(IM_Math::float2 BrushLocation)
 		BlendCP->SetTexture("CanvasTexture", nullptr);
 		if (GetRenderer()->BindComputeShader(L"Brush_Circle"))
 		{
-			BlendCP->Dispatch(GetRenderer()->GetDeviceContext());
+			BlendCP->Dispatch();
 			GetRenderer()->UnbindCurrentComputeShader();
 		}
 

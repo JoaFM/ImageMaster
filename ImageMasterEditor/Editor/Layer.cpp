@@ -20,7 +20,7 @@ Layer::Layer(std::string LayerName, class ImageProject* ParentProject)
 
 void Layer::ReadBackData(char* Filepath)
 {
-	m_CanvasTexture->CopyBackData(Filepath);
+	m_CanvasTexture->SaveLayerToPath(Filepath);
 }
 
 
@@ -39,8 +39,8 @@ void Layer::Composite(RenderTarget* OutputRT)
 	BlendCP->SetTexture("CanvasTexture", m_CanvasTexture.get());
 	if (m_ParentProject->GetRenderer()->BindComputeShader(TAUtils::CharToWString(("Blend_" + CurrentModeKey).c_str())))
 	{
-		renderer->GetCurrentComputeShader()->Dispatch(renderer->GetDeviceContext());
-		BlendCP->Dispatch(renderer->GetDeviceContext());
+		renderer->GetCurrentComputeShader()->Dispatch();
+		BlendCP->Dispatch();
 	}
 }
 

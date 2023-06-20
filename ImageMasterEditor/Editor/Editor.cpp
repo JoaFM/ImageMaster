@@ -68,8 +68,14 @@ void MasterEditor::StartBlockingLoop()
 				}
 			}
 
+			UpdateUnderMousePixel();
+		
+
+
 			m_Renderer->DrawViewMesh(m_Window.get());
 			m_Renderer->SetRenderSize(m_ActiveProject->GetSize() * m_ActiveProject->GetZoom());
+
+			
 		}
 
 		// UI
@@ -121,6 +127,23 @@ void MasterEditor::SetActiveProject(ImageProject* ProjectToSetAsActive)
 bool MasterEditor::DrawUI()
 {
 	return m_MainWindowUI->DrawUI();
+}
+
+void MasterEditor::SetForegroundColour(IM_Math::float4 NewColor)
+{
+	ForegroundColor = IM_Math::float3(NewColor.x, NewColor.y, NewColor.z);
+}
+
+void MasterEditor::UpdateUnderMousePixel()
+{
+	std::vector<float> ReadbackBuffer8X8;
+	ReadbackBuffer8X8.assign(8 * 8 * 4, 0);
+	IM_Math::float2 MousePos = GetMouseCanvasPosition();
+	m_ActiveProject->ReadBackOutput(IM_Math::Int2((INT32)MousePos.x, (INT32)MousePos.y), ReadbackBuffer8X8);
+	m_UnderMousePixelValue.x = ReadbackBuffer8X8[0];
+	m_UnderMousePixelValue.y = ReadbackBuffer8X8[1];
+	m_UnderMousePixelValue.z = ReadbackBuffer8X8[2];
+	m_UnderMousePixelValue.w = ReadbackBuffer8X8[3];
 }
 
 UINT32 MasterEditor::BuildKeyModifierState(bool shift, bool ctrl, bool alt)  

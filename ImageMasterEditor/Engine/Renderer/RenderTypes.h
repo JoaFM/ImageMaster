@@ -5,6 +5,23 @@
 class RenderTypes
 {
 public:
+
+	struct IMColor
+	{
+		UINT8 R;     // occupies 4 bytes
+		UINT8 G;     // occupies 4 bytes
+		UINT8 B;     // occupies 4 bytes
+		UINT8 A;     // occupies 4 bytes
+	};
+	union VaribleGroup
+	{
+		UINT32 uint4[4];     // occupies 4 bytes
+		INT32 int4[4];     // occupies 4 bytes
+		float float4[4];     // occupies 4 bytes
+		IMColor RGBA[4];     // occupies 4 bytes
+	};
+
+
 	enum class ConstanBuffer
 	{
 		CB_General,
