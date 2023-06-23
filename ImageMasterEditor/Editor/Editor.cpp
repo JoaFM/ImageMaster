@@ -4,6 +4,7 @@
 #include "EditorTools/BrushTool.h"
 #include "EditorTools/CanvasMoveTool.h"
 #include "EditorTools/EditorShortcuts.h"
+#include "Engine/Renderer/RenderUtils.h"
 
 MasterEditor::MasterEditor(std::wstring RootPath, HINSTANCE hInstance)
 {
@@ -49,33 +50,27 @@ void MasterEditor::StartBlockingLoop()
 
 		if (m_ActiveProject)
 		{
+			RenderUtils::ScopedProfile Scope(GetRenderer(), std::wstring(L"Active Project"));
+
 			UpdateState();
+
 			m_ActiveProject->CompositeRender();
+
 			m_Renderer->UpdateCamera(m_ActiveProject->GetCameraData());
 			m_Renderer->SetOutputRT(m_ActiveProject->GetOutputRT());
+			
+
 			if (!IsInModalState)
 			{
-				for (EditorToolBase* ActiveTool : m_ActiveTools)
-				{
-					if (!(ActiveTool->GetToolType() == EditorToolBase::ToolType::ToolType_UniqueSubmissive && m_OverrideUniqueTool))
-					{
-						ActiveTool->Tick((float)m_deltaTime);
-					}
-				}
-				if (m_OverrideUniqueTool)
-				{
-					m_OverrideUniqueTool->Tick((float)m_deltaTime);
-				}
+				ProcessTools();
 			}
 
+			GetRenderer()->m_PerfObject->EndEvent();
+
 			UpdateUnderMousePixel();
-		
-
-
-			m_Renderer->DrawViewMesh(m_Window.get());
-			m_Renderer->SetRenderSize(m_ActiveProject->GetSize() * m_ActiveProject->GetZoom());
-
 			
+			DrawViewport();
+		
 		}
 
 		// UI
@@ -126,7 +121,32 @@ void MasterEditor::SetActiveProject(ImageProject* ProjectToSetAsActive)
 
 bool MasterEditor::DrawUI()
 {
+	RenderUtils::ScopedProfile Scope(GetRenderer(), std::wstring(L"DrawUI"));
 	return m_MainWindowUI->DrawUI();
+}
+
+void MasterEditor::DrawViewport()
+{
+	RenderUtils::ScopedProfile Scope(GetRenderer(), std::wstring(L"DrawViewport"));
+	m_Renderer->DrawViewMesh(m_Window.get());
+	m_Renderer->SetRenderSize(m_ActiveProject->GetSize() * m_ActiveProject->GetZoom());
+}
+
+void MasterEditor::ProcessTools()
+{
+	RenderUtils::ScopedProfile Scope(GetRenderer(), std::wstring(L"Tools"));
+
+	for (EditorToolBase* ActiveTool : m_ActiveTools)
+	{
+		if (!(ActiveTool->GetToolType() == EditorToolBase::ToolType::ToolType_UniqueSubmissive && m_OverrideUniqueTool))
+		{
+			ActiveTool->Tick((float)m_deltaTime);
+		}
+	}
+	if (m_OverrideUniqueTool)
+	{
+		m_OverrideUniqueTool->Tick((float)m_deltaTime);
+	}
 }
 
 void MasterEditor::SetForegroundColour(IM_Math::float4 NewColor)
@@ -136,6 +156,8 @@ void MasterEditor::SetForegroundColour(IM_Math::float4 NewColor)
 
 void MasterEditor::UpdateUnderMousePixel()
 {
+	RenderUtils::ScopedProfile Scope(GetRenderer(), std::wstring(L"UpdateUnderMousePixel"));
+
 	std::vector<float> ReadbackBuffer8X8;
 	ReadbackBuffer8X8.assign(8 * 8 * 4, 0);
 	IM_Math::float2 MousePos = GetMouseCanvasPosition();
@@ -144,6 +166,7 @@ void MasterEditor::UpdateUnderMousePixel()
 	m_UnderMousePixelValue.y = ReadbackBuffer8X8[1];
 	m_UnderMousePixelValue.z = ReadbackBuffer8X8[2];
 	m_UnderMousePixelValue.w = ReadbackBuffer8X8[3];
+
 }
 
 UINT32 MasterEditor::BuildKeyModifierState(bool shift, bool ctrl, bool alt)  
@@ -240,6 +263,7 @@ void MasterEditor::Behaviors(float DeltaTime)
 
 void MasterEditor::UpdateState()
 {
+	RenderUtils::ScopedProfile Scope(GetRenderer(), std::wstring(L"UpdateState"));
 	IM_Math::float2 CamPos = GetActiveProject()->GetCameraOffset();
 	m_MouseCanvasPosition = IM_Math::float2((float)(CamPos.x + m_Window->GetMouseX()), (float)(CamPos.y + m_Window->GetMouseY()));
 }

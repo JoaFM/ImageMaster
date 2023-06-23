@@ -10,40 +10,50 @@ class ImageProject
 
 
 public:
-	static void UI_FileMenuNewUI(std::set<std::string>& Messages);
-	void UI_FileMenuWindowUI();
 	ImageProject(std::string ProjectNamem, IM_Math::Int2 ImageSize, class Renderer* renderer, class MasterEditor* CallingEditor);
 	ImageProject();
 	~ImageProject();
-		
+
+	// Project
+	static void UI_FileMenuNewUI(std::set<std::string>& Messages);
+	void UI_FileMenuWindowUI();
 	std::string GetProjectName() const;
 
-
+	//Camera
 	IM_Math::float2  GetCameraOffset() { return m_CameraOffset; }
 	void SetCameraOffset(IM_Math::float2 NewCameraOffset) { m_CameraOffset = NewCameraOffset; UpdateCamera(); }
-	//void SetCameraZoom(float zoom) { m_CameraData.Transform.Scale = ; UpdateCamera(); }
-
 	CameraData GetCameraData() const { return m_CameraData; }
-	
-	class RenderTarget* GetOutputRT() const;
-	std::vector<std::unique_ptr<Layer>>& GetLayers();
-	bool IsLayerSelected(const Layer* LayerInQuestion) const;
-	void SetSelected(Layer* NewLayerToBeSelected);
-	IM_Math::Int2 GetSize() const { return m_ImageSize; }
-
-	void CompositeRender();
-	void DeleteLayer(Layer* LayerToDelete);
-
-
-	Layer* GetSelectedLayer();
-
 	float GetZoom();
 	void SetZoom(float zoom);
+
+
+	// Layer
+	void AddLayer(std::string LayerName);
+	IM_Math::Int2 GetSize() const { return m_ImageSize; }
+	void DeleteLayer(Layer* LayerToDelete);
+	Layer* FindActiveLayer();
+	Layer* GetSelectedLayer();
+	Layer* GetPaintLayer();
+	bool IsLayerSelected(const Layer* LayerInQuestion) const;
+	void SetSelected(Layer* NewLayerToBeSelected);
+	std::vector<std::unique_ptr<Layer>>& GetLayers();
+	std::vector<std::string> GetLayerModesAsString();
+
+
+	//rendering
+	void CompositeRender();
+	class RenderTarget* GetOutputRT() const;
+	void ReadBackOutput(const IM_Math::Int2& PixelPos, std::vector<float>& ReadbackBuffer8X8);
+
+	//Ref
+	class Renderer* GetRenderer() { return m_renderer; };
+	class MasterEditor* GetEditor() { return m_Editor; };
+
 private:
 	// Project description
 	std::string m_ProjectName;
 	IM_Math::Int2 m_ImageSize;
-	class MasterEditor* m_Editor = nullptr;
+
 	//Camera
 	IM_Math::float2 m_CameraOffset = IM_Math::float2(0,0);
 	CameraData m_CameraData;
@@ -51,17 +61,17 @@ private:
 	void UpdateCamera();
 
 	// Render Data
+	// Final display layer
 	std::unique_ptr<RenderTarget> m_OutputRT = nullptr;
 	void Cleanup();
+
+	// references
 	class Renderer* m_renderer = nullptr;
+	class MasterEditor* m_Editor = nullptr;
+
 	// Layers
 	std::vector<std::unique_ptr<Layer>> m_Layers;
+	std::unique_ptr<Layer> m_PaintLayer;
 	Layer* m_SelectedLayer = nullptr;
 	
-public:
-	std::vector<std::string> GetLayerModesAsString();
-	class Renderer* GetRenderer() {return m_renderer; };
-	Layer* FindActiveLayer();
-	class MasterEditor* GetEditor() { return m_Editor; };
-	void ReadBackOutput(const IM_Math::Int2& PixelPos, std::vector<float>& ReadbackBuffer8X8);
 };

@@ -54,11 +54,11 @@ void BrushTool::DrawBrushAtLocation(IM_Math::float2 BrushLocation)
 
 	GetRenderer()->GetConstantBuffers()[RenderTypes::ConstanBuffer::CB_BrushInput]->UpdateData(&BrushInput);
 
-	if (Layer* alayer = GetEditor()->GetActiveProject()->GetSelectedLayer())
+	if (Layer* PaintLayer = GetEditor()->GetActiveProject()->GetPaintLayer())
 	{
 		ComputeShader* BlendCP = GetRenderer()->GetComputeShaders()[L"Brush_Circle"].get();
 
-		BlendCP->SetTexture("BufferOut", alayer->GetCanvasTexture());
+		BlendCP->SetTexture("BufferOut", PaintLayer->GetCanvasTexture());
 		BlendCP->SetTexture("CanvasTexture", nullptr);
 		if (GetRenderer()->BindComputeShader(L"Brush_Circle"))
 		{
@@ -103,7 +103,15 @@ void BrushTool::StartDarwing()
 
 void BrushTool::EndDrawing()
 {
-	m_IsDrawing = false;;
+	m_IsDrawing = false;
+	if (Layer* PaintLayer = GetEditor()->GetActiveProject()->GetPaintLayer())
+	{
+		if (Layer* SelectedLayer = GetEditor()->GetActiveProject()->GetSelectedLayer())
+		{
+			PaintLayer->Composite(SelectedLayer->GetCanvasTexture());
+			PaintLayer->Clear();
+		}
+	}
 }
 
 void BrushTool::UpdateDrawing()

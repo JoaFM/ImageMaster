@@ -1,7 +1,9 @@
 #include "ImageProject.h"
 #include <debugapi.h>
 #include "Editor.h"
+#include "d3d9.h"
 #include <string>
+#include "Engine/Renderer/RenderUtils.h"
 
 ImageProject::ImageProject(std::string ProjectName, IM_Math::Int2 ImageSize, class Renderer* renderer, class MasterEditor* CallingEditor)
 {
@@ -9,11 +11,16 @@ ImageProject::ImageProject(std::string ProjectName, IM_Math::Int2 ImageSize, cla
 	m_ImageSize = ImageSize;
 	m_renderer = renderer;
 	m_Editor = CallingEditor;
+
 	m_OutputRT = std::make_unique<RenderTarget>("ImageProject_MainRT_" + ProjectName);;
 	m_OutputRT->CreateTarget(m_ImageSize.x, m_ImageSize.y, DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT, m_renderer);
+
+
 	m_CameraOffset = IM_Math::float2(-300, -90);
-	m_Layers.push_back(std::make_unique<Layer>("Layer 1", this));
-	m_Layers.push_back(std::make_unique<Layer>("Layer 2", this));
+	AddLayer("Layer 1");
+	AddLayer("Layer 2");
+	m_PaintLayer = std::make_unique<Layer>("$PaintLayer", this);
+
 	SetSelected(m_Layers[m_Layers.size()-1].get());
 }
 
@@ -54,11 +61,19 @@ void ImageProject::SetSelected(Layer* NewLayerToBeSelected)
 
 void ImageProject::CompositeRender()
 {
+	RenderUtils::ScopedProfile Scope(GetRenderer(), std::wstring(L"CompositeRender"));
+
 	m_OutputRT->Clear(0, 0, 0, 1, m_renderer);
 	for (auto& Layer : m_Layers)
 	{
+		if (Layer->IsSelected())
+		{
+			RenderUtils::ScopedProfile Scope(GetRenderer(), std::wstring(L"Inject Paint Layer"));
+			m_PaintLayer->Composite(m_OutputRT.get());
+		}
 		Layer->Composite(m_OutputRT.get());
 	}
+
 }
 
 void ImageProject::DeleteLayer(Layer* LayerToDelete)
@@ -75,6 +90,11 @@ Layer* ImageProject::GetSelectedLayer()
 	return m_SelectedLayer;
 }
 
+Layer* ImageProject::GetPaintLayer()
+{
+	return m_PaintLayer.get();
+}
+
 float ImageProject::GetZoom()
 {
 	return m_zoom;
@@ -83,6 +103,11 @@ float ImageProject::GetZoom()
 void ImageProject::SetZoom(float zoom)
 {
 	m_zoom = zoom;
+}
+
+void ImageProject::AddLayer(std::string LayerName)
+{
+	m_Layers.push_back(std::make_unique<Layer>(LayerName, this));
 }
 
 void ImageProject::UpdateCamera()

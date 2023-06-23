@@ -9,7 +9,7 @@
 #include <assert.h>
 #include <DirectXMath.h>
 #include <d3d11_1.h>
-
+#include <atlcomcli.h>
 
 #pragma comment( lib, "user32" )          // link against the win32 library
 #pragma comment( lib, "d3d11.lib" )       // direct3D library
@@ -110,7 +110,7 @@ private:
 	void CreateDefaultSamplers();
 	void CreateDefaultBlendStates();
 	void SetupInitialConstantBuffers();
-
+	void SetupDebugAndPerf();
 
 	D3D11_VIEWPORT CreateViewport();
 	void CheckWindowSize(Window* MainWindow);
@@ -124,9 +124,13 @@ private:
 	ComputeShader* CurrentBoundComputeShader = nullptr;
 	std::unique_ptr<RenderTarget> m_UtilRT64 = nullptr;
 
+
+
 public:
 	std::map<std::wstring, std::unique_ptr<ComputeShader>>& GetComputeShaders() { return m_LoadedComputeShaders; };
 	ComputeShader* GetComputeShader(std::wstring ShaderName);
 	void RefreshShaders(std::vector<std::wstring> FoundShaders, std::vector<std::wstring> FoundComputeShaders);
 	ComputeShader* GetCurrentComputeShader() const {return CurrentBoundComputeShader; }
+	//Perf
+	CComPtr<ID3DUserDefinedAnnotation> m_PerfObject;
 };

@@ -86,5 +86,7 @@ private:
 	class EditorToolBase* m_OverrideUniqueTool = nullptr;
 
 	bool DrawUI();
+	void DrawViewport();
+	void ProcessTools();
 public:
 };

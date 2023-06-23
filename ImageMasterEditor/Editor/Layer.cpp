@@ -24,6 +24,11 @@ void Layer::ReadBackData(char* Filepath)
 }
 
 
+void Layer::Clear()
+{
+	m_CanvasTexture->Clear(0, 0, 0, 0, m_ParentProject->GetRenderer());
+}
+
 void Layer::Composite(RenderTarget* OutputRT)
 {
 	Renderer* renderer = m_ParentProject->GetRenderer();
@@ -37,6 +42,8 @@ void Layer::Composite(RenderTarget* OutputRT)
 
 	BlendCP->SetTexture("BufferOut", OutputRT);
 	BlendCP->SetTexture("CanvasTexture", m_CanvasTexture.get());
+
+
 	if (m_ParentProject->GetRenderer()->BindComputeShader(TAUtils::CharToWString(("Blend_" + CurrentModeKey).c_str())))
 	{
 		renderer->GetCurrentComputeShader()->Dispatch();

@@ -14,6 +14,8 @@ public:
 	bool IsSelected() const;
 	void ReadBackData(char* Filepath);
 	class RenderTarget* GetCanvasTexture() { return m_CanvasTexture.get(); }
+
+	void Clear();
 private:
 	// Project description
 	std::wstring m_BlendMode;

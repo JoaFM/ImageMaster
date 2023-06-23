@@ -6,6 +6,8 @@
 
 #include "dxgidebug.h"
 #include "dxgi1_3.h"
+#include "RenderUtils.h"
+
 
 Renderer::~Renderer()
 {
@@ -19,7 +21,6 @@ Renderer::~Renderer()
 
 	TA_SAFERELEASE(m_Device_Context);
 	TA_SAFERELEASE(m_Device);
-
 }
 
 void Renderer::SetAllCB(ID3D11VertexShader* VS, ID3D11PixelShader* PS)
@@ -53,6 +54,7 @@ void Renderer::Init(IM_Math::Int2 size, Window* MainWindow)
 	CreateDefaultSamplers();
 	CreateDefaultBlendStates();
 	SetStencilState(true);
+	SetupDebugAndPerf();
 
 
 	{ // test setup
@@ -434,6 +436,11 @@ void Renderer::CheckWindowSize(Window* MainWindow)
 	TA_WARN_WS(L"Resized window");
 }
 
+void Renderer::SetupDebugAndPerf()
+{
+	HRESULT hr = GetDeviceContext()->QueryInterface(__uuidof(m_PerfObject), reinterpret_cast<void**>(&m_PerfObject));
+}
+
 ComputeShader* Renderer::GetComputeShader(std::wstring ShaderName)
 {
 	if (m_LoadedComputeShaders.contains(ShaderName))
@@ -559,6 +566,8 @@ void Renderer::UpdateCamera(CameraData CamData)
 
 void Renderer::ReadyNextFrame(Window* window)
 {
+	RenderUtils::ScopedProfile Scope(this, std::wstring(L"ReadyNextFrame"));
+
 	m_ActiveRenderTarget->Bind(this);
 
 	CheckWindowSize(window);
