@@ -143,7 +143,8 @@ void Shader::LoadReload(Renderer* renderer)
 	std::vector<D3D_SHADER_MACRO> dataDebugVEC = renderer->GetGlobalHashDefines();
 	D3D_SHADER_MACRO* pDefines = dataDebugVEC.data();
 
-	std::wstring  ABS_ShaderPath = TAUtils::Paths::instance().ABS_Path(m_ShaderPath);
+	//std::wstring  ABS_ShaderPath = TAUtils::Paths::instance().ABS_Path(m_ShaderPath);
+	std::wstring  ABS_ShaderPath = m_ShaderPath;
 	TA_LOG_WS(L"Compiling: " + ABS_ShaderPath);
 
 	if (!TAUtils::FileExist(ABS_ShaderPath))

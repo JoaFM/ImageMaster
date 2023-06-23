@@ -1,7 +1,6 @@
-
+//https://en.wikipedia.org/wiki/Alpha_compositing
 float4 Blend_Over(float4 baselayer, float4 InputLayer)
 {
-
     float a = InputLayer.a + (baselayer.a * (1.0 - InputLayer.a));
     if (a <= 0.00001)
     {

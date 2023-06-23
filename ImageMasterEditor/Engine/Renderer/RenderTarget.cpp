@@ -3,6 +3,7 @@
 #include "RenderTarget.h"
 #include "Engine/Renderer/Renderer.h"
 #include "Editor/SaveLoad/SaveLoad.h"
+#include "MainApp/Default_Defines.h"
 
 
 RenderTarget::RenderTarget(std::string FriendlyName)
@@ -239,7 +240,7 @@ bool RenderTarget::SaveLayerToPath(char* Filepath)
 bool RenderTarget::CopyBackPixel(IM_Math::Int2 PixelLocation, std::vector<float>& ReadbackBuffer8X8)
 {
 	RenderTarget* RT = m_Renderer->GetSmallStageTexture();
-	ComputeShader* ComS = m_Renderer->GetComputeShader(L"UTIL_CopyBackDataArea");
+	ComputeShader* ComS = m_Renderer->GetComputeShader(SHADER_CopyPixel);
 	if (!ComS) { return false; }
 
 

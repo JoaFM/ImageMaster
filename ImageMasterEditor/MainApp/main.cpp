@@ -21,6 +21,9 @@ int WINAPI WinMain(
 	PathCchRemoveFileSpec(fileName, size);
 
 	std::wstring RootPath(fileName);
+
+	TAUtils::Paths::instance().SetProjectPath(RootPath + L"\\");
+
 	std::unique_ptr<MasterEditor> Editor = std::make_unique<MasterEditor>(RootPath, hInstance);
 	Editor->StartBlockingLoop();
 

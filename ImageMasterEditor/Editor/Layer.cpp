@@ -5,12 +5,13 @@
 #include <array>
 #include "PopUps/SaveLayer.h"
 #include "MainWindowUI.h"
+#include "MainApp/Default_Defines.h"
 
 
 Layer::Layer(std::string LayerName, class ImageProject* ParentProject)
 {
 	m_LayerName = LayerName;
-	m_BlendMode = L"Blend_Normal";
+	m_BlendMode = SHADER_BlendOver;
 	m_ParentProject = ParentProject;
 	m_ID = TAUtils::RandomString(10);
 	m_CanvasTexture = std::make_unique<RenderTarget>("Layer_" + LayerName);

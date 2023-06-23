@@ -7,6 +7,7 @@
 #include "dxgidebug.h"
 #include "dxgi1_3.h"
 #include "RenderUtils.h"
+ 
 
 
 Renderer::~Renderer()
@@ -512,13 +513,18 @@ void Renderer::RefreshShaders(std::vector<std::wstring> FoundShaders, std::vecto
 		for (std::wstring& ShaderToProcess : FoundComputeShaders)
 		{
 			std::filesystem::path p(ShaderToProcess.c_str());
-			std::wstring fileName = p.stem();
-			if (!m_LoadedComputeShaders.contains(fileName) || m_LoadedComputeShaders[fileName] == nullptr)
+			std::wstring fileName = p.stem(); 
+
+			std::wstring fileName_Prefix = fileName.substr(0,5);
+			if (fileName_Prefix == L"Blend" || fileName_Prefix == L"Brush" || fileName_Prefix == L"Utill")
 			{
-				m_LoadedComputeShaders[fileName] = std::make_unique<ComputeShader>("ComputeShader::fileName" + TAUtils::WStringToChar(fileName.c_str()), this);
+				if (!m_LoadedComputeShaders.contains(fileName) || m_LoadedComputeShaders[fileName] == nullptr)
+				{
+					m_LoadedComputeShaders[fileName] = std::make_unique<ComputeShader>("ComputeShader::fileName" + TAUtils::WStringToChar(fileName.c_str()), this);
+				}
+				m_LoadedComputeShaders[fileName]->SetShaderPath(ShaderToProcess);
+				m_LoadedComputeShaders[fileName]->LoadReload(GetDevice());
 			}
-			m_LoadedComputeShaders[fileName]->SetShaderPath(ShaderToProcess);
-			m_LoadedComputeShaders[fileName]->LoadReload(GetDevice());
 		}
 	}
 

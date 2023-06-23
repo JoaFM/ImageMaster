@@ -42,10 +42,10 @@ void ComputeShader::LoadReload(ID3D11Device* Device)
 	ID3DBlob* shaderBlob = nullptr;
 	ID3DBlob* errorBlob = nullptr;
 	 
-	FrameworkInclude IncludeFrameWork;
+	FrameworkIncludeCompute IncludeFrameWork;
 
 	//HRESULT hr = D3DCompileFromFile(TAUtils::Paths::instance().ABS_Path(m_ShaderPath).c_str(), defines, D3D_COMPILE_STANDARD_FILE_INCLUDE,
-	HRESULT hr = D3DCompileFromFile(TAUtils::Paths::instance().ABS_Path(m_ShaderPath).c_str(), defines, &IncludeFrameWork,
+	HRESULT hr = D3DCompileFromFile(m_ShaderPath.c_str(), defines, &IncludeFrameWork,
 		"CSMain", profile,
 		flags, 0, &shaderBlob, &errorBlob);
 
