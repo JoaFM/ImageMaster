@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "SaveLoad.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION

@@ -1,3 +1,4 @@
+#include "pch.h"
 
 #include "Window.h"
 #include <stdio.h>
@@ -37,7 +38,7 @@ Window::Window(HINSTANCE hInstanceParam)
 
 void Window::Init(UINT32 Width, UINT32 Height)
 {
-	const wchar_t CLASS_NAME[] = L"Sample Window Class";
+	const wchar_t CLASS_NAME[] = L"Image Master";
 
 	WNDCLASS wc = { };
 

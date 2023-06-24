@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "IM_STD.h"
 
 void TAError::ErrorWS(std::wstring ErrorToAdd) const

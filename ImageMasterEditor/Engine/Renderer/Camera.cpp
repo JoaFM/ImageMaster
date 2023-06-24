@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Camera.h"
 #include "Utils/IM_STD.h"
 

@@ -1,3 +1,5 @@
+
+#include "pch.h"
 #include "ImageProject.h"
 #include <debugapi.h>
 #include "Editor.h"

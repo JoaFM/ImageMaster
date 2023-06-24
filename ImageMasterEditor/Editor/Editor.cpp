@@ -1,3 +1,5 @@
+#include "pch.h"
+
 #include "Editor.h"
 
 #include "EditorTools/MoveTool.h"

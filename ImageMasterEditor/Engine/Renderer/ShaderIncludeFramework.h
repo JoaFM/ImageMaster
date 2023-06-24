@@ -1,5 +1,5 @@
 #pragma once
-#include "MainApp/Default_Headers.h"
+#include "pch.h"
 #include <Utils/IM_Math.h>
 #include <DirectXMath.h>
 #include "ShaderIncludes.h"

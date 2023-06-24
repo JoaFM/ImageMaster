@@ -157,12 +157,10 @@
     <ClCompile Include="Editor\EditorTools\EditorShortcuts.cpp">
       <Filter>Editor\EditorTools</Filter>
     </ClCompile>
-    <ClCompile Include="Utils\Box.cpp">
-      <Filter>Utils</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\Renderer\ConstantBufferManager.cpp">
       <Filter>Engine\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="pch.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Editor\Editor.h">
@@ -170,9 +168,6 @@
     </ClInclude>
     <ClInclude Include="Engine\Renderer\Renderer.h">
       <Filter>Engine\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="MainApp\Default_Headers.h">
-      <Filter>MainApp</Filter>
     </ClInclude>
     <ClInclude Include="Utils\IM_Math.h">
       <Filter>Utils</Filter>
@@ -297,11 +292,12 @@
     <ClInclude Include="Editor\EditorTools\EditorShortcuts.h">
       <Filter>Editor\EditorTools</Filter>
     </ClInclude>
-    <ClInclude Include="Utils\Box.h">
-      <Filter>Utils</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\Renderer\ConstantBufferManager.h">
       <Filter>Engine\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="MainApp\Default_Defines.h">
+      <Filter>MainApp</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h" />
   </ItemGroup>
 </Project>
