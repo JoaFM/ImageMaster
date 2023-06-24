@@ -12,6 +12,9 @@ public:
 	virtual void Tick(float deltaTime) override;
 	virtual UINT64 GetShortcut() override;
 
+
+	virtual void UI_DrawOverlay(class ImageProject* CurrProject) override;
+
 private:
 
 	float m_BrushTraveledDistance = 0;

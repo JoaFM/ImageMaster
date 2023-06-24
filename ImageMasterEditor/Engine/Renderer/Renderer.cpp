@@ -78,6 +78,20 @@ void Renderer::Init(IM_Math::Int2 size, Window* MainWindow)
 
 		{
 			// Set up the viewport mesh that we show the RT on. This will kind of work. But will not resize
+ 			m_ViewportUIOVerlay = std::make_unique<Mesh>();
+ 			Mesh::VertData* NewMesh = new  Mesh::VertData[6];
+ 			NewMesh[0] = Mesh::VertData(0, 0, 0, 0, 0);
+ 			NewMesh[1] = Mesh::VertData(1, 0, 0, 1, 0);
+ 			NewMesh[2] = Mesh::VertData(1, 1, 0, 1, 1);
+ 			NewMesh[3] = Mesh::VertData(0, 0, 0, 0, 0);
+ 			NewMesh[5] = Mesh::VertData(0, 1, 0, 0, 1);
+ 			NewMesh[4] = Mesh::VertData(1, 1, 0, 1, 1);
+ 			m_ViewportUIOVerlay->SetData(this, NewMesh, 6);
+ 			m_ViewportUIOVerlay->SetShader(L"ViewUIOverlay");
+		}
+
+		{
+			// Set up the viewport mesh that we show the RT on. This will kind of work. But will not resize
 			m_BackgroundMesh = std::make_unique<Mesh>();
 			Mesh::VertData* NewMesh = new  Mesh::VertData[6];
 			NewMesh[0] = Mesh::VertData(0, 0, 0, 0, 0);
@@ -143,6 +157,7 @@ void Renderer::UnbindCurrentComputeShader()
 void Renderer::SetRenderSize(IM_Math::Int2 DrawMeshSize)
 {
 	m_ViewportMesh->SetScale(IM_Math::float3((float)DrawMeshSize.x, (float)DrawMeshSize.y, 1));
+	m_ViewportUIOVerlay->SetScale(IM_Math::float3((float)DrawMeshSize.x, (float)DrawMeshSize.y, 1));
 }
 
 void Renderer::SetOutputRT(class RenderTarget* DisplayTexture)
@@ -150,7 +165,10 @@ void Renderer::SetOutputRT(class RenderTarget* DisplayTexture)
 	m_LoadedShaders[L"Default"]->SetTexture(L"DisplayTexture", DisplayTexture);
 }
 
-
+void Renderer::SetUIRT(class RenderTarget* UIRT)
+{
+	m_LoadedShaders[L"ViewUIOverlay"]->SetTexture(L"DisplayTexture", UIRT);
+}
 void Renderer::CreateSwapChain(Window* MainWindow)
 {
 
@@ -191,8 +209,7 @@ void Renderer::DrawViewMesh(Window* MainWindow)
 {
 	DrawMesh(m_BackgroundMesh.get());
 	DrawMesh(m_ViewportMesh.get());
-
-	
+	DrawMesh(m_ViewportUIOVerlay.get());
 }
 
 std::vector<D3D_SHADER_MACRO> Renderer::GetGlobalHashDefines()

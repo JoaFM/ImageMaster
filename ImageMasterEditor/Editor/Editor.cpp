@@ -60,6 +60,7 @@ void MasterEditor::StartBlockingLoop()
 
 			m_Renderer->UpdateCamera(m_ActiveProject->GetCameraData());
 			m_Renderer->SetOutputRT(m_ActiveProject->GetOutputRT());
+			m_Renderer->SetUIRT(m_ActiveProject->GetUI_RT());
 			
 
 			if (!IsInModalState)
@@ -137,12 +138,14 @@ void MasterEditor::DrawViewport()
 void MasterEditor::ProcessTools()
 {
 	RenderUtils::ScopedProfile Scope(GetRenderer(), std::wstring(L"Tools"));
+	GetActiveProject()->GetUI_RT()->Clear(0, 0, 0, 0, GetRenderer());
 
 	for (EditorToolBase* ActiveTool : m_ActiveTools)
 	{
 		if (!(ActiveTool->GetToolType() == EditorToolBase::ToolType::ToolType_UniqueSubmissive && m_OverrideUniqueTool))
 		{
 			ActiveTool->Tick((float)m_deltaTime);
+			ActiveTool->UI_DrawOverlay(GetActiveProject());
 		}
 	}
 	if (m_OverrideUniqueTool)
