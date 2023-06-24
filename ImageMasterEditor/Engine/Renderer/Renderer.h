@@ -72,6 +72,8 @@ public:
 	//Do things
 	void DrawMesh(Mesh* meshToDraw);
 	void SetOutputRT(class RenderTarget* OutputRTParam);
+	void SetUIRT(class RenderTarget* OutputRTParam);
+	
 	void UpdateCamera(CameraData CamData);
 
 private:
@@ -101,6 +103,7 @@ private:
 	std::unique_ptr<Camera> m_ViewportCamera = nullptr;
 	RenderTarget* m_ActiveRenderTarget = nullptr;
 	std::unique_ptr<Mesh> m_ViewportMesh = nullptr;
+	std::unique_ptr<Mesh> m_ViewportUIOVerlay = nullptr;
 	std::unique_ptr<Mesh> m_BackgroundMesh = nullptr;
 
 	//------- Startup ----------

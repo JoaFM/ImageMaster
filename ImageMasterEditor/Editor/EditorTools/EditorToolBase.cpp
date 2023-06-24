@@ -11,8 +11,15 @@ EditorToolBase::EditorToolBase(class MasterEditor* Editor)
 
 void EditorToolBase::Setup()
 {
-	m_MainEditor->AddToolShortcut(this->GetShortcut(), this);
-	m_MainEditor->AddToolsShortcutOnDown(this->GetShortcutWhilePressed(), this);
+
+	UINT64 t = this->GetShortcut();
+
+	m_MainEditor->AddToolShortcut(t, this);
+	
+
+	UINT64 tt = this->GetShortcutWhilePressed();
+
+	m_MainEditor->AddToolsShortcutOnDown(tt, this);
 }
 
 void EditorToolBase::UI_DrawToolbarIcon()

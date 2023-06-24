@@ -39,6 +39,8 @@ public:
 	std::vector<std::unique_ptr<Layer>>& GetLayers();
 	std::vector<std::string> GetLayerModesAsString();
 
+	// UI
+	std::unique_ptr<RenderTarget> m_UI_Target;;
 
 	//rendering
 	void CompositeRender();
@@ -48,6 +50,8 @@ public:
 	//Ref
 	class Renderer* GetRenderer() { return m_renderer; };
 	class MasterEditor* GetEditor() { return m_Editor; };
+
+	RenderTarget* GetUI_RT() { return m_UI_Target.get(); }
 
 private:
 	// Project description

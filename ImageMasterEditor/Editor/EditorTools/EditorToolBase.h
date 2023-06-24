@@ -12,6 +12,7 @@ public:
 	virtual void UI_DrawToolbarIcon();
 	virtual void UI_DrawToolSettings();
 	virtual void Tick(float deltaTime) {};
+	virtual void UI_DrawOverlay(class ImageProject* CurrProject) {};
 
 	virtual UINT64 GetShortcut() { return 0; };
 	virtual UINT64 GetShortcutWhilePressed() { return 0; };
@@ -35,4 +36,5 @@ private:
 	class Renderer* m_Renderer = nullptr;
 	ToolType m_ToolType = ToolType::ToolType_UniqueSubmissive;
 
+public:
 };

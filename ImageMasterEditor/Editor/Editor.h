@@ -6,6 +6,7 @@
 #include "ImageProject.h"
 #include "Engine/Renderer/Texture2D.h"
 #include "EditorTools/EditorToolBase.h"
+#include "Engine/Renderer/RenderTarget.h"
 
 class MasterEditor
 {
@@ -64,7 +65,6 @@ private:
 	ImageProject* m_ActiveProject = nullptr;
 	INT32 ActiveProjectIndex = -1;
 	IM_Math::float4 m_UnderMousePixelValue;
-
 
 	//--------- Behaviors
 	void Behaviors(float DeltaTime);

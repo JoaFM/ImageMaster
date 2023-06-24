@@ -94,6 +94,35 @@ UINT64 BrushTool::GetShortcut()
 	return MasterEditor::KeyStateToUniqueKey(MasterEditor::BuildKeyModifierState(false, false, false), (UINT32)Window::KeyCode::B);
 }
 
+void BrushTool::UI_DrawOverlay(class ImageProject* CurrProject)
+{
+	if (m_IsDrawing) { return; }
+	//Mouse
+	RenderTypes::CB_BrushInput_Struct BrushInput;
+	BrushInput.MouseButton = 1;
+	BrushInput.MousePosition = m_CurrentMouseLocation;
+	BrushInput.BrushSize = m_BrushSize;
+	BrushInput.BrushAlpha = m_BrushAlpha;
+	BrushInput.BrushFalloff = m_BrushFalloff;
+	BrushInput.BrushMainColour = GetEditor()->GetForegroundColor();
+
+	GetRenderer()->GetConstantBuffers()[RenderTypes::ConstanBuffer::CB_BrushInput]->UpdateData(&BrushInput);
+
+	if (Layer* PaintLayer = GetEditor()->GetActiveProject()->GetPaintLayer())
+	{
+		ComputeShader* BlendCP = GetRenderer()->GetComputeShaders()[L"Brush_Circle"].get();
+
+		BlendCP->SetTexture("BufferOut", CurrProject->GetUI_RT());
+		BlendCP->SetTexture("CanvasTexture", nullptr);
+		if (GetRenderer()->BindComputeShader(L"Brush_Circle"))
+		{
+			BlendCP->Dispatch();
+			GetRenderer()->UnbindCurrentComputeShader();
+		}
+
+	}
+}
+
 void BrushTool::StartDarwing()
 {
 	m_BrushLocation = m_LastMouseLocation = m_CurrentMouseLocation;
